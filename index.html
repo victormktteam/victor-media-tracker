@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>VICTOR Sport - Badminton Media Tracker</title>
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/jpeg" href="https://placehold.co/64x64/001838/ffffff?text=V" />
+  <!-- Favicon: โลโก้ VICTOR จริง -->
+  <link rel="icon" type="image/jpeg" href="https://scontent.fbkk6-1.fna.fbcdn.net/v/t39.30808-6/351481026_3740027179563041_5049801915800968898_n.jpg?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=s2048x2048&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=wcSAPTyjTJUQ7kNvwGWcl8s&_nc_oc=Adp8jBkPP6oKByHCCYMktnJyweQTGOtDMftQxPVA9FgVsH484aGRllq5HXzHmU0frdo&_nc_zt=23&_nc_ht=scontent.fbkk6-1.fna&_nc_gid=thg9rzkRzwoPEdhZa_0bZg&_nc_ss=7b2a8&oh=00_AQIJ_G_1BKP3N5pBiYDNF0r_GzoFskT-cZaCeLWq8gqw8Q&oe=6ABADA78" />
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -101,9 +101,11 @@
         <i class="ph-bold ph-list text-lg"></i>
       </button>
 
-      <!-- โลโก้ VICTOR -->
-      <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center p-0.5 shadow-md border-2 border-amber-400 flex-shrink-0 font-bold text-victor-navy text-xs">
-        🏸 V
+      <!-- โลโก้ VICTOR มุมซ้ายบนสุด -->
+      <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center p-0.5 shadow-md border-2 border-amber-400 flex-shrink-0 overflow-hidden">
+        <img src="https://scontent.fbkk6-1.fna.fbcdn.net/v/t39.30808-6/351481026_3740027179563041_5049801915800968898_n.jpg?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=s2048x2048&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=wcSAPTyjTJUQ7kNvwGWcl8s&_nc_oc=Adp8jBkPP6oKByHCCYMktnJyweQTGOtDMftQxPVA9FgVsH484aGRllq5HXzHmU0frdo&_nc_zt=23&_nc_ht=scontent.fbkk6-1.fna&_nc_gid=thg9rzkRzwoPEdhZa_0bZg&_nc_ss=7b2a8&oh=00_AQIJ_G_1BKP3N5pBiYDNF0r_GzoFskT-cZaCeLWq8gqw8Q&oe=6ABADA78" 
+             alt="VICTOR Logo" 
+             class="w-full h-full object-cover rounded-lg" />
       </div>
 
       <div class="min-w-0">
@@ -477,6 +479,7 @@
 
   <script>
     const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=0&single=true&output=csv";
+    const VICTOR_LOGO_URL = "https://scontent.fbkk6-1.fna.fbcdn.net/v/t39.30808-6/351481026_3740027179563041_5049801915800968898_n.jpg?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=s2048x2048&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=wcSAPTyjTJUQ7kNvwGWcl8s&_nc_oc=Adp8jBkPP6oKByHCCYMktnJyweQTGOtDMftQxPVA9FgVsH484aGRllq5HXzHmU0frdo&_nc_zt=23&_nc_ht=scontent.fbkk6-1.fna&_nc_gid=thg9rzkRzwoPEdhZa_0bZg&_nc_ss=7b2a8&oh=00_AQIJ_G_1BKP3N5pBiYDNF0r_GzoFskT-cZaCeLWq8gqw8Q&oe=6ABADA78";
 
     // แปลงลิงก์ Google Drive ทุกรูปแบบให้กลายเป็น Direct CDN Image URL อัตโนมัติ
     function normalizeImageUrl(url) {
@@ -604,12 +607,12 @@
       return L.divIcon({
         className: 'custom-leaflet-marker',
         html: `
-          <div style="background-color: white; border: 3px solid ${color}; width: 34px; height: 34px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; font-size: 16px;">
-            🏸
+          <div style="background-color: white; border: 3px solid ${color}; width: 36px; height: 36px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px;">
+            <img src="${VICTOR_LOGO_URL}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none;" alt="V" onerror="this.outerHTML='🏸'" />
           </div>
         `,
-        iconSize: [34, 34],
-        iconAnchor: [17, 17],
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
         popupAnchor: [0, -18]
       });
     }
@@ -628,12 +631,12 @@
 
         const primaryImg = (court.images && court.images.length > 0)
           ? normalizeImageUrl(court.images[0])
-          : 'https://placehold.co/400x250/001838/ffffff?text=VICTOR';
+          : VICTOR_LOGO_URL;
 
         const popupContent = `
           <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
             <div class="relative w-full h-24 sm:h-28 bg-slate-950 rounded-xl overflow-hidden group cursor-pointer" onclick="openFullscreenViewer('${court.id}', 0)">
-              <img src="${primaryImg}" alt="${court.courtName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/400x250/001838/ffffff?text=VICTOR'" />
+              <img src="${primaryImg}" alt="${court.courtName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${VICTOR_LOGO_URL}'" />
               <div class="absolute bottom-1.5 left-1.5 bg-black/75 text-white px-2 py-0.5 rounded-full text-[9.5px] flex items-center space-x-1 font-medium">
                 <i class="ph-bold ph-arrows-out text-amber-300"></i>
                 <span>ดูเต็มจอ</span>
@@ -831,11 +834,11 @@
 
         const cardImg = (v.images && v.images.length > 0)
           ? normalizeImageUrl(v.images[0])
-          : 'https://placehold.co/120x120/001838/ffffff?text=VICTOR';
+          : VICTOR_LOGO_URL;
 
         card.innerHTML = `
           <div class="relative flex-shrink-0">
-            <img src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200" onerror="this.src='https://placehold.co/120x120/001838/ffffff?text=VICTOR'" />
+            <img src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200" onerror="this.src='${VICTOR_LOGO_URL}'" />
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-start justify-between">
@@ -1106,7 +1109,7 @@
       if (!activeModalCourt) return;
       const rawImgs = (activeModalCourt.images && activeModalCourt.images.length > 0)
         ? activeModalCourt.images
-        : ['https://placehold.co/600x400/001838/ffffff?text=VICTOR+Sport'];
+        : [VICTOR_LOGO_URL];
 
       const imgs = rawImgs.map(img => normalizeImageUrl(img));
 
@@ -1116,7 +1119,7 @@
       const nextBtn = document.getElementById('modalNextBtn');
 
       imgEl.src = imgs[modalImageIndex];
-      imgEl.onerror = () => { imgEl.src = 'https://placehold.co/600x400/001838/ffffff?text=VICTOR+Sport'; };
+      imgEl.onerror = () => { imgEl.src = VICTOR_LOGO_URL; };
       counterEl.innerText = `${modalImageIndex + 1} / ${imgs.length}`;
 
       if (imgs.length <= 1) {
@@ -1150,7 +1153,7 @@
 
       const rawImgs = (court.images && court.images.length > 0)
         ? court.images
-        : ['https://placehold.co/1200x800/001838/ffffff?text=VICTOR+Sport'];
+        : [VICTOR_LOGO_URL];
 
       activeFullscreenImages = rawImgs.map(img => normalizeImageUrl(img));
 
@@ -1243,7 +1246,8 @@
       const dateIdx = getIdx(['วันที่', 'ติดตั้งเมื่อ'], 8);
       const budgetIdx = getIdx(['งบประมาณ', 'งบ'], 9);
       const provIdx = getIdx(['จังหวัด'], 10);
-      const mediaIdx = getIdx(['ประเภทสื่อ', 'สื่อ'], 11);
+      // กำหนดคอลัมน์ L (Index 11) เป็นประเภทสื่อโฆษณาโดยตรง
+      const mediaIdx = (headers.length > 11 && headers[11]) ? 11 : getIdx(['ประเภทสื่อโฆษณา', 'ประเภทสื่อ', 'ชนิดสื่อ', 'media'], 11);
       const statusIdx = getIdx(['สถานะ'], 12);
       const periodIdx = getIdx(['รอบสื่อ', 'ปี'], 13);
       const installIdx = getIdx(['ติดตั้งโดย', 'ผู้ติดตั้ง', 'ช่าง'], 14);
@@ -1289,7 +1293,7 @@
           installDate: String(r[dateIdx] || '').trim(),
           budget: parseFloat(String(r[budgetIdx] || 0).replace(/[^0-9.-]+/g, '')) || 0,
           province: String(r[provIdx] || '').trim() || 'กรุงเทพมหานคร',
-          mediaType: String(r[mediaIdx] || '').trim(),
+          mediaType: String((r[mediaIdx] !== undefined ? r[mediaIdx] : r[11]) || '').trim(),
           status: String(r[statusIdx] || 'ติดตั้งเสร็จสมบูรณ์').trim(),
           period: String(r[periodIdx] || '').trim() || '2026Q1Q2',
           installedBy: String(r[installIdx] || '-').trim(),
