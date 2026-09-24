@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VICTOR Sport - Badminton Media Tracker</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="https://placehold.co/64x64/001838/ffffff?text=V" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            victor: {
+              navy: '#001838',
+              blue: '#002f6c',
+              accent: '#0284c7',
+              red: '#e11d48',
+              gold: '#f59e0b'
+            }
+          },
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- PapaParse for Google Sheets CSV Fetching -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <style>
+    * { font-family: 'Prompt', sans-serif; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #f1f5f9;
+    }
+    #map { 
+      height: 100%; 
+      width: 100%; 
+      position: absolute;
+      inset: 0;
+      z-index: 10; 
+      background: #e2e8f0;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    
+    .leaflet-popup-content-wrapper {
+      padding: 0 !important;
+      border-radius: 0.85rem !important;
+      overflow: hidden !important;
+      box-shadow: 0 15px 25px -5px rgb(0 0 0 / 0.25), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+      border: 1px solid #e2e8f0;
+    }
+    .leaflet-popup-content {
+      margin: 0 !important;
+      width: 270px !important;
+      max-width: calc(100vw - 44px) !important;
+      line-height: 1.35 !important;
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+    @media (min-width: 640px) {
+      .leaflet-popup-content {
+        width: 320px !important;
+        max-height: 80vh;
+      }
+    }
+    .leaflet-popup-tip-container { display: none; }
+  </style>
+</head>
+<body class="bg-slate-100 flex flex-col h-full text-slate-800 antialiased select-none">
+
+  <header class="bg-gradient-to-r from-victor-navy via-victor-blue to-blue-950 text-white px-3 py-2 sm:px-4 sm:py-2.5 flex items-center justify-between shadow-lg z-40 flex-shrink-0 border-b border-blue-800/50">
+    <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
+      <!-- ปุ่มเปิดปิดเมนูสำหรับมือถือ -->
+      <button type="button" onclick="toggleSidebar()" aria-label="Toggle Menu" class="md:hidden w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center transition border border-white/15 text-white flex-shrink-0">
+        <i class="ph-bold ph-list text-lg"></i>
+      </button>
+
+      <!-- โลโก้ VICTOR -->
+      <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center p-0.5 shadow-md border-2 border-amber-400 flex-shrink-0 font-bold text-victor-navy text-xs">
+        🏸 V
+      </div>
+
+      <div class="min-w-0">
+        <div class="flex items-center space-x-2">
+          <h1 class="font-bold text-xs sm:text-base md:text-lg leading-tight tracking-wide text-white truncate">VICTOR Media Tracker</h1>
+          <span class="px-2 py-0.5 text-[9.5px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider">
+            GitHub Live
+          </span>
+        </div>
+        <p class="text-[10px] sm:text-[11px] text-blue-200 hidden sm:block truncate">ระบบติดตามสื่อโฆษณา & ฐานข้อมูลสนามแบดมินตัน VICTOR</p>
+      </div>
+    </div>
+
+    <!-- ปุ่มสลับมุมมอง แผนที่ / รายการ (เฉพาะมือถือ) -->
+    <div class="flex md:hidden items-center bg-black/25 p-0.5 rounded-lg border border-white/10 mx-1">
+      <button type="button" id="mobileTabMap" onclick="toggleSidebar(false)" class="px-2 py-1 rounded text-[11px] font-semibold text-white bg-white/20 transition">
+        🗺️ แผนที่
+      </button>
+      <button type="button" id="mobileTabList" onclick="toggleSidebar(true)" class="px-2 py-1 rounded text-[11px] font-semibold text-blue-200 transition">
+        📋 รายการ
+      </button>
+    </div>
+
+    <!-- ปุ่มการทำงาน Header -->
+    <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
+      <button type="button" onclick="loadDataFromSheets()" title="รีเฟรชข้อมูลสดจาก Google Sheets" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-700 text-white text-xs font-semibold flex items-center space-x-1 border border-blue-500/40 shadow-sm transition active:scale-95">
+        <i class="ph-bold ph-arrows-clockwise text-xs sm:text-sm" id="refreshIcon"></i>
+        <span class="hidden sm:inline">รีเฟรช</span>
+      </button>
+
+      <button type="button" onclick="resetFilters()" title="รีเซ็ตตัวกรองทั้งหมด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center space-x-1 border border-slate-600/50 shadow-sm transition active:scale-95">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs sm:text-sm"></i>
+        <span class="hidden md:inline">รีเซ็ต</span>
+      </button>
+
+      <button type="button" onclick="toggleModal('syncModal')" title="ตั้งค่าแหล่งข้อมูล" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-victor-accent hover:bg-sky-500 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95">
+        <i class="ph-bold ph-gear text-xs sm:text-sm"></i>
+        <span class="hidden sm:inline">ตั้งค่า</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden relative">
+
+    <!-- ฉากหลังสำหรับจอมือถือ -->
+    <div id="sidebarBackdrop" onclick="toggleSidebar(false)" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30 md:hidden transition-opacity"></div>
+
+    <!-- แถบด้านข้าง (Sidebar) -->
+    <aside id="mainSidebar" class="fixed md:static top-0 bottom-0 left-0 -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out w-80 sm:w-88 md:w-92 bg-white border-r border-slate-200 flex flex-col h-full z-40 md:z-20 shadow-2xl md:shadow-none flex-shrink-0">
+      
+      <!-- หัวแถบสำหรับมือถือ -->
+      <div class="p-2.5 border-b border-slate-200 bg-slate-100 flex items-center justify-between md:hidden">
+        <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+          <i class="ph-bold ph-faders text-victor-blue text-base"></i>
+          <span>ตัวกรองและการจัดเรียง</span>
+        </span>
+        <button type="button" onclick="toggleSidebar(false)" class="w-7 h-7 rounded-lg bg-slate-200/80 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition">
+          <i class="ph-bold ph-x text-sm"></i>
+        </button>
+      </div>
+
+      <!-- แผงค้นหาและตัวกรอง -->
+      <div class="p-2.5 sm:p-3 bg-slate-50 border-b border-slate-200 space-y-1.5 sm:space-y-2 text-xs flex-shrink-0">
+        
+        <!-- ช่องค้นหา -->
+        <div class="relative">
+          <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="ค้นหาชื่อสนาม, เซล, ผู้ติดต่อ, ช่าง..."
+            class="w-full pl-8 pr-8 py-1.5 sm:py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-victor-accent/50 focus:border-victor-accent transition shadow-xs"
+          />
+          <button id="clearSearchBtn" type="button" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-slate-600" onclick="clearSearch()">
+            <i class="ph-bold ph-x-circle text-sm"></i>
+          </button>
+        </div>
+
+        <!-- ตัวเลือกเรียงลำดับ -->
+        <div>
+          <label class="block text-[10.5px] font-bold text-slate-600 mb-0.5 flex items-center gap-1">
+            <i class="ph-bold ph-arrows-down-up text-victor-blue"></i>
+            <span>เรียงลำดับข้อมูล</span>
+          </label>
+          <select id="sortBy" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg font-medium text-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-victor-accent/40 shadow-xs">
+            <option value="date-desc">📅 วันที่ติดตั้ง: ใหม่ล่าสุด &rarr; เก่าสุด</option>
+            <option value="date-asc">📅 วันที่ติดตั้ง: เก่าสุด &rarr; ใหม่ล่าสุด</option>
+            <option value="budget-desc">💰 งบประมาณ: สูง &rarr; ต่ำ</option>
+            <option value="budget-asc">💰 งบประมาณ: ต่ำ &rarr; สูง</option>
+            <option value="name-asc">🔤 ชื่อสนาม: ก - ฮ (A - Z)</option>
+          </select>
+        </div>
+
+        <!-- ตัวกรอง 4 มิติ -->
+        <div class="grid grid-cols-2 gap-1.5 text-xs">
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">เซลผู้ดูแล</label>
+            <select id="filterSales" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
+              <option value="">ทั้งหมด</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">จังหวัด</label>
+            <select id="filterProvince" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
+              <option value="">ทั้งหมด</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">รอบสื่อ/ปี</label>
+            <select id="filterPeriod" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
+              <option value="">ทั้งหมด</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">ประเภทสื่อ</label>
+            <select id="filterMediaType" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
+              <option value="">ทั้งหมด</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ตัวกรองสถานะ -->
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">สถานะการติดตั้ง</label>
+          <select id="filterStatus" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent">
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
+
+        <!-- แถบสรุปยอด -->
+        <div class="flex items-center justify-between pt-1.5 border-t border-slate-200 text-xs">
+          <span class="text-slate-500">พบ <strong id="locationCount" class="text-victor-blue font-bold text-sm">0</strong> แห่ง</span>
+          <span class="text-slate-600">งบรวม: <strong id="totalBudget" class="text-emerald-700 font-bold text-sm">฿0</strong></span>
+        </div>
+      </div>
+
+      <!-- รายชื่อสนาม -->
+      <div id="courtList" class="flex-1 overflow-y-auto custom-scrollbar p-2 sm:p-2.5 space-y-1.5 sm:space-y-2">
+        <div id="courtLoadingState" class="text-center py-10 text-slate-400 text-xs">
+          <div class="w-6 h-6 border-2 border-victor-accent border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          กำลังโหลดข้อมูลสนามจาก Google Sheets...
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 h-full relative overflow-hidden bg-slate-200">
+      <div id="map"></div>
+
+      <!-- ปุ่มลอยเปิดเมนูสำหรับมือถือ -->
+      <button type="button" id="mobileFloatingFilterBtn" onclick="toggleSidebar(true)" class="md:hidden absolute top-3 left-3 z-20 bg-victor-navy/95 hover:bg-victor-navy text-white px-2.5 py-1.5 rounded-xl shadow-xl flex items-center space-x-1.5 text-xs font-bold border border-white/20 active:scale-95 transition backdrop-blur-xs">
+        <i class="ph-bold ph-list-dashes text-sm text-amber-300"></i>
+        <span>รายการ & ตัวกรอง</span>
+      </button>
+
+      <!-- ป้ายคำอธิบายสถานะ -->
+      <div class="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-2 rounded-xl shadow-lg border border-slate-200 z-20 text-[10px] sm:text-[11px] space-y-1 select-none">
+        <div class="font-bold text-slate-800 text-[9.5px] uppercase tracking-wider mb-0.5 flex items-center space-x-1">
+          <i class="ph-bold ph-map-pin text-victor-accent"></i>
+          <span>สถานะสื่อ VICTOR</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-xs"></span>
+          <span class="text-slate-700 font-medium">ติดตั้งเสร็จสมบูรณ์</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-amber-500 shadow-xs"></span>
+          <span class="text-slate-700 font-medium">อยู่ระหว่างติดตั้ง</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-rose-500 shadow-xs"></span>
+          <span class="text-slate-700 font-medium">ชำรุดรอซ่อม</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- หน้าต่างรายละเอียดสนาม (Detail Modal) -->
+  <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
+      
+      <!-- หัว Modal -->
+      <div class="relative bg-victor-navy text-white p-3.5 sm:p-4 flex items-start justify-between">
+        <div>
+          <div class="flex items-center space-x-1.5 mb-1 flex-wrap gap-y-1">
+            <span id="modalStatusBadge" class="text-[9.5px] font-bold px-2 py-0.5 rounded-full uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+              -
+            </span>
+            <span id="modalPeriodBadge" class="text-[9.5px] font-bold px-2 py-0.5 rounded bg-white/10 text-blue-200">
+              -
+            </span>
+          </div>
+          <h2 id="modalTitle" class="text-sm sm:text-base font-bold leading-tight text-white">-</h2>
+          <p id="modalSubtitle" class="text-[11px] text-blue-200 mt-0.5">-</p>
+        </div>
+        <button type="button" onclick="closeDetailModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition flex-shrink-0 ml-2">
+          <i class="ph-bold ph-x text-sm"></i>
+        </button>
+      </div>
+
+      <div class="p-3.5 sm:p-4 space-y-3">
+        <!-- แกลเลอรีรูปภาพ -->
+        <div class="relative w-full h-36 sm:h-48 md:h-56 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
+          <img id="modalCarouselImg" src="" alt="Court Photo" class="w-full h-full object-cover transition duration-300 cursor-pointer" onclick="openActiveCourtFullscreen()" />
+          
+          <button id="modalPrevBtn" type="button" class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
+            <i class="ph-bold ph-caret-left text-base"></i>
+          </button>
+          <button id="modalNextBtn" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
+            <i class="ph-bold ph-caret-right text-base"></i>
+          </button>
+          
+          <div id="modalCounter" class="absolute bottom-2 right-2 bg-black/75 text-white px-2 py-0.5 rounded-full text-[10px] font-mono font-medium">
+            1 / 1
+          </div>
+          <button type="button" onclick="openActiveCourtFullscreen()" class="absolute bottom-2 left-2 bg-black/75 hover:bg-black/90 text-white px-2 py-0.5 rounded-full text-[10px] font-medium flex items-center space-x-1 transition">
+            <i class="ph-bold ph-arrows-out text-amber-300"></i>
+            <span>ดูเต็มจอ</span>
+          </button>
+        </div>
+
+        <!-- รายละเอียดแบบกริด -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ติดต่อ</p>
+            <p id="modalContact" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
+            <div id="modalPhoneContainer" class="mt-1"></div>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">เซล VICTOR ผู้ดูแล</p>
+            <p id="modalSales" class="font-bold text-victor-blue text-xs sm:text-sm mt-0.5">-</p>
+            <p id="modalProvince" class="text-slate-500 mt-1 text-[10.5px]">-</p>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ประเภทสื่อโฆษณา</p>
+            <p id="modalMediaType" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
+            <p id="modalDate" class="text-slate-500 mt-1 text-[10.5px]">ติดตั้ง: -</p>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">งบประมาณที่ใช้</p>
+            <p id="modalBudget" class="font-bold text-emerald-700 text-sm sm:text-base mt-0.5">฿0</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">รวมภาษีและค่าติดตั้ง</p>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ช่างผู้ติดตั้งสื่อ</p>
+            <p id="modalInstalledBy" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5 flex items-center space-x-1.5">
+              <i class="ph-bold ph-wrench text-victor-blue"></i>
+              <span>-</span>
+            </p>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ออกแบบสื่อ</p>
+            <p id="modalDesignedBy" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5 flex items-center space-x-1.5">
+              <i class="ph-bold ph-paint-brush text-rose-600"></i>
+              <span>-</span>
+            </p>
+          </div>
+
+          <!-- จำนวนคอร์ท (Column Q) -->
+          <div class="sm:col-span-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div>
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">จำนวนคอร์ทแบดมินตัน</p>
+              <p id="modalCourtCount" class="font-bold text-victor-navy text-xs sm:text-sm mt-0.5 flex items-center space-x-1.5">
+                <span>🏸</span>
+                <span>-</span>
+              </p>
+            </div>
+            <span class="text-[10.5px] text-slate-400">คอลัมน์ Q ใน Google Sheets</span>
+          </div>
+
+          <!-- GPS & Actions -->
+          <div class="sm:col-span-2 p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">พิกัด GPS</p>
+              <p id="modalCoords" class="font-mono text-xs text-slate-800 font-semibold mt-0.5">0.0000, 0.0000</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button type="button" onclick="shareCurrentCourt()" class="inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-xs shadow-xs">
+                <i class="ph-bold ph-share-network"></i>
+                <span>แชร์สนามนี้</span>
+              </button>
+              <a id="modalMapsNav" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-victor-blue hover:bg-blue-700 text-white rounded-lg font-semibold transition text-xs shadow-xs">
+                <i class="ph-bold ph-navigation-arrow"></i>
+                <span>นำทาง Maps</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- หน้าต่างแสดงภาพแบบเต็มจอ (Lightbox) -->
+  <div id="fullscreenModal" class="hidden fixed inset-0 bg-black/95 z-[9999] flex flex-col justify-between p-3 select-none" onclick="onLightboxBackdropClick(event)">
+    <div class="flex items-center justify-between text-white z-10">
+      <div class="flex items-center space-x-2 min-w-0">
+        <span class="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0 animate-pulse"></span>
+        <h3 id="fullscreenTitle" class="text-xs sm:text-sm font-bold truncate max-w-xs sm:max-w-md">-</h3>
+      </div>
+      <div class="flex items-center space-x-1.5">
+        <span id="fullscreenCounter" class="bg-white/10 px-2 py-0.5 rounded-full text-xs font-mono font-semibold">1 / 1</span>
+        <button type="button" onclick="closeFullscreenViewer()" title="ปิด (ESC)" class="w-7 h-7 rounded-full bg-rose-600/80 hover:bg-rose-600 text-white flex items-center justify-center transition ml-1">
+          <i class="ph-bold ph-x text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="relative flex-1 flex items-center justify-center overflow-hidden my-2">
+      <button id="fullscreenPrevBtn" type="button" onclick="prevFullscreenImg(); event.stopPropagation();" class="absolute left-2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition text-lg shadow-lg border border-white/10">
+        <i class="ph-bold ph-caret-left"></i>
+      </button>
+
+      <img id="fullscreenImg" src="" alt="Court Photo" class="max-h-[70vh] sm:max-h-[80vh] max-w-[92vw] object-contain rounded-lg shadow-2xl" />
+
+      <button id="fullscreenNextBtn" type="button" onclick="nextFullscreenImg(); event.stopPropagation();" class="absolute right-2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition text-lg shadow-lg border border-white/10">
+        <i class="ph-bold ph-caret-right"></i>
+      </button>
+    </div>
+
+    <div class="flex items-center justify-between text-slate-400 text-[10px] sm:text-[11px] z-10 px-2">
+      <span>💡 แตะลูกศร ◀ ▶ เพื่อเลื่อนดูภาพถ่าย</span>
+      <span class="hidden sm:inline">กด ESC หรือคลิกที่ว่างเพื่อปิด</span>
+    </div>
+  </div>
+
+  <!-- หน้าต่างตั้งค่าลิงก์ชีต (Settings Modal) -->
+  <div id="syncModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl border border-slate-100 space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+        <div class="flex items-center space-x-2">
+          <i class="ph-bold ph-gear text-victor-accent text-lg"></i>
+          <h3 class="font-bold text-sm sm:text-base text-slate-900">การตั้งค่าแหล่งข้อมูล Google Sheets</h3>
+        </div>
+        <button type="button" onclick="toggleModal('syncModal')" class="text-slate-400 hover:text-slate-600">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2.5">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-0.5">
+            ลิงก์ Google Sheets CSV ที่เผยแพร่ทางเว็บ (Publish to web)
+          </label>
+          <input
+            type="text"
+            id="csvUrlInput"
+            class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-victor-blue focus:outline-none font-mono"
+            placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv"
+          />
+          <p class="text-[10px] text-slate-500 mt-1">
+            * ใน Google Sheets ไปที่ ไฟล์ &rarr; แชร์ &rarr; เผยแพร่ไปยังเว็บ &rarr; เลือก CSV &rarr; คัดลอกลิงก์มาวาง
+          </p>
+        </div>
+
+        <button type="button" onclick="saveSettings()" class="w-full py-2 bg-victor-blue hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-xs flex items-center justify-center space-x-1.5">
+          <i class="ph-bold ph-check text-base"></i>
+          <span>บันทึกและโหลดข้อมูลใหม่</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Box -->
+  <div id="toast" class="hidden fixed bottom-4 right-4 bg-slate-900/95 text-white px-3.5 py-2 rounded-xl shadow-2xl text-xs font-medium z-[99999] transition-all flex items-center space-x-2 border border-slate-700 backdrop-blur-xs">
+    <span id="toastMsg">ข้อความแจ้งเตือน</span>
+  </div>
+
+  <script>
+    const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=0&single=true&output=csv";
+
+    // แปลงลิงก์ Google Drive ทุกรูปแบบให้กลายเป็น Direct CDN Image URL อัตโนมัติ
+    function normalizeImageUrl(url) {
+      if (!url) return '';
+      let cleanUrl = String(url).trim();
+      
+      if (cleanUrl.includes('drive.google.com') || cleanUrl.includes('docs.google.com')) {
+        let fileId = '';
+        const m1 = cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (m1 && m1[1]) fileId = m1[1];
+        
+        const m2 = cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (!fileId && m2 && m2[1]) fileId = m2[1];
+
+        const m3 = cleanUrl.match(/\/open\?id=([a-zA-Z0-9_-]+)/);
+        if (!fileId && m3 && m3[1]) fileId = m3[1];
+
+        if (fileId) {
+          return `https://lh3.googleusercontent.com/d/${fileId}`;
+        }
+      }
+      return cleanUrl;
+    }
+
+    let currentLocations = [];
+    let filteredLocations = [];
+    let map = null;
+    let markersLayer = null;
+    let activeModalCourt = null;
+    let modalImageIndex = 0;
+    let activeFullscreenImages = [];
+    let fullscreenIndex = 0;
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      if (!toast || !toastMsg) return;
+      toastMsg.innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+
+    function toggleModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden');
+    }
+
+    function toggleSidebar(forceState) {
+      const sidebar = document.getElementById('mainSidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      const floatingBtn = document.getElementById('mobileFloatingFilterBtn');
+      const tabList = document.getElementById('mobileTabList');
+      const tabMap = document.getElementById('mobileTabMap');
+      if (!sidebar || !backdrop) return;
+
+      const isCurrentlyOpen = !sidebar.classList.contains('-translate-x-full');
+      const shouldOpen = typeof forceState === 'boolean' ? forceState : !isCurrentlyOpen;
+
+      if (shouldOpen) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+        if (floatingBtn) floatingBtn.classList.add('hidden');
+        if (tabList) tabList.classList.add('bg-white/20');
+        if (tabMap) tabMap.classList.remove('bg-white/20');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+        if (floatingBtn) floatingBtn.classList.remove('hidden');
+        if (tabList) tabList.classList.remove('bg-white/20');
+        if (tabMap) tabMap.classList.add('bg-white/20');
+      }
+
+      setTimeout(() => {
+        if (map) map.invalidateSize();
+      }, 310);
+    }
+
+    function initMap() {
+      try {
+        if (!map) {
+          map = L.map('map', {
+            zoomControl: false,
+            attributionControl: false
+          }).setView([13.7563, 100.5018], 10);
+
+          L.control.zoom({ position: 'topright' }).addTo(map);
+
+          // ใช้ OpenStreetMap ที่โหลดเร็วและคมชัดบน GitHub Pages
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+          }).addTo(map);
+
+          markersLayer = L.layerGroup().addTo(map);
+        }
+
+        setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+        setTimeout(() => { if (map) map.invalidateSize(); }, 600);
+      } catch (err) {
+        console.error("Map init error:", err);
+      }
+
+      loadDataFromSheets();
+    }
+
+    function getStatusColor(status) {
+      if (!status) return '#10b981';
+      if (status.includes('เสร็จ') || status.includes('สมบูรณ์') || status === 'ติดตั้งแล้ว') return '#10b981';
+      if (status.includes('ระหว่าง') || status.includes('รอ')) return '#f59e0b';
+      if (status.includes('ชำรุด') || status.includes('ซ่อม')) return '#f43f5e';
+      return '#0284c7';
+    }
+
+    function getStatusBadge(status) {
+      if (!status) return '<span class="text-emerald-500 font-bold">● ติดตั้งเสร็จสมบูรณ์</span>';
+      if (status.includes('เสร็จ') || status.includes('สมบูรณ์')) return '<span class="text-emerald-500 font-bold">● ' + status + '</span>';
+      if (status.includes('ระหว่าง') || status.includes('รอ')) return '<span class="text-amber-500 font-bold">● ' + status + '</span>';
+      if (status.includes('ชำรุด') || status.includes('ซ่อม')) return '<span class="text-rose-500 font-bold">● ' + status + '</span>';
+      return '<span class="text-sky-500 font-bold">● ' + status + '</span>';
+    }
+
+    function createMarkerIcon(status) {
+      const color = getStatusColor(status);
+      return L.divIcon({
+        className: 'custom-leaflet-marker',
+        html: `
+          <div style="background-color: white; border: 3px solid ${color}; width: 34px; height: 34px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; font-size: 16px;">
+            🏸
+          </div>
+        `,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+        popupAnchor: [0, -18]
+      });
+    }
+
+    function renderMarkers() {
+      if (!markersLayer || !map) return;
+      markersLayer.clearLayers();
+      const bounds = L.latLngBounds();
+
+      filteredLocations.forEach(court => {
+        if (!court.lat || !court.lng || isNaN(court.lat) || isNaN(court.lng)) return;
+
+        const marker = L.marker([court.lat, court.lng], {
+          icon: createMarkerIcon(court.status)
+        });
+
+        const primaryImg = (court.images && court.images.length > 0)
+          ? normalizeImageUrl(court.images[0])
+          : 'https://placehold.co/400x250/001838/ffffff?text=VICTOR';
+
+        const popupContent = `
+          <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
+            <div class="relative w-full h-24 sm:h-28 bg-slate-950 rounded-xl overflow-hidden group cursor-pointer" onclick="openFullscreenViewer('${court.id}', 0)">
+              <img src="${primaryImg}" alt="${court.courtName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/400x250/001838/ffffff?text=VICTOR'" />
+              <div class="absolute bottom-1.5 left-1.5 bg-black/75 text-white px-2 py-0.5 rounded-full text-[9.5px] flex items-center space-x-1 font-medium">
+                <i class="ph-bold ph-arrows-out text-amber-300"></i>
+                <span>ดูเต็มจอ</span>
+              </div>
+              ${court.images && court.images.length > 1 ? `<span class="absolute bottom-1.5 right-1.5 bg-black/75 text-white px-1.5 py-0.5 rounded text-[9.5px] font-mono">${court.images.length} รูป</span>` : ''}
+            </div>
+
+            <div>
+              <div class="flex items-start justify-between gap-1">
+                <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight truncate">${court.courtName}</h4>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-victor-blue border border-blue-200 whitespace-nowrap">${court.period || ''}</span>
+              </div>
+              <p class="text-[10px] text-slate-500 mt-0.5 truncate">
+                เซล: <strong class="text-slate-700">${court.sales || '-'}</strong> | ${court.province || '-'}
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-1 py-1 px-1.5 bg-slate-50 rounded-lg text-[10px] border border-slate-100">
+              <div>
+                <span class="text-slate-400 block">คอร์ท/สื่อ:</span>
+                <span class="font-semibold text-slate-700 truncate block">${court.courtCount && court.courtCount !== '-' ? `🏸 ${court.courtCount}` : (court.mediaType || 'ทั่วไป')}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block">งบประมาณ:</span>
+                <span class="font-bold text-emerald-700 block">฿${Number(court.budget || 0).toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-1.5 pt-1 border-t border-slate-100">
+              <button type="button" onclick="openCourtDetail('${court.id}')" class="w-full py-1.5 bg-victor-navy hover:bg-blue-900 text-white rounded-lg font-semibold text-center text-[10.5px] transition shadow-xs">
+                รายละเอียด
+              </button>
+              <button type="button" onclick="window.shareCourtById('${court.id}')" class="w-full py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-center text-[10.5px] transition shadow-xs flex items-center justify-center space-x-1">
+                <i class="ph-bold ph-share-network"></i>
+                <span>แชร์สนาม</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        markersLayer.addLayer(marker);
+        bounds.extend([court.lat, court.lng]);
+      });
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetParam = urlParams.get('court');
+
+      if (filteredLocations.length > 0 && bounds.isValid() && !targetParam) {
+        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
+      }
+    }
+
+    function getShareBaseUrl() {
+      return window.location.origin + window.location.pathname;
+    }
+
+    window.shareCourtById = function(courtId) {
+      const court = currentLocations.find(c => c.id === courtId);
+      if (!court) return;
+
+      const base = getShareBaseUrl();
+      const shareUrl = `${base}?court=${encodeURIComponent(court.courtName)}`;
+      
+      const shareText = `🏸 สนาม: ${court.courtName} (${court.province || 'ไม่ระบุจังหวัด'})\n` +
+                        `💰 งบ: ฿${Number(court.budget || 0).toLocaleString()} | ${court.courtCount || ''}\n` +
+                        `📍 แผนที่: ${shareUrl}`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: `VICTOR Media Tracker - ${court.courtName}`,
+          text: shareText,
+          url: shareUrl
+        }).catch(() => {
+          copyToClipboard(shareUrl);
+        });
+      } else {
+        copyToClipboard(shareUrl);
+      }
+    };
+
+    function shareCurrentCourt() {
+      if (activeModalCourt) {
+        window.shareCourtById(activeModalCourt.id);
+      }
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('🔗 คัดลอกลิงก์แชร์สนามเรียบร้อยแล้ว!');
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const tempInput = document.createElement('input');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast('🔗 คัดลอกลิงก์แชร์สนามเรียบร้อยแล้ว!');
+      } catch (err) {
+        prompt('คัดลอกลิงก์ด้านล่างเพื่อแชร์:', text);
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    function checkUrlCourtParam() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const p = urlParams.get('court');
+        if (p) {
+          focusOnTargetCourt(p);
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    function focusOnTargetCourt(courtIdentifier) {
+      if (!courtIdentifier) return;
+      const decoded = decodeURIComponent(courtIdentifier).trim().toLowerCase();
+      
+      const found = currentLocations.find(c => 
+        (c.courtName && c.courtName.trim().toLowerCase() === decoded) ||
+        (c.id && c.id.toLowerCase() === decoded) ||
+        (c.courtName && c.courtName.toLowerCase().includes(decoded))
+      );
+
+      if (!found) return;
+
+      if (window.innerWidth < 768) {
+        toggleSidebar(false);
+      }
+
+      if (found.lat && found.lng && map) {
+        setTimeout(() => {
+          map.flyTo([found.lat, found.lng], 16, { duration: 1.5 });
+          if (markersLayer) {
+            markersLayer.eachLayer((layer) => {
+              if (layer.getLatLng && 
+                  Math.abs(layer.getLatLng().lat - found.lat) < 0.0001 && 
+                  Math.abs(layer.getLatLng().lng - found.lng) < 0.0001) {
+                layer.openPopup();
+              }
+            });
+          }
+          showToast(`📍 ซูมไปที่สนาม: ${found.courtName}`);
+        }, 600);
+      }
+    }
+
+    function renderList() {
+      const container = document.getElementById('courtList');
+      const countEl = document.getElementById('locationCount');
+      const totalBudgetEl = document.getElementById('totalBudget');
+
+      if (!container || !countEl || !totalBudgetEl) return;
+
+      container.innerHTML = '';
+      countEl.innerText = filteredLocations.length;
+
+      let sum = 0;
+      if (filteredLocations.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 text-slate-400 text-xs">ไม่พบข้อมูลสนามที่ตรงตามเงื่อนไข</div>';
+        totalBudgetEl.innerText = '฿0';
+        return;
+      }
+
+      filteredLocations.forEach((v) => {
+        sum += Number(v.budget || 0);
+        const card = document.createElement('div');
+        const hasCoords = v.lat && v.lng && !isNaN(v.lat) && !isNaN(v.lng);
+
+        card.className = "bg-white p-2 rounded-xl border border-slate-200 hover:border-victor-accent hover:shadow-md cursor-pointer transition flex items-center space-x-2";
+        card.onclick = () => {
+          if (hasCoords && map) {
+            map.flyTo([v.lat, v.lng], 16, { duration: 1.2 });
+            markersLayer.eachLayer((layer) => {
+              if (layer.getLatLng && Math.abs(layer.getLatLng().lat - v.lat) < 0.0001 && Math.abs(layer.getLatLng().lng - v.lng) < 0.0001) {
+                layer.openPopup();
+              }
+            });
+            if (window.innerWidth < 768) {
+              toggleSidebar(false);
+            }
+          } else {
+            showToast('⚠️ สถานที่นี้ยังไม่ได้ระบุพิกัด GPS');
+          }
+        };
+
+        const cardImg = (v.images && v.images.length > 0)
+          ? normalizeImageUrl(v.images[0])
+          : 'https://placehold.co/120x120/001838/ffffff?text=VICTOR';
+
+        card.innerHTML = `
+          <div class="relative flex-shrink-0">
+            <img src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200" onerror="this.src='https://placehold.co/120x120/001838/ffffff?text=VICTOR'" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between">
+              <h4 class="font-bold text-slate-800 text-xs truncate leading-snug">${v.courtName}</h4>
+              <span class="font-mono text-[8.5px] font-bold text-victor-blue ml-1 whitespace-nowrap">${v.period || ''}</span>
+            </div>
+            <p class="text-[10px] text-slate-500 truncate mt-0.5">
+              เซล: <strong class="text-slate-700">${v.sales || '-'}</strong> | ${v.province || '-'}
+            </p>
+            <div class="flex items-center justify-between mt-0.5 text-[10.5px]">
+              <span class="text-slate-500 truncate max-w-[110px]">${v.courtCount && v.courtCount !== '-' ? `🏸 ${v.courtCount}` : (v.mediaType || 'ทั่วไป')}</span>
+              <span class="font-bold text-emerald-700">฿${Number(v.budget || 0).toLocaleString()}</span>
+            </div>
+            <div class="flex items-center justify-between mt-0.5 pt-0.5 border-t border-slate-100">
+              <div class="text-[9px] text-blue-600 font-medium flex items-center gap-1 truncate">
+                <i class="ph-bold ph-calendar text-[10px]"></i>
+                <span>${v.installDate || '-'}</span>
+              </div>
+              <button type="button" onclick="event.stopPropagation(); window.shareCourtById('${v.id}')" title="แชร์สนามนี้" class="text-slate-400 hover:text-emerald-600 p-0.5 rounded transition hover:bg-slate-100">
+                <i class="ph-bold ph-share-network text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      totalBudgetEl.innerText = `฿${sum.toLocaleString()}`;
+    }
+
+    function parseFlexibleDate(dateStr) {
+      if (!dateStr) return 0;
+      if (dateStr instanceof Date) return dateStr.getTime();
+      
+      const str = dateStr.toString().trim();
+      if (!str || str === '-' || str === 'ไม่มี') return 0;
+
+      const thaiMonths = {
+        'ม.ค.': 1, 'มกราคม': 1, 'ก.พ.': 2, 'กุมภาพันธ์': 2,
+        'มี.ค.': 3, 'มีนาคม': 3, 'เม.ย.': 4, 'เมษายน': 4,
+        'พ.ค.': 5, 'พฤษภาคม': 5, 'มิ.ย.': 6, 'มิถุนายน': 6,
+        'ก.ค.': 7, 'กรกฎาคม': 7, 'ส.ค.': 8, 'สิงหาคม': 8,
+        'ก.ย.': 9, 'กันยายน': 9, 'ต.ค.': 10, 'ตุลาคม': 10,
+        'พ.ย.': 11, 'พฤศจิกายน': 11, 'ธ.ค.': 12, 'ธันวาคม': 12
+      };
+      
+      for (const [mName, mNum] of Object.entries(thaiMonths)) {
+        if (str.includes(mName)) {
+          const parts = str.split(/[\s,/-]+/);
+          let day = 1, year = 2026;
+          for (const p of parts) {
+            const num = parseInt(p, 10);
+            if (!isNaN(num)) {
+              if (num > 1000) {
+                year = num > 2400 ? num - 543 : num;
+              } else if (num <= 31 && !p.includes(mName)) {
+                day = num;
+              }
+            }
+          }
+          return new Date(year, mNum - 1, day).getTime();
+        }
+      }
+
+      const dmyMatch = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+      if (dmyMatch) {
+        let day = parseInt(dmyMatch[1], 10);
+        let month = parseInt(dmyMatch[2], 10);
+        let year = parseInt(dmyMatch[3], 10);
+        
+        if (month > 12 && day <= 12) {
+          const temp = day; day = month; month = temp;
+        }
+        if (year < 100) year += 2000;
+        if (year > 2400) year -= 543;
+
+        return new Date(year, month - 1, day).getTime();
+      }
+
+      const ymdMatch = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})$/);
+      if (ymdMatch) {
+        let year = parseInt(ymdMatch[1], 10);
+        let month = parseInt(ymdMatch[2], 10);
+        let day = parseInt(ymdMatch[3], 10);
+        if (year > 2400) year -= 543;
+        return new Date(year, month - 1, day).getTime();
+      }
+
+      const parsed = Date.parse(str);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+
+    function rebuildDropdowns() {
+      const salesSet = new Set();
+      const provinces = new Set();
+      const periods = new Set();
+      const mediaTypes = new Set();
+      const statuses = new Set();
+
+      currentLocations.forEach(c => {
+        if (c.sales) salesSet.add(c.sales.trim());
+        if (c.province) provinces.add(c.province.trim());
+        if (c.period) periods.add(c.period.trim());
+        if (c.status) statuses.add(c.status.trim());
+        if (c.mediaType) {
+          c.mediaType.split(',').forEach(t => {
+            if (t.trim()) mediaTypes.add(t.trim());
+          });
+        }
+      });
+
+      populateSelect('filterSales', salesSet);
+      populateSelect('filterProvince', provinces);
+      populateSelect('filterPeriod', periods);
+      populateSelect('filterMediaType', mediaTypes);
+      populateSelect('filterStatus', statuses);
+    }
+
+    function populateSelect(id, set) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const currentVal = el.value;
+      el.innerHTML = '<option value="">ทั้งหมด</option>';
+      Array.from(set).sort((a, b) => a.localeCompare(b, 'th')).forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.innerText = val;
+        el.appendChild(opt);
+      });
+      if (currentVal && set.has(currentVal)) {
+        el.value = currentVal;
+      }
+    }
+
+    function applyFilters() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const sales = document.getElementById('filterSales').value;
+      const prov = document.getElementById('filterProvince').value;
+      const period = document.getElementById('filterPeriod').value;
+      const mediaType = document.getElementById('filterMediaType').value;
+      const status = document.getElementById('filterStatus').value;
+      const sortBy = document.getElementById('sortBy').value;
+
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) clearBtn.classList.toggle('hidden', q.length === 0);
+
+      filteredLocations = currentLocations.filter(c => {
+        const searchable = `${c.courtName} ${c.contactName} ${c.sales} ${c.installedBy} ${c.designedBy} ${c.province} ${c.installDate}`.toLowerCase();
+        const matchSearch = !q || searchable.includes(q);
+        const matchSales = !sales || c.sales === sales;
+        const matchProvince = !prov || c.province === prov;
+        const matchPeriod = !period || c.period === period;
+        const matchMediaType = !mediaType || (c.mediaType && c.mediaType.includes(mediaType));
+        const matchStatus = !status || c.status === status;
+
+        return matchSearch && matchSales && matchProvince && matchPeriod && matchMediaType && matchStatus;
+      });
+
+      filteredLocations.sort((a, b) => {
+        if (sortBy === 'date-desc') {
+          return parseFlexibleDate(b.installDate) - parseFlexibleDate(a.installDate);
+        } else if (sortBy === 'date-asc') {
+          return parseFlexibleDate(a.installDate) - parseFlexibleDate(b.installDate);
+        } else if (sortBy === 'budget-desc') {
+          return (b.budget || 0) - (a.budget || 0);
+        } else if (sortBy === 'budget-asc') {
+          return (a.budget || 0) - (b.budget || 0);
+        } else if (sortBy === 'name-asc') {
+          return (a.courtName || '').localeCompare(b.courtName || '', 'th');
+        }
+        return 0;
+      });
+
+      renderMarkers();
+      renderList();
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      applyFilters();
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('filterSales').value = '';
+      document.getElementById('filterProvince').value = '';
+      document.getElementById('filterPeriod').value = '';
+      document.getElementById('filterMediaType').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('sortBy').value = 'date-desc';
+      applyFilters();
+      showToast('🔄 รีเซ็ตตัวกรองทั้งหมดแล้ว');
+    }
+
+    window.openCourtDetail = function(courtId) {
+      const v = currentLocations.find(x => x.id === courtId);
+      if (!v) return;
+
+      activeModalCourt = v;
+      modalImageIndex = 0;
+
+      document.getElementById('modalTitle').innerText = v.courtName;
+      document.getElementById('modalSubtitle').innerText = `${v.province || ''} • ติดตั้งเมื่อ ${v.installDate || '-'}`;
+      document.getElementById('modalStatusBadge').innerHTML = getStatusBadge(v.status);
+      document.getElementById('modalPeriodBadge').innerText = v.period || 'รอบสื่อทั่วไป';
+      document.getElementById('modalContact').innerText = v.contactName || '-';
+
+      const phoneCont = document.getElementById('modalPhoneContainer');
+      if (v.phone) {
+        phoneCont.innerHTML = `
+          <a href="tel:${v.phone}" class="inline-flex items-center space-x-1 text-emerald-600 font-semibold hover:underline">
+            <i class="ph-bold ph-phone-call"></i>
+            <span>${v.phone} (กดโทรออก)</span>
+          </a>
+        `;
+      } else {
+        phoneCont.innerHTML = `<span class="text-slate-400">ไม่มีเบอร์โทร</span>`;
+      }
+
+      document.getElementById('modalSales').innerText = v.sales || '-';
+      document.getElementById('modalProvince').innerText = `จังหวัด: ${v.province || '-'}`;
+      document.getElementById('modalMediaType').innerText = v.mediaType || '-';
+      document.getElementById('modalDate').innerText = `วันที่ติดตั้ง: ${v.installDate || '-'}`;
+      document.getElementById('modalBudget').innerText = `฿${Number(v.budget || 0).toLocaleString()}`;
+      
+      const installedByEl = document.getElementById('modalInstalledBy');
+      if (installedByEl && installedByEl.querySelector('span')) {
+        installedByEl.querySelector('span').innerText = v.installedBy || '-';
+      }
+
+      const designedByEl = document.getElementById('modalDesignedBy');
+      if (designedByEl && designedByEl.querySelector('span')) {
+        designedByEl.querySelector('span').innerText = v.designedBy || '-';
+      }
+
+      const courtCountEl = document.getElementById('modalCourtCount');
+      if (courtCountEl) {
+        const spans = courtCountEl.querySelectorAll('span');
+        if (spans.length > 1) {
+          spans[1].innerText = v.courtCount && v.courtCount !== '-' ? v.courtCount : 'ไม่ได้ระบุ';
+        } else if (spans.length === 1) {
+          spans[0].innerText = v.courtCount && v.courtCount !== '-' ? v.courtCount : 'ไม่ได้ระบุ';
+        }
+      }
+
+      const coordsEl = document.getElementById('modalCoords');
+      if (v.lat && v.lng) {
+        coordsEl.innerText = `${v.lat.toFixed(6)}, ${v.lng.toFixed(6)}`;
+      } else {
+        coordsEl.innerText = 'ยังไม่มีข้อมูลพิกัด';
+      }
+
+      const mapsNav = document.getElementById('modalMapsNav');
+      mapsNav.href = v.mapsUrl && v.mapsUrl.startsWith('http') 
+        ? v.mapsUrl 
+        : `https://maps.google.com/?q=${v.lat},${v.lng}`;
+
+      updateCarousel();
+      document.getElementById('detailModal').classList.remove('hidden');
+    };
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      activeModalCourt = null;
+    }
+
+    function updateCarousel() {
+      if (!activeModalCourt) return;
+      const rawImgs = (activeModalCourt.images && activeModalCourt.images.length > 0)
+        ? activeModalCourt.images
+        : ['https://placehold.co/600x400/001838/ffffff?text=VICTOR+Sport'];
+
+      const imgs = rawImgs.map(img => normalizeImageUrl(img));
+
+      const imgEl = document.getElementById('modalCarouselImg');
+      const counterEl = document.getElementById('modalCounter');
+      const prevBtn = document.getElementById('modalPrevBtn');
+      const nextBtn = document.getElementById('modalNextBtn');
+
+      imgEl.src = imgs[modalImageIndex];
+      imgEl.onerror = () => { imgEl.src = 'https://placehold.co/600x400/001838/ffffff?text=VICTOR+Sport'; };
+      counterEl.innerText = `${modalImageIndex + 1} / ${imgs.length}`;
+
+      if (imgs.length <= 1) {
+        prevBtn.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+      } else {
+        prevBtn.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('modalPrevBtn').onclick = () => {
+      if (!activeModalCourt || !activeModalCourt.images) return;
+      const len = activeModalCourt.images.length;
+      if (len <= 1) return;
+      modalImageIndex = (modalImageIndex - 1 + len) % len;
+      updateCarousel();
+    };
+
+    document.getElementById('modalNextBtn').onclick = () => {
+      if (!activeModalCourt || !activeModalCourt.images) return;
+      const len = activeModalCourt.images.length;
+      if (len <= 1) return;
+      modalImageIndex = (modalImageIndex + 1) % len;
+      updateCarousel();
+    };
+
+    window.openFullscreenViewer = function(courtId, startIndex = 0) {
+      const court = currentLocations.find(c => c.id === courtId);
+      if (!court) return;
+
+      const rawImgs = (court.images && court.images.length > 0)
+        ? court.images
+        : ['https://placehold.co/1200x800/001838/ffffff?text=VICTOR+Sport'];
+
+      activeFullscreenImages = rawImgs.map(img => normalizeImageUrl(img));
+
+      fullscreenIndex = Math.min(Math.max(0, startIndex), activeFullscreenImages.length - 1);
+      const titleEl = document.getElementById('fullscreenTitle');
+      if (titleEl) titleEl.innerText = court.courtName || '-';
+
+      updateFullscreenDisplay();
+      const modalEl = document.getElementById('fullscreenModal');
+      if (modalEl) modalEl.classList.remove('hidden');
+    };
+
+    function openActiveCourtFullscreen() {
+      if (!activeModalCourt) return;
+      window.openFullscreenViewer(activeModalCourt.id, modalImageIndex);
+    }
+
+    function closeFullscreenViewer() {
+      const modal = document.getElementById('fullscreenModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function updateFullscreenDisplay() {
+      if (!activeFullscreenImages || activeFullscreenImages.length === 0) return;
+      
+      const imgEl = document.getElementById('fullscreenImg');
+      const counterEl = document.getElementById('fullscreenCounter');
+      const prevBtn = document.getElementById('fullscreenPrevBtn');
+      const nextBtn = document.getElementById('fullscreenNextBtn');
+
+      const currentSrc = activeFullscreenImages[fullscreenIndex];
+      if (imgEl) imgEl.src = currentSrc;
+      if (counterEl) counterEl.innerText = `${fullscreenIndex + 1} / ${activeFullscreenImages.length}`;
+
+      if (prevBtn && nextBtn) {
+        if (activeFullscreenImages.length <= 1) {
+          prevBtn.classList.add('hidden');
+          nextBtn.classList.add('hidden');
+        } else {
+          prevBtn.classList.remove('hidden');
+          nextBtn.classList.remove('hidden');
+        }
+      }
+    }
+
+    function nextFullscreenImg() {
+      if (activeFullscreenImages.length <= 1) return;
+      fullscreenIndex = (fullscreenIndex + 1) % activeFullscreenImages.length;
+      updateFullscreenDisplay();
+    }
+
+    function prevFullscreenImg() {
+      if (activeFullscreenImages.length <= 1) return;
+      fullscreenIndex = (fullscreenIndex - 1 + activeFullscreenImages.length) % activeFullscreenImages.length;
+      updateFullscreenDisplay();
+    }
+
+    function onLightboxBackdropClick(event) {
+      if (event.target.id !== 'fullscreenImg') {
+        closeFullscreenViewer();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const modal = document.getElementById('fullscreenModal');
+      if (modal && !modal.classList.contains('hidden')) {
+        if (e.key === 'Escape') closeFullscreenViewer();
+        if (e.key === 'ArrowRight') nextFullscreenImg();
+        if (e.key === 'ArrowLeft') prevFullscreenImg();
+      }
+    });
+
+    function parse2DArrayData(rows) {
+      if (!rows || rows.length < 2) return [];
+      const headers = rows[0].map(h => String(h || '').trim());
+
+      const getIdx = (keywords, defaultIdx) => {
+        const found = headers.findIndex(h => keywords.some(k => h.toLowerCase().includes(k.toLowerCase())));
+        return found !== -1 ? found : defaultIdx;
+      };
+
+      const nameIdx = getIdx(['ชื่อสนาม', 'ชื่อร้าน', 'สนาม'], 0);
+      const contactIdx = getIdx(['ผู้ติดต่อ', 'ชื่อผู้ติดต่อ'], 1);
+      const phoneIdx = getIdx(['เบอร์โทร', 'โทร'], 2);
+      const salesIdx = getIdx(['เซล', 'ผู้ดูแล'], 3);
+      const mapsIdx = getIdx(['maps link', 'google maps', 'maps'], 4);
+      const latIdx = getIdx(['latitude', 'lat', 'ละติจูด'], 5);
+      const lngIdx = getIdx(['longitude', 'lng', 'ลองจิจูด'], 6);
+      const imgIdx = getIdx(['รูปภาพ', 'ภาพ', 'รูป'], 7);
+      const dateIdx = getIdx(['วันที่', 'ติดตั้งเมื่อ'], 8);
+      const budgetIdx = getIdx(['งบประมาณ', 'งบ'], 9);
+      const provIdx = getIdx(['จังหวัด'], 10);
+      const mediaIdx = getIdx(['ประเภทสื่อ', 'สื่อ'], 11);
+      const statusIdx = getIdx(['สถานะ'], 12);
+      const periodIdx = getIdx(['รอบสื่อ', 'ปี'], 13);
+      const installIdx = getIdx(['ติดตั้งโดย', 'ผู้ติดตั้ง', 'ช่าง'], 14);
+      const designIdx = getIdx(['ออกแบบโดย', 'กราฟิก'], 15);
+      const courtCountIdx = getIdx(['จำนวนคอร์ท', 'คอร์ด', 'คอร์ท'], 16);
+
+      const parsed = [];
+      for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        const name = String(r[nameIdx] || '').trim();
+        const lat = parseFloat(r[latIdx]);
+        const lng = parseFloat(r[lngIdx]);
+
+        if (!name) continue;
+
+        let images = [];
+        let folderUrl = '';
+        const rawImgs = String(r[imgIdx] || '').trim();
+        if (rawImgs) {
+          rawImgs.split(',').map(s => s.trim()).forEach(part => {
+            if (part.includes('drive.google.com/drive/folders')) {
+              folderUrl = part;
+            } else if (part.includes('http') || part.includes('drive.google.com')) {
+              images.push(normalizeImageUrl(part));
+            }
+          });
+        }
+
+        const rawCount = String(r[courtCountIdx] || '').trim();
+        const courtCount = rawCount ? (rawCount.includes('คอร์ท') || rawCount.includes('คอร์ด') ? rawCount : `${rawCount} คอร์ท`) : '-';
+
+        parsed.push({
+          id: `court-${i}`,
+          courtName: name,
+          contactName: String(r[contactIdx] || '').trim(),
+          phone: String(r[phoneIdx] || '').trim(),
+          sales: String(r[salesIdx] || '').trim(),
+          mapsUrl: String(r[mapsIdx] || '').trim(),
+          lat: (!isNaN(lat) && lat !== 0) ? lat : null,
+          lng: (!isNaN(lng) && lng !== 0) ? lng : null,
+          images: images,
+          folderUrl: folderUrl,
+          installDate: String(r[dateIdx] || '').trim(),
+          budget: parseFloat(String(r[budgetIdx] || 0).replace(/[^0-9.-]+/g, '')) || 0,
+          province: String(r[provIdx] || '').trim() || 'กรุงเทพมหานคร',
+          mediaType: String(r[mediaIdx] || '').trim(),
+          status: String(r[statusIdx] || 'ติดตั้งเสร็จสมบูรณ์').trim(),
+          period: String(r[periodIdx] || '').trim() || '2026Q1Q2',
+          installedBy: String(r[installIdx] || '-').trim(),
+          designedBy: String(r[designIdx] || '-').trim(),
+          courtCount: courtCount
+        });
+      }
+
+      return parsed;
+    }
+
+    function loadDataFromSheets() {
+      const icon = document.getElementById('refreshIcon');
+      if (icon) icon.classList.add('animate-spin');
+
+      const csvUrl = localStorage.getItem('victor_csv_url') || DEFAULT_CSV_URL;
+
+      Papa.parse(csvUrl, {
+        download: true,
+        header: false,
+        skipEmptyLines: 'greedy',
+        complete: (results) => {
+          if (icon) icon.classList.remove('animate-spin');
+          if (results.data && results.data.length > 1) {
+            const parsed = parse2DArrayData(results.data);
+            if (parsed.length > 0) {
+              currentLocations = parsed;
+              rebuildDropdowns();
+              applyFilters();
+              checkUrlCourtParam();
+              showToast(`✅ โหลดข้อมูลสดสำเร็จ (${parsed.length} สนาม)`);
+              return;
+            }
+          }
+          showToast('⚠️ รูปแบบตารางไม่ถูกต้อง');
+        },
+        error: (err) => {
+          if (icon) icon.classList.remove('animate-spin');
+          console.error("Papa parse error:", err);
+          showToast('❌ ไม่สามารถโหลดข้อมูลจาก Google Sheets ได้');
+        }
+      });
+    }
+
+    function saveSettings() {
+      const csvUrl = document.getElementById('csvUrlInput').value.trim();
+      if (csvUrl) {
+        localStorage.setItem('victor_csv_url', csvUrl);
+      }
+      toggleModal('syncModal');
+      loadDataFromSheets();
+    }
+
+    function bootstrapApp() {
+      initMap();
+
+      const csvInput = document.getElementById('csvUrlInput');
+      if (csvInput) {
+        csvInput.value = localStorage.getItem('victor_csv_url') || DEFAULT_CSV_URL;
+      }
+
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+      }
+
+      window.addEventListener('resize', () => {
+        if (map) map.invalidateSize();
+      });
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(bootstrapApp, 50);
+    } else {
+      document.addEventListener('DOMContentLoaded', bootstrapApp);
+    }
+  </script>
+</body>
+</html>
