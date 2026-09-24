@@ -306,6 +306,18 @@
       </div>
 
       <div class="p-3.5 sm:p-4 space-y-3">
+        <!-- แถบสลับรอบสื่อ (กรณีสนามเดียวกันมีหลายรอบ/หลายรายการ) -->
+        <div id="modalMultiRoundBox" class="hidden p-2 rounded-xl bg-amber-50 border border-amber-200 space-y-1.5">
+          <div class="flex items-center justify-between text-[11px] font-bold text-amber-800">
+            <span class="flex items-center gap-1">
+              <i class="ph-bold ph-clock-counter-clockwise text-sm"></i>
+              <span>ประวัติการลงสื่อสนามนี้ (<span id="modalRoundCountText">2</span> รายการ)</span>
+            </span>
+            <span class="text-[10px] text-amber-600 font-normal">คลิกเพื่อสลับดูแต่ละรอบ</span>
+          </div>
+          <div id="modalRoundButtons" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
         <!-- แกลเลอรีรูปภาพ -->
         <div class="relative w-full h-36 sm:h-48 md:h-56 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
           <img id="modalCarouselImg" src="" alt="Court Photo" class="w-full h-full object-cover transition duration-300 cursor-pointer" onclick="openActiveCourtFullscreen()" />
@@ -387,6 +399,11 @@
               <p id="modalCoords" class="font-mono text-xs text-slate-800 font-semibold mt-0.5">0.0000, 0.0000</p>
             </div>
             <div class="flex flex-wrap items-center gap-1.5">
+              <!-- ปุ่มเปิดโฟลเดอร์ Google Drive -->
+              <a id="modalDriveFolder" href="#" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold transition text-xs shadow-xs">
+                <i class="ph-bold ph-folder-open text-sm"></i>
+                <span>เปิดโฟลเดอร์ Drive</span>
+              </a>
               <button type="button" onclick="shareCurrentCourt()" class="inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-xs shadow-xs">
                 <i class="ph-bold ph-share-network"></i>
                 <span>แชร์สนามนี้</span>
@@ -622,16 +639,37 @@
       markersLayer.clearLayers();
       const bounds = L.latLngBounds();
 
-      filteredLocations.forEach(court => {
+      // ตรวจจับพิกัดซ้ำกัน เพื่อขยับเยื้องตำแหน่งเล็กน้อย ไม่ให้หมุดทับกันจนมิด
+      const coordCounts = {};
+
+      filteredLocations.forEach((court) => {
         if (!court.lat || !court.lng || isNaN(court.lat) || isNaN(court.lng)) return;
 
-        const marker = L.marker([court.lat, court.lng], {
+        const key = `${court.lat.toFixed(5)}_${court.lng.toFixed(5)}`;
+        let displayLat = court.lat;
+        let displayLng = court.lng;
+
+        if (coordCounts[key]) {
+          const count = coordCounts[key];
+          const angle = count * 1.2;
+          const radius = 0.00020 * count; // เยื้องประมาณ 15-20 เมตร
+          displayLat += Math.sin(angle) * radius;
+          displayLng += Math.cos(angle) * radius;
+          coordCounts[key]++;
+        } else {
+          coordCounts[key] = 1;
+        }
+
+        const marker = L.marker([displayLat, displayLng], {
           icon: createMarkerIcon(court.status)
         });
 
         const primaryImg = (court.images && court.images.length > 0)
           ? normalizeImageUrl(court.images[0])
           : VICTOR_LOGO_URL;
+
+        const sameNameRecords = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === court.courtName.trim().toLowerCase());
+        const hasMultiple = sameNameRecords.length > 1;
 
         const popupContent = `
           <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
@@ -652,6 +690,12 @@
               <p class="text-[10px] text-slate-500 mt-0.5 truncate">
                 เซล: <strong class="text-slate-700">${court.sales || '-'}</strong> | ${court.province || '-'}
               </p>
+              ${hasMultiple ? `
+                <div class="mt-1 flex items-center gap-1 text-[9.5px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                  <i class="ph-bold ph-clock-counter-clockwise"></i>
+                  <span>มีประวัติลงสื่อ ${sameNameRecords.length} รอบ (รอบนี้: ${court.period || '-'})</span>
+                </div>
+              ` : ''}
             </div>
 
             <div class="grid grid-cols-2 gap-1 py-1 px-1.5 bg-slate-50 rounded-lg text-[10px] border border-slate-100">
@@ -665,13 +709,18 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-1.5 pt-1 border-t border-slate-100">
-              <button type="button" onclick="openCourtDetail('${court.id}')" class="w-full py-1.5 bg-victor-navy hover:bg-blue-900 text-white rounded-lg font-semibold text-center text-[10.5px] transition shadow-xs">
+            <div class="flex items-center gap-1.5 pt-1 border-t border-slate-100">
+              <button type="button" onclick="openCourtDetail('${court.id}')" class="flex-1 py-1.5 bg-victor-navy hover:bg-blue-900 text-white rounded-lg font-semibold text-center text-[10.5px] transition shadow-xs">
                 รายละเอียด
               </button>
-              <button type="button" onclick="window.shareCourtById('${court.id}')" class="w-full py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-center text-[10.5px] transition shadow-xs flex items-center justify-center space-x-1">
+              ${court.folderUrl ? `
+                <a href="${court.folderUrl}" target="_blank" rel="noopener noreferrer" title="เปิดโฟลเดอร์ Google Drive" class="px-2 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold text-center text-[10.5px] transition shadow-xs flex items-center justify-center">
+                  <i class="ph-bold ph-folder-open text-xs"></i>
+                </a>
+              ` : ''}
+              <button type="button" onclick="window.shareCourtById('${court.id}')" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-center text-[10.5px] transition shadow-xs flex items-center justify-center space-x-1">
                 <i class="ph-bold ph-share-network"></i>
-                <span>แชร์สนาม</span>
+                <span>แชร์</span>
               </button>
             </div>
           </div>
@@ -679,7 +728,7 @@
 
         marker.bindPopup(popupContent);
         markersLayer.addLayer(marker);
-        bounds.extend([court.lat, court.lng]);
+        bounds.extend([displayLat, displayLng]);
       });
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -836,9 +885,16 @@
           ? normalizeImageUrl(v.images[0])
           : VICTOR_LOGO_URL;
 
+        const sameNameCount = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === v.courtName.trim().toLowerCase()).length;
+
         card.innerHTML = `
           <div class="relative flex-shrink-0">
             <img src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200" onerror="this.src='${VICTOR_LOGO_URL}'" />
+            ${sameNameCount > 1 ? `
+              <span class="absolute -top-1 -right-1 bg-amber-500 text-white text-[8px] font-bold px-1 rounded-full border border-white shadow-xs">
+                ${sameNameCount}
+              </span>
+            ` : ''}
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-start justify-between">
@@ -857,9 +913,16 @@
                 <i class="ph-bold ph-calendar text-[10px]"></i>
                 <span>${v.installDate || '-'}</span>
               </div>
-              <button type="button" onclick="event.stopPropagation(); window.shareCourtById('${v.id}')" title="แชร์สนามนี้" class="text-slate-400 hover:text-emerald-600 p-0.5 rounded transition hover:bg-slate-100">
-                <i class="ph-bold ph-share-network text-xs"></i>
-              </button>
+              <div class="flex items-center space-x-1">
+                ${v.folderUrl ? `
+                  <a href="${v.folderUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="เปิดโฟลเดอร์ Google Drive" class="text-amber-500 hover:text-amber-600 p-0.5 rounded transition hover:bg-amber-50">
+                    <i class="ph-bold ph-folder-open text-xs"></i>
+                  </a>
+                ` : ''}
+                <button type="button" onclick="event.stopPropagation(); window.shareCourtById('${v.id}')" title="แชร์สนามนี้" class="text-slate-400 hover:text-emerald-600 p-0.5 rounded transition hover:bg-slate-100">
+                  <i class="ph-bold ph-share-network text-xs"></i>
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -1045,6 +1108,43 @@
       document.getElementById('modalStatusBadge').innerHTML = getStatusBadge(v.status);
       document.getElementById('modalPeriodBadge').innerText = v.period || 'รอบสื่อทั่วไป';
       document.getElementById('modalContact').innerText = v.contactName || '-';
+
+      // จัดการปุ่มโฟลเดอร์ Google Drive
+      const folderBtn = document.getElementById('modalDriveFolder');
+      if (folderBtn) {
+        if (v.folderUrl && v.folderUrl.startsWith('http')) {
+          folderBtn.href = v.folderUrl;
+          folderBtn.classList.remove('hidden');
+        } else {
+          folderBtn.classList.add('hidden');
+        }
+      }
+
+      // ตรวจสอบกรณีสนามเดียวกันมีหลายรอบ (Multi-Round Switcher)
+      const sameNameRecords = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === v.courtName.trim().toLowerCase());
+      const multiBox = document.getElementById('modalMultiRoundBox');
+      const roundButtons = document.getElementById('modalRoundButtons');
+      const countText = document.getElementById('modalRoundCountText');
+
+      if (sameNameRecords.length > 1) {
+        multiBox.classList.remove('hidden');
+        countText.innerText = sameNameRecords.length;
+        roundButtons.innerHTML = '';
+
+        sameNameRecords.forEach((rec, idx) => {
+          const isActive = rec.id === v.id;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = isActive 
+            ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white shadow-xs'
+            : 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-amber-900 border border-amber-300 hover:bg-amber-100 transition';
+          btn.innerHTML = `<span>รอบที่ ${idx + 1}: ${rec.period || rec.installDate || 'ไม่ระบุรอบ'}</span> <span class="text-[10px] opacity-80">(฿${Number(rec.budget || 0).toLocaleString()})</span>`;
+          btn.onclick = () => window.openCourtDetail(rec.id);
+          roundButtons.appendChild(btn);
+        });
+      } else {
+        multiBox.classList.add('hidden');
+      }
 
       const phoneCont = document.getElementById('modalPhoneContainer');
       if (v.phone) {
@@ -1268,7 +1368,7 @@
         const rawImgs = String(r[imgIdx] || '').trim();
         if (rawImgs) {
           rawImgs.split(',').map(s => s.trim()).forEach(part => {
-            if (part.includes('drive.google.com/drive/folders')) {
+            if (part.includes('drive.google.com/drive/folders') || part.includes('/folders/')) {
               folderUrl = part;
             } else if (part.includes('http') || part.includes('drive.google.com')) {
               images.push(normalizeImageUrl(part));
