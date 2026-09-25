@@ -68,6 +68,17 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     
+    /* สไตล์สำหรับการเบลอข้อมูลลับ */
+    .sensitive-blur {
+      filter: blur(4.5px);
+      user-select: none;
+      cursor: pointer;
+      transition: filter 0.2s ease;
+    }
+    .sensitive-blur:hover {
+      filter: blur(3.5px);
+    }
+    
     .leaflet-popup-content-wrapper {
       padding: 0 !important;
       border-radius: 0.85rem !important;
@@ -131,9 +142,21 @@
 
     <!-- ปุ่มการทำงาน Header -->
     <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
+      <!-- ปุ่มล็อก/ปลดล็อกข้อมูลลับ -->
+      <button type="button" id="authLockBtn" onclick="toggleAuthLockAction()" title="ล็อก/ปลดล็อกข้อมูลสำคัญ (เบอร์โทรและงบประมาณ)" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40">
+        <i class="ph-bold ph-lock-key" id="authLockIcon"></i>
+        <span id="authLockText" class="hidden sm:inline">ปลดล็อกข้อมูล</span>
+      </button>
+
       <button type="button" onclick="loadDataFromSheets()" title="รีเฟรชข้อมูลสดจาก Google Sheets" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-700 text-white text-xs font-semibold flex items-center space-x-1 border border-blue-500/40 shadow-sm transition active:scale-95">
         <i class="ph-bold ph-arrows-clockwise text-xs sm:text-sm" id="refreshIcon"></i>
         <span class="hidden sm:inline">รีเฟรช</span>
+      </button>
+
+      <!-- ปุ่มเปิด/ปิด Badge รอบสื่อบนหมุด -->
+      <button type="button" id="badgeToggleBtn" onclick="toggleBadgesVisibility()" title="เปิด/ปิดการแสดง Badge รอบสื่อบนหมุด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold flex items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95">
+        <i class="ph-bold ph-tag text-xs sm:text-sm" id="badgeToggleIcon"></i>
+        <span id="badgeToggleText" class="hidden sm:inline">ซ่อน Badge</span>
       </button>
 
       <button type="button" onclick="resetFilters()" title="รีเซ็ตตัวกรองทั้งหมด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center space-x-1 border border-slate-600/50 shadow-sm transition active:scale-95">
@@ -238,7 +261,7 @@
         <!-- แถบสรุปยอด -->
         <div class="flex items-center justify-between pt-1.5 border-t border-slate-200 text-xs">
           <span class="text-slate-500">พบ <strong id="locationCount" class="text-victor-blue font-bold text-sm">0</strong> แห่ง</span>
-          <span class="text-slate-600">งบรวม: <strong id="totalBudget" class="text-emerald-700 font-bold text-sm">฿0</strong></span>
+          <span class="text-slate-600">งบรวม: <strong id="totalBudget" onclick="promptIfLocked()" class="text-emerald-700 font-bold text-sm cursor-pointer">฿0</strong></span>
         </div>
       </div>
 
@@ -343,7 +366,7 @@
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ติดต่อ</p>
             <p id="modalContact" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
-            <div id="modalPhoneContainer" class="mt-1"></div>
+            <div id="modalPhoneContainer" onclick="promptIfLocked()" class="mt-1"></div>
           </div>
 
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
@@ -360,7 +383,7 @@
 
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <p class="font-semibold text-slate-500 uppercase text-[9.5px]">งบประมาณที่ใช้</p>
-            <p id="modalBudget" class="font-bold text-emerald-700 text-sm sm:text-base mt-0.5">฿0</p>
+            <p id="modalBudget" onclick="promptIfLocked()" class="font-bold text-emerald-700 text-sm sm:text-base mt-0.5 cursor-pointer">฿0</p>
             <p class="text-[10px] text-slate-400 mt-0.5">รวมภาษีและค่าติดตั้ง</p>
           </div>
 
@@ -414,78 +437,78 @@
               </a>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- หน้าต่างแสดงภาพแบบเต็มจอ (Lightbox) -->
-  <div id="fullscreenModal" class="hidden fixed inset-0 bg-black/95 z-[9999] flex flex-col justify-between p-3 select-none" onclick="onLightboxBackdropClick(event)">
-    <div class="flex items-center justify-between text-white z-10">
-      <div class="flex items-center space-x-2 min-w-0">
-        <span class="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0 animate-pulse"></span>
-        <h3 id="fullscreenTitle" class="text-xs sm:text-sm font-bold truncate max-w-xs sm:max-w-md">-</h3>
-      </div>
-      <div class="flex items-center space-x-1.5">
-        <span id="fullscreenCounter" class="bg-white/10 px-2 py-0.5 rounded-full text-xs font-mono font-semibold">1 / 1</span>
-        <button type="button" onclick="closeFullscreenViewer()" title="ปิด (ESC)" class="w-7 h-7 rounded-full bg-rose-600/80 hover:bg-rose-600 text-white flex items-center justify-center transition ml-1">
-          <i class="ph-bold ph-x text-sm"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="relative flex-1 flex items-center justify-center overflow-hidden my-2">
-      <button id="fullscreenPrevBtn" type="button" onclick="prevFullscreenImg(); event.stopPropagation();" class="absolute left-2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition text-lg shadow-lg border border-white/10">
-        <i class="ph-bold ph-caret-left"></i>
-      </button>
-
-      <img id="fullscreenImg" src="" alt="Court Photo" class="max-h-[70vh] sm:max-h-[80vh] max-w-[92vw] object-contain rounded-lg shadow-2xl" />
-
-      <button id="fullscreenNextBtn" type="button" onclick="nextFullscreenImg(); event.stopPropagation();" class="absolute right-2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition text-lg shadow-lg border border-white/10">
-        <i class="ph-bold ph-caret-right"></i>
-      </button>
-    </div>
-
-    <div class="flex items-center justify-between text-slate-400 text-[10px] sm:text-[11px] z-10 px-2">
-      <span>💡 แตะลูกศร ◀ ▶ เพื่อเลื่อนดูภาพถ่าย</span>
-      <span class="hidden sm:inline">กด ESC หรือคลิกที่ว่างเพื่อปิด</span>
-    </div>
-  </div>
-
-  <!-- หน้าต่างตั้งค่าลิงก์ชีต (Settings Modal) -->
+  <!-- หน้าต่างตั้งค่าแหล่งข้อมูล (Settings Modal) -->
   <div id="syncModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl border border-slate-100 space-y-3">
       <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-gear text-victor-accent text-lg"></i>
-          <h3 class="font-bold text-sm sm:text-base text-slate-900">การตั้งค่าแหล่งข้อมูล Google Sheets</h3>
+          <h3 class="font-bold text-sm sm:text-base text-slate-900">การตั้งค่าระบบ</h3>
         </div>
         <button type="button" onclick="toggleModal('syncModal')" class="text-slate-400 hover:text-slate-600">
           <i class="ph-bold ph-x text-lg"></i>
         </button>
       </div>
 
-      <div class="space-y-2.5">
-        <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-0.5">
-            ลิงก์ Google Sheets CSV ที่เผยแพร่ทางเว็บ (Publish to web)
-          </label>
-          <input
-            type="text"
-            id="csvUrlInput"
-            class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-victor-blue focus:outline-none font-mono"
-            placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv"
-          />
-          <p class="text-[10px] text-slate-500 mt-1">
-            * ใน Google Sheets ไปที่ ไฟล์ &rarr; แชร์ &rarr; เผยแพร่ไปยังเว็บ &rarr; เลือก CSV &rarr; คัดลอกลิงก์มาวาง
+      <div class="space-y-3 text-xs">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-slate-700">สถานะฐานข้อมูล Google Sheets:</span>
+            <span class="text-emerald-700 font-bold flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>เชื่อมต่อแล้ว (Private)</span>
+            </span>
+          </div>
+          <div class="relative">
+            <input
+              type="password"
+              id="csvUrlInput"
+              readonly
+              value="••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••"
+              class="w-full text-xs p-2 bg-slate-100 border border-slate-300 rounded-lg text-slate-500 font-mono select-none cursor-not-allowed"
+            />
+          </div>
+          <p class="text-[10px] text-slate-500">
+            🔒 ที่อยู่แหล่งข้อมูลถูกเข้ารหัสและซ่อนไว้เพื่อความปลอดภัยของข้อมูลบริษัท
           </p>
         </div>
 
-        <button type="button" onclick="saveSettings()" class="w-full py-2 bg-victor-blue hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-xs flex items-center justify-center space-x-1.5">
-          <i class="ph-bold ph-check text-base"></i>
-          <span>บันทึกและโหลดข้อมูลใหม่</span>
+        <button type="button" onclick="loadDataFromSheets(); toggleModal('syncModal');" class="w-full py-2 bg-victor-blue hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-xs flex items-center justify-center space-x-1.5">
+          <i class="ph-bold ph-arrows-clockwise text-base"></i>
+          <span>ซิงค์ข้อมูลใหม่จาก Sheets</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- หน้าต่างกรอกรหัสผ่านเพื่อปลดล็อก (Passcode Modal) -->
+  <div id="authModal" class="hidden fixed inset-0 bg-slate-900/75 backdrop-blur-xs z-[9999] flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-xs w-full p-4 sm:p-5 shadow-2xl border border-slate-100 text-center space-y-3">
+      <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-2xl shadow-inner">
+        <i class="ph-bold ph-lock-key"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 text-sm sm:text-base">ยืนยันรหัสความปลอดภัย</h3>
+        <p class="text-[11px] text-slate-500 mt-0.5">กรอกรหัส 5 หลักเพื่อดูงบประมาณและเบอร์โทรศัพท์</p>
+      </div>
+      
+      <form onsubmit="verifyPasscode(event)" class="space-y-3">
+        <input 
+          type="password" 
+          id="passcodeInput" 
+          maxlength="10"
+          placeholder="กรอกรหัสผ่าน..." 
+          class="w-full text-center tracking-widest text-base font-bold py-2 px-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none transition shadow-inner"
+        />
+        <div class="flex gap-2">
+          <button type="button" onclick="toggleModal('authModal')" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+            ยกเลิก
+          </button>
+          <button type="submit" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl transition shadow-xs">
+            ยืนยันรหัส
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -497,6 +520,78 @@
   <script>
     const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=0&single=true&output=csv";
     const VICTOR_LOGO_URL = "https://scontent.fbkk6-1.fna.fbcdn.net/v/t39.30808-6/351481026_3740027179563041_5049801915800968898_n.jpg?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=s2048x2048&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=wcSAPTyjTJUQ7kNvwGWcl8s&_nc_oc=Adp8jBkPP6oKByHCCYMktnJyweQTGOtDMftQxPVA9FgVsH484aGRllq5HXzHmU0frdo&_nc_zt=23&_nc_ht=scontent.fbkk6-1.fna&_nc_gid=thg9rzkRzwoPEdhZa_0bZg&_nc_ss=7b2a8&oh=00_AQIJ_G_1BKP3N5pBiYDNF0r_GzoFskT-cZaCeLWq8gqw8Q&oe=6ABADA78";
+    const SECRET_PIN = "77181";
+
+    let isUnlocked = false; // ค่าเริ่มต้นคือล็อก (เบลอข้อมูล)
+
+    function toggleAuthLockAction() {
+      if (isUnlocked) {
+        // หากปลดล็อกอยู่ ให้ทำการล็อกกลับ
+        isUnlocked = false;
+        updateAuthButtonState();
+        renderMarkers();
+        renderList();
+        if (activeModalCourt) window.openCourtDetail(activeModalCourt.id);
+        showToast('🔒 ล็อกการแสดงผลงบประมาณและเบอร์โทรแล้ว');
+      } else {
+        openAuthModal();
+      }
+    }
+
+    function openAuthModal() {
+      const modal = document.getElementById('authModal');
+      const input = document.getElementById('passcodeInput');
+      if (modal) {
+        modal.classList.remove('hidden');
+        if (input) {
+          input.value = '';
+          setTimeout(() => input.focus(), 100);
+        }
+      }
+    }
+
+    function promptIfLocked() {
+      if (!isUnlocked) {
+        openAuthModal();
+      }
+    }
+
+    function verifyPasscode(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('passcodeInput');
+      if (!input) return;
+
+      if (input.value.trim() === SECRET_PIN) {
+        isUnlocked = true;
+        toggleModal('authModal');
+        updateAuthButtonState();
+        renderMarkers();
+        renderList();
+        if (activeModalCourt) window.openCourtDetail(activeModalCourt.id);
+        showToast('🔓 ปลดล็อกการแสดงผลงบประมาณและเบอร์โทรสำเร็จ!');
+      } else {
+        showToast('❌ รหัสผ่านไม่ถูกต้อง');
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    function updateAuthButtonState() {
+      const btn = document.getElementById('authLockBtn');
+      const icon = document.getElementById('authLockIcon');
+      const text = document.getElementById('authLockText');
+      if (!btn) return;
+
+      if (isUnlocked) {
+        btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-emerald-400/40";
+        if (icon) icon.className = "ph-bold ph-lock-key-open";
+        if (text) text.innerText = "ล็อกข้อมูล";
+      } else {
+        btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40";
+        if (icon) icon.className = "ph-bold ph-lock-key";
+        if (text) text.innerText = "ปลดล็อกข้อมูล";
+      }
+    }
 
     // แปลงลิงก์ Google Drive ทุกรูปแบบให้กลายเป็น Direct CDN Image URL อัตโนมัติ
     function normalizeImageUrl(url) {
@@ -529,6 +624,32 @@
     let modalImageIndex = 0;
     let activeFullscreenImages = [];
     let fullscreenIndex = 0;
+    let isBadgesVisible = localStorage.getItem('victor_show_badges') !== 'false'; // ค่าเริ่มต้นคือแสดง
+
+    function toggleBadgesVisibility() {
+      isBadgesVisible = !isBadgesVisible;
+      localStorage.setItem('victor_show_badges', isBadgesVisible ? 'true' : 'false');
+      updateBadgeToggleButtonState();
+      renderMarkers();
+      showToast(isBadgesVisible ? '🏷️ แสดง Badge รอบสื่อแล้ว' : '🙈 ซ่อน Badge รอบสื่อแล้ว');
+    }
+
+    function updateBadgeToggleButtonState() {
+      const btn = document.getElementById('badgeToggleBtn');
+      const text = document.getElementById('badgeToggleText');
+      const icon = document.getElementById('badgeToggleIcon');
+      if (!btn) return;
+
+      if (isBadgesVisible) {
+        btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold flex items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95";
+        if (text) text.innerText = 'ซ่อน Badge';
+        if (icon) icon.className = 'ph-bold ph-tag text-xs sm:text-sm';
+      } else {
+        btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium flex items-center space-x-1 border border-slate-500/40 shadow-sm transition active:scale-95";
+        if (text) text.innerText = 'แสดง Badge';
+        if (icon) icon.className = 'ph-bold ph-tag-chevron text-xs sm:text-sm opacity-70';
+      }
+    }
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -605,32 +726,131 @@
 
     function getStatusColor(status) {
       if (!status) return '#10b981';
-      if (status.includes('เสร็จ') || status.includes('สมบูรณ์') || status === 'ติดตั้งแล้ว') return '#10b981';
-      if (status.includes('ระหว่าง') || status.includes('รอ')) return '#f59e0b';
-      if (status.includes('ชำรุด') || status.includes('ซ่อม')) return '#f43f5e';
+      const s = String(status).trim().toLowerCase();
+      // เช็คสถานะชำรุดรอซ่อมก่อน เพื่อให้แสดงสีแดงเสมอ
+      if (s.includes('ชำรุด') || s.includes('ซ่อม') || s.includes('รอซ่อม') || s.includes('เสียหาย') || s.includes('แก้ไข') || s.includes('repair')) {
+        return '#e11d48'; // สีแดงสด (Rose/Red)
+      }
+      if (s.includes('ระหว่าง') || s.includes('กำลัง') || s.includes('รอติดตั้ง') || s.includes('รอดำเนินการ') || s.includes('pending')) {
+        return '#f59e0b'; // สีส้มทอง
+      }
+      if (s.includes('เสร็จ') || s.includes('สมบูรณ์') || s.includes('ติดตั้งแล้ว') || s.includes('เรียบร้อย') || s.includes('complete') || s.includes('done')) {
+        return '#10b981'; // สีเขียวมรกต
+      }
       return '#0284c7';
+    }
+
+    // คำนวณคะแนนของรอบสื่อเพื่อจัดอันดับความใหม่-เก่า (เช่น 2026Q3Q4 > 2026Q1Q2 > 2025Q3Q4)
+    function parsePeriodScore(periodStr) {
+      if (!periodStr) return 0;
+      const str = String(periodStr).toUpperCase().replace(/[\s\-_/]/g, '');
+      const yearMatch = str.match(/(\d{4})/);
+      let year = yearMatch ? parseInt(yearMatch[1], 10) : 0;
+      if (!year) {
+        const shortYear = str.match(/(\d{2})/);
+        if (shortYear) year = 2000 + parseInt(shortYear[1], 10);
+      }
+
+      let subScore = 0;
+      if (str.includes('Q4')) subScore = Math.max(subScore, 4);
+      if (str.includes('Q3')) subScore = Math.max(subScore, 3);
+      if (str.includes('Q2')) subScore = Math.max(subScore, 2);
+      if (str.includes('Q1')) subScore = Math.max(subScore, 1);
+      if (str.includes('H2') || str.includes('ครึ่งปีหลัง')) subScore = Math.max(subScore, 3.5);
+      if (str.includes('H1') || str.includes('ครึ่งปีแรก')) subScore = Math.max(subScore, 1.5);
+
+      return (year * 10) + subScore;
+    }
+
+    // จัดกลุ่มรอบสื่อทั้งหมดที่พบในข้อมูล เพื่อหาว่าอันไหนใหม่สุด, เก่าลงมา 1 รอบ, และเก่าหลังจากนั้น
+    function getSortedUniquePeriods() {
+      const set = new Set();
+      currentLocations.forEach(c => {
+        if (c.period && c.period.trim() && c.period.trim() !== '-') {
+          set.add(c.period.trim());
+        }
+      });
+      return Array.from(set).sort((a, b) => parsePeriodScore(b) - parsePeriodScore(a));
+    }
+
+    function getPeriodBadgeColor(period) {
+      if (!period || period.trim() === '-' || period.trim() === '') {
+        return { bg: '#64748b', text: '#ffffff' }; // เทา
+      }
+      const trimmed = period.trim();
+      const sortedPeriods = getSortedUniquePeriods();
+      const rank = sortedPeriods.indexOf(trimmed);
+
+      // อันดับ 0 (ใหม่ล่าสุด) = สีแดง
+      if (rank === 0) {
+        return { bg: '#dc2626', text: '#ffffff' };
+      }
+      // อันดับ 1 (เก่าลงไป 1 รอบ) = สีน้ำเงิน
+      if (rank === 1) {
+        return { bg: '#1d4ed8', text: '#ffffff' };
+      }
+      // อันดับ 2 เป็นต้นไป (เก่าหลังจากนั้นลงไป) = สีเทา
+      return { bg: '#64748b', text: '#ffffff' };
+    }
+
+    // แยกข้อความรอบสื่อเป็น 2 บรรทัด (บรรทัดแรก: ปี, บรรทัดที่ 2: ไตรมาส/รอบ)
+    function splitPeriodTwoLines(periodStr) {
+      if (!periodStr) return { line1: '', line2: '' };
+      const raw = String(periodStr).trim();
+      
+      // ตัวอย่าง: 2026Q3Q4 หรือ 2026 Q1Q2 หรือ 26Q1
+      const match = raw.match(/^(\d{4}|\d{2})[\s\-_/]*(.*)$/);
+      if (match) {
+        let y = match[1];
+        if (y.length === 2) y = '20' + y;
+        let q = match[2] ? match[2].trim() : '';
+        return { line1: y, line2: q };
+      }
+
+      // ถ้าไม่มีรูปแบบปี ให้แบ่งครึ่งหรือแสดงบรรทัดแรก
+      return { line1: raw, line2: '' };
     }
 
     function getStatusBadge(status) {
       if (!status) return '<span class="text-emerald-500 font-bold">● ติดตั้งเสร็จสมบูรณ์</span>';
-      if (status.includes('เสร็จ') || status.includes('สมบูรณ์')) return '<span class="text-emerald-500 font-bold">● ' + status + '</span>';
-      if (status.includes('ระหว่าง') || status.includes('รอ')) return '<span class="text-amber-500 font-bold">● ' + status + '</span>';
-      if (status.includes('ชำรุด') || status.includes('ซ่อม')) return '<span class="text-rose-500 font-bold">● ' + status + '</span>';
-      return '<span class="text-sky-500 font-bold">● ' + status + '</span>';
+      const s = String(status).trim().toLowerCase();
+      if (s.includes('ชำรุด') || s.includes('ซ่อม') || s.includes('รอซ่อม') || s.includes('เสียหาย')) {
+        return '<span class="text-rose-600 font-bold">● ' + status + '</span>';
+      }
+      if (s.includes('ระหว่าง') || s.includes('รอ')) {
+        return '<span class="text-amber-500 font-bold">● ' + status + '</span>';
+      }
+      return '<span class="text-emerald-500 font-bold">● ' + status + '</span>';
     }
 
-    function createMarkerIcon(status) {
+    function createMarkerIcon(status, period) {
       const color = getStatusColor(status);
+      const periodLabel = (period && period.trim() && period.trim() !== '-') ? period.trim() : '';
+      const badgeStyle = getPeriodBadgeColor(periodLabel);
+      const split = splitPeriodTwoLines(periodLabel);
+
+      // สร้างป้าย 2 บรรทัด ขนาดกะทัดรัด (เล็กกว่าหมุดประมาณ 4 เท่า)
+      // ติดมุมขวาบนของหมุดอย่างลงตัว (แสดงตามค่า isBadgesVisible)
+      const badgeHtml = (isBadgesVisible && periodLabel) ? `
+        <div style="position: absolute; top: -5px; right: -10px; background: ${badgeStyle.bg}; color: ${badgeStyle.text}; font-family: 'Prompt', sans-serif; padding: 1.5px 3.5px; border-radius: 5px; border: 1.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.4); text-align: center; line-height: 1.05; z-index: 25; pointer-events: none; min-width: 22px;">
+          <div style="font-size: 7.5px; font-weight: 800; letter-spacing: -0.2px;">${split.line1}</div>
+          ${split.line2 ? `<div style="font-size: 6.5px; font-weight: 700; opacity: 0.95; letter-spacing: -0.3px;">${split.line2}</div>` : ''}
+        </div>
+      ` : '';
+
       return L.divIcon({
         className: 'custom-leaflet-marker',
         html: `
-          <div style="background-color: white; border: 3px solid ${color}; width: 36px; height: 36px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px;">
-            <img src="${VICTOR_LOGO_URL}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none;" alt="V" onerror="this.outerHTML='🏸'" />
+          <div style="position: relative; width: 38px; height: 38px;">
+            <div style="background-color: white; border: 3.5px solid ${color}; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 4px 14px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px; transition: transform 0.2s ease;">
+              <img src="${VICTOR_LOGO_URL}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none;" alt="V" onerror="this.outerHTML='🏸'" />
+            </div>
+            ${badgeHtml}
           </div>
         `,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
-        popupAnchor: [0, -18]
+        iconSize: [38, 38],
+        iconAnchor: [19, 19],
+        popupAnchor: [0, -19]
       });
     }
 
@@ -661,7 +881,7 @@
         }
 
         const marker = L.marker([displayLat, displayLng], {
-          icon: createMarkerIcon(court.status)
+          icon: createMarkerIcon(court.status, court.period)
         });
 
         const primaryImg = (court.images && court.images.length > 0)
@@ -670,6 +890,9 @@
 
         const sameNameRecords = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === court.courtName.trim().toLowerCase());
         const hasMultiple = sameNameRecords.length > 1;
+        const badgeColor = getPeriodBadgeColor(court.period);
+        const budgetFormatted = `฿${Number(court.budget || 0).toLocaleString()}`;
+        const budgetClass = isUnlocked ? 'font-bold text-emerald-700 block' : 'font-bold text-emerald-700 block sensitive-blur';
 
         const popupContent = `
           <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
@@ -685,7 +908,7 @@
             <div>
               <div class="flex items-start justify-between gap-1">
                 <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight truncate">${court.courtName}</h4>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-victor-blue border border-blue-200 whitespace-nowrap">${court.period || ''}</span>
+                <span style="background: ${badgeColor.bg}; color: ${badgeColor.text};" class="text-[9px] font-extrabold px-2 py-0.5 rounded-full whitespace-nowrap shadow-xs">${court.period || ''}</span>
               </div>
               <p class="text-[10px] text-slate-500 mt-0.5 truncate">
                 เซล: <strong class="text-slate-700">${court.sales || '-'}</strong> | ${court.province || '-'}
@@ -705,7 +928,7 @@
               </div>
               <div>
                 <span class="text-slate-400 block">งบประมาณ:</span>
-                <span class="font-bold text-emerald-700 block">฿${Number(court.budget || 0).toLocaleString()}</span>
+                <span onclick="promptIfLocked()" class="${budgetClass}" title="${isUnlocked ? '' : 'คลิกเพื่อปลดล็อก'}">${budgetFormatted}</span>
               </div>
             </div>
 
@@ -886,6 +1109,8 @@
           : VICTOR_LOGO_URL;
 
         const sameNameCount = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === v.courtName.trim().toLowerCase()).length;
+        const budgetFormatted = `฿${Number(v.budget || 0).toLocaleString()}`;
+        const budgetClass = isUnlocked ? 'font-bold text-emerald-700' : 'font-bold text-emerald-700 sensitive-blur';
 
         card.innerHTML = `
           <div class="relative flex-shrink-0">
@@ -906,7 +1131,7 @@
             </p>
             <div class="flex items-center justify-between mt-0.5 text-[10.5px]">
               <span class="text-slate-500 truncate max-w-[110px]">${v.courtCount && v.courtCount !== '-' ? `🏸 ${v.courtCount}` : (v.mediaType || 'ทั่วไป')}</span>
-              <span class="font-bold text-emerald-700">฿${Number(v.budget || 0).toLocaleString()}</span>
+              <span onclick="event.stopPropagation(); promptIfLocked()" class="${budgetClass}" title="${isUnlocked ? '' : 'คลิกเพื่อปลดล็อก'}">${budgetFormatted}</span>
             </div>
             <div class="flex items-center justify-between mt-0.5 pt-0.5 border-t border-slate-100">
               <div class="text-[9px] text-blue-600 font-medium flex items-center gap-1 truncate">
@@ -930,6 +1155,13 @@
       });
 
       totalBudgetEl.innerText = `฿${sum.toLocaleString()}`;
+      if (!isUnlocked) {
+        totalBudgetEl.classList.add('sensitive-blur');
+        totalBudgetEl.title = 'คลิกเพื่อปลดล็อกงบรวม';
+      } else {
+        totalBudgetEl.classList.remove('sensitive-blur');
+        totalBudgetEl.title = '';
+      }
     }
 
     function parseFlexibleDate(dateStr) {
@@ -1061,10 +1293,18 @@
       });
 
       filteredLocations.sort((a, b) => {
-        if (sortBy === 'date-desc') {
-          return parseFlexibleDate(b.installDate) - parseFlexibleDate(a.installDate);
-        } else if (sortBy === 'date-asc') {
-          return parseFlexibleDate(a.installDate) - parseFlexibleDate(b.installDate);
+        if (sortBy === 'date-desc' || sortBy === 'date-asc') {
+          const dateA = parseFlexibleDate(a.installDate);
+          const dateB = parseFlexibleDate(b.installDate);
+          const hasA = dateA > 0;
+          const hasB = dateB > 0;
+
+          // หากไม่มีวันที่ติดตั้ง ให้ผลักไปไว้ด้านล่างสุดเสมอ
+          if (!hasA && !hasB) return 0;
+          if (!hasA) return 1;
+          if (!hasB) return -1;
+
+          return sortBy === 'date-desc' ? (dateB - dateA) : (dateA - dateB);
         } else if (sortBy === 'budget-desc') {
           return (b.budget || 0) - (a.budget || 0);
         } else if (sortBy === 'budget-asc') {
@@ -1103,10 +1343,17 @@
       activeModalCourt = v;
       modalImageIndex = 0;
 
+      const pColor = getPeriodBadgeColor(v.period);
       document.getElementById('modalTitle').innerText = v.courtName;
       document.getElementById('modalSubtitle').innerText = `${v.province || ''} • ติดตั้งเมื่อ ${v.installDate || '-'}`;
       document.getElementById('modalStatusBadge').innerHTML = getStatusBadge(v.status);
-      document.getElementById('modalPeriodBadge').innerText = v.period || 'รอบสื่อทั่วไป';
+      
+      const modalPeriodEl = document.getElementById('modalPeriodBadge');
+      modalPeriodEl.innerText = v.period || 'รอบสื่อทั่วไป';
+      modalPeriodEl.style.backgroundColor = pColor.bg;
+      modalPeriodEl.style.color = pColor.text;
+      modalPeriodEl.className = 'text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs';
+
       document.getElementById('modalContact').innerText = v.contactName || '-';
 
       // จัดการปุ่มโฟลเดอร์ Google Drive
@@ -1138,7 +1385,8 @@
           btn.className = isActive 
             ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white shadow-xs'
             : 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-amber-900 border border-amber-300 hover:bg-amber-100 transition';
-          btn.innerHTML = `<span>รอบที่ ${idx + 1}: ${rec.period || rec.installDate || 'ไม่ระบุรอบ'}</span> <span class="text-[10px] opacity-80">(฿${Number(rec.budget || 0).toLocaleString()})</span>`;
+          const roundBudget = isUnlocked ? `(฿${Number(rec.budget || 0).toLocaleString()})` : `(฿•••••)`;
+          btn.innerHTML = `<span>รอบที่ ${idx + 1}: ${rec.period || rec.installDate || 'ไม่ระบุรอบ'}</span> <span class="text-[10px] opacity-80 ${isUnlocked ? '' : 'sensitive-blur'}">${roundBudget}</span>`;
           btn.onclick = () => window.openCourtDetail(rec.id);
           roundButtons.appendChild(btn);
         });
@@ -1148,21 +1396,42 @@
 
       const phoneCont = document.getElementById('modalPhoneContainer');
       if (v.phone) {
-        phoneCont.innerHTML = `
-          <a href="tel:${v.phone}" class="inline-flex items-center space-x-1 text-emerald-600 font-semibold hover:underline">
-            <i class="ph-bold ph-phone-call"></i>
-            <span>${v.phone} (กดโทรออก)</span>
-          </a>
-        `;
+        if (isUnlocked) {
+          phoneCont.innerHTML = `
+            <a href="tel:${v.phone}" class="inline-flex items-center space-x-1 text-emerald-600 font-semibold hover:underline">
+              <i class="ph-bold ph-phone-call"></i>
+              <span>${v.phone} (กดโทรออก)</span>
+            </a>
+          `;
+          phoneCont.className = 'mt-1';
+        } else {
+          phoneCont.innerHTML = `
+            <span class="inline-flex items-center space-x-1 text-emerald-600 font-semibold sensitive-blur" title="คลิกเพื่อปลดล็อก">
+              <i class="ph-bold ph-phone-call"></i>
+              <span>${v.phone}</span>
+            </span>
+          `;
+          phoneCont.className = 'mt-1 cursor-pointer';
+        }
       } else {
         phoneCont.innerHTML = `<span class="text-slate-400">ไม่มีเบอร์โทร</span>`;
+        phoneCont.className = 'mt-1';
       }
 
       document.getElementById('modalSales').innerText = v.sales || '-';
       document.getElementById('modalProvince').innerText = `จังหวัด: ${v.province || '-'}`;
       document.getElementById('modalMediaType').innerText = v.mediaType || '-';
       document.getElementById('modalDate').innerText = `วันที่ติดตั้ง: ${v.installDate || '-'}`;
-      document.getElementById('modalBudget').innerText = `฿${Number(v.budget || 0).toLocaleString()}`;
+      
+      const modalBudgetEl = document.getElementById('modalBudget');
+      modalBudgetEl.innerText = `฿${Number(v.budget || 0).toLocaleString()}`;
+      if (isUnlocked) {
+        modalBudgetEl.classList.remove('sensitive-blur');
+        modalBudgetEl.title = '';
+      } else {
+        modalBudgetEl.classList.add('sensitive-blur');
+        modalBudgetEl.title = 'คลิกเพื่อปลดล็อก';
+      }
       
       const installedByEl = document.getElementById('modalInstalledBy');
       if (installedByEl && installedByEl.querySelector('span')) {
@@ -1449,6 +1718,7 @@
 
     function bootstrapApp() {
       initMap();
+      updateBadgeToggleButtonState();
 
       const csvInput = document.getElementById('csvUrlInput');
       if (csvInput) {
