@@ -342,65 +342,93 @@
         </div>
 
         <!-- แกลเลอรีรูปภาพ -->
-        <div class="relative w-full h-36 sm:h-48 md:h-56 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
-          <img id="modalCarouselImg" src="" alt="Court Photo" class="w-full h-full object-cover transition duration-300 cursor-pointer" onclick="openActiveCourtFullscreen()" />
-          
-          <button id="modalPrevBtn" type="button" class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
-            <i class="ph-bold ph-caret-left text-base"></i>
-          </button>
-          <button id="modalNextBtn" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
-            <i class="ph-bold ph-caret-right text-base"></i>
-          </button>
-          
-          <div id="modalCounter" class="absolute bottom-2 right-2 bg-black/75 text-white px-2 py-0.5 rounded-full text-[10px] font-mono font-medium">
-            1 / 1
+        <div class="space-y-1.5">
+          <div class="relative w-full h-36 sm:h-48 md:h-56 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
+            <img id="modalCarouselImg" src="" alt="Court Photo" class="w-full h-full object-cover transition duration-300 cursor-pointer" onclick="openActiveCourtFullscreen()" />
+            
+            <button id="modalPrevBtn" type="button" class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
+              <i class="ph-bold ph-caret-left text-base"></i>
+            </button>
+            <button id="modalNextBtn" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
+              <i class="ph-bold ph-caret-right text-base"></i>
+            </button>
+            
+            <div id="modalCounter" class="absolute bottom-2 right-2 bg-black/75 text-white px-2 py-0.5 rounded-full text-[10px] font-mono font-medium">
+              1 / 1
+            </div>
+            <button type="button" onclick="openActiveCourtFullscreen()" class="absolute bottom-2 left-2 bg-black/75 hover:bg-black/90 text-white px-2 py-0.5 rounded-full text-[10px] font-medium flex items-center space-x-1 transition">
+              <i class="ph-bold ph-arrows-out text-amber-300"></i>
+              <span>ดูเต็มจอ</span>
+            </button>
           </div>
-          <button type="button" onclick="openActiveCourtFullscreen()" class="absolute bottom-2 left-2 bg-black/75 hover:bg-black/90 text-white px-2 py-0.5 rounded-full text-[10px] font-medium flex items-center space-x-1 transition">
-            <i class="ph-bold ph-arrows-out text-amber-300"></i>
-            <span>ดูเต็มจอ</span>
-          </button>
+
+          <!-- แถบปุ่มดาวน์โหลดรูปภาพ (รูปนี้ / ทั้งหมดแยกไฟล์) -->
+          <div class="flex items-center justify-between pt-0.5">
+            <span class="text-[10px] text-slate-500 font-medium">จัดการรูปถ่ายสนาม:</span>
+            <div class="flex items-center space-x-1.5">
+              <button type="button" onclick="downloadCurrentModalImg()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] rounded-lg font-semibold transition flex items-center space-x-1 border border-slate-200 active:scale-95">
+                <i class="ph-bold ph-download-simple"></i>
+                <span>ดาวน์โหลดรูปนี้</span>
+              </button>
+              <button type="button" onclick="downloadAllCourtImagesDirectly()" class="px-2.5 py-1 bg-victor-navy hover:bg-blue-900 text-white text-[11px] rounded-lg font-semibold transition flex items-center space-x-1 shadow-xs active:scale-95">
+                <i class="ph-bold ph-images"></i>
+                <span>ดาวน์โหลดทั้งหมด (แยกรูป)</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- รายละเอียดแบบกริด -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <!-- ผู้ติดต่อและเบอร์โทรศัพท์ (มีระบบเบลอ) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ติดต่อ</p>
             <p id="modalContact" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
             <div id="modalPhoneContainer" onclick="promptIfLocked()" class="mt-1"></div>
           </div>
 
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">เซล VICTOR ผู้ดูแล</p>
-            <p id="modalSales" class="font-bold text-victor-blue text-xs sm:text-sm mt-0.5">-</p>
-            <p id="modalProvince" class="text-slate-500 mt-1 text-[10.5px]">-</p>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ประเภทสื่อโฆษณา</p>
-            <p id="modalMediaType" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
-            <p id="modalDate" class="text-slate-500 mt-1 text-[10.5px]">ติดตั้ง: -</p>
-          </div>
-
+          <!-- งบประมาณที่ใช้ (มีระบบเบลอ) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <p class="font-semibold text-slate-500 uppercase text-[9.5px]">งบประมาณที่ใช้</p>
             <p id="modalBudget" onclick="promptIfLocked()" class="font-bold text-emerald-700 text-sm sm:text-base mt-0.5 cursor-pointer">฿0</p>
             <p class="text-[10px] text-slate-400 mt-0.5">รวมภาษีและค่าติดตั้ง</p>
           </div>
 
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ช่างผู้ติดตั้งสื่อ</p>
-            <p id="modalInstalledBy" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5 flex items-center space-x-1.5">
-              <i class="ph-bold ph-wrench text-victor-blue"></i>
-              <span>-</span>
-            </p>
+          <!-- เซล VICTOR ผู้ดูแล (พร้อมรูป Avatar) -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
+            <img id="modalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">เซล VICTOR ผู้ดูแล</p>
+              <p id="modalSales" class="font-bold text-victor-blue text-xs sm:text-sm truncate">-</p>
+              <p id="modalProvince" class="text-slate-500 text-[10.5px] truncate">-</p>
+            </div>
           </div>
 
+          <!-- ประเภทสื่อโฆษณา (Column L) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ออกแบบสื่อ</p>
-            <p id="modalDesignedBy" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5 flex items-center space-x-1.5">
-              <i class="ph-bold ph-paint-brush text-rose-600"></i>
-              <span>-</span>
-            </p>
+            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ประเภทสื่อโฆษณา</p>
+            <p id="modalMediaType" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
+            <p id="modalDate" class="text-slate-500 mt-1 text-[10.5px]">ติดตั้ง: -</p>
+          </div>
+
+          <!-- ช่างผู้ติดตั้งสื่อ (พร้อมรูป Avatar) -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
+            <img id="modalInstalledByImg" src="" alt="Installer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ช่างผู้ติดตั้งสื่อ</p>
+              <p id="modalInstalledBy" class="font-bold text-slate-800 text-xs sm:text-sm truncate">-</p>
+              <p class="text-[10px] text-slate-400">ทีมงานติดตั้ง</p>
+            </div>
+          </div>
+
+          <!-- ผู้ออกแบบสื่อ (พร้อมรูป Avatar) -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
+            <img id="modalDesignedByImg" src="" alt="Designer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ออกแบบสื่อ</p>
+              <p id="modalDesignedBy" class="font-bold text-slate-800 text-xs sm:text-sm truncate">-</p>
+              <p class="text-[10px] text-slate-400">กราฟิกดีไซเนอร์</p>
+            </div>
           </div>
 
           <!-- จำนวนคอร์ท (Column Q) -->
@@ -450,10 +478,13 @@
         <i class="ph-bold ph-image text-amber-400 text-base flex-shrink-0"></i>
         <h3 id="fullscreenTitle" class="text-xs sm:text-sm font-semibold truncate text-slate-100">-</h3>
       </div>
-      <div class="flex items-center space-x-2.5 flex-shrink-0">
+      <div class="flex items-center space-x-2 flex-shrink-0">
         <span id="fullscreenCounter" class="text-[11px] sm:text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15">
           1 / 1
         </span>
+        <button type="button" onclick="downloadCurrentFullscreenImg()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition border border-white/15" title="ดาวน์โหลดรูปภาพนี้">
+          <i class="ph-bold ph-download-simple text-base"></i>
+        </button>
         <button type="button" onclick="closeFullscreenViewer()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition border border-white/15" title="ปิด (Esc)">
           <i class="ph-bold ph-x text-base"></i>
         </button>
@@ -568,10 +599,57 @@
     const SECRET_PIN = "77181";
 
     let isUnlocked = false; // ค่าเริ่มต้นคือล็อก (เบลอข้อมูล)
+    let currentLocations = [];
+    let filteredLocations = [];
+    let map = null;
+    let markersLayer = null;
+    let activeModalCourt = null;
+    let modalImageIndex = 0;
+    let activeFullscreenImages = [];
+    let fullscreenIndex = 0;
+    let isBadgesVisible = localStorage.getItem('victor_show_badges') !== 'false'; // ค่าเริ่มต้นคือแสดง
+
+    // แปลงลิงก์ Google Drive ทุกรูปแบบให้กลายเป็น Direct CDN Image URL อัตโนมัติ
+    function normalizeImageUrl(url) {
+      if (!url) return '';
+      let cleanUrl = String(url).trim();
+      
+      if (cleanUrl.includes('drive.google.com') || cleanUrl.includes('docs.google.com')) {
+        let fileId = '';
+        const m1 = cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (m1 && m1[1]) fileId = m1[1];
+        
+        const m2 = cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (!fileId && m2 && m2[1]) fileId = m2[1];
+
+        const m3 = cleanUrl.match(/\/open\?id=([a-zA-Z0-9_-]+)/);
+        if (!fileId && m3 && m3[1]) fileId = m3[1];
+
+        if (fileId) {
+          return `https://lh3.googleusercontent.com/d/${fileId}`;
+        }
+      }
+      return cleanUrl;
+    }
+
+    // ฟังก์ชันแยก "ชื่อ" และ "ลิงก์รูปภาพในวงเล็บ" เช่น รัชนีกร (https://...)
+    function parseNameAndAvatar(rawText) {
+      if (!rawText) return { name: '-', photo: VICTOR_LOGO_URL };
+      const str = String(rawText).trim();
+      if (!str || str === '-') return { name: '-', photo: VICTOR_LOGO_URL };
+
+      const match = str.match(/^(.*?)\s*[\(\[\{](https?:\/\/[^\s\)\]\}]+)[\)\]\}]\s*$/);
+      if (match) {
+        const parsedName = match[1].trim() || '-';
+        const parsedPhoto = normalizeImageUrl(match[2].trim());
+        return { name: parsedName, photo: parsedPhoto || VICTOR_LOGO_URL };
+      }
+
+      return { name: str, photo: VICTOR_LOGO_URL };
+    }
 
     function toggleAuthLockAction() {
       if (isUnlocked) {
-        // หากปลดล็อกอยู่ ให้ทำการล็อกกลับ
         isUnlocked = false;
         updateAuthButtonState();
         renderMarkers();
@@ -637,39 +715,6 @@
         if (text) text.innerText = "ปลดล็อกข้อมูล";
       }
     }
-
-    // แปลงลิงก์ Google Drive ทุกรูปแบบให้กลายเป็น Direct CDN Image URL อัตโนมัติ
-    function normalizeImageUrl(url) {
-      if (!url) return '';
-      let cleanUrl = String(url).trim();
-      
-      if (cleanUrl.includes('drive.google.com') || cleanUrl.includes('docs.google.com')) {
-        let fileId = '';
-        const m1 = cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-        if (m1 && m1[1]) fileId = m1[1];
-        
-        const m2 = cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-        if (!fileId && m2 && m2[1]) fileId = m2[1];
-
-        const m3 = cleanUrl.match(/\/open\?id=([a-zA-Z0-9_-]+)/);
-        if (!fileId && m3 && m3[1]) fileId = m3[1];
-
-        if (fileId) {
-          return `https://lh3.googleusercontent.com/d/${fileId}`;
-        }
-      }
-      return cleanUrl;
-    }
-
-    let currentLocations = [];
-    let filteredLocations = [];
-    let map = null;
-    let markersLayer = null;
-    let activeModalCourt = null;
-    let modalImageIndex = 0;
-    let activeFullscreenImages = [];
-    let fullscreenIndex = 0;
-    let isBadgesVisible = localStorage.getItem('victor_show_badges') !== 'false'; // ค่าเริ่มต้นคือแสดง
 
     function toggleBadgesVisibility() {
       isBadgesVisible = !isBadgesVisible;
@@ -752,7 +797,6 @@
 
           L.control.zoom({ position: 'topright' }).addTo(map);
 
-          // ใช้ OpenStreetMap ที่โหลดเร็วและคมชัดบน GitHub Pages
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
           }).addTo(map);
@@ -772,9 +816,8 @@
     function getStatusColor(status) {
       if (!status) return '#10b981';
       const s = String(status).trim().toLowerCase();
-      // เช็คสถานะชำรุดรอซ่อมก่อน เพื่อให้แสดงสีแดงเสมอ
       if (s.includes('ชำรุด') || s.includes('ซ่อม') || s.includes('รอซ่อม') || s.includes('เสียหาย') || s.includes('แก้ไข') || s.includes('repair')) {
-        return '#e11d48'; // สีแดงสด (Rose/Red)
+        return '#e11d48'; // สีแดงสด
       }
       if (s.includes('ระหว่าง') || s.includes('กำลัง') || s.includes('รอติดตั้ง') || s.includes('รอดำเนินการ') || s.includes('pending')) {
         return '#f59e0b'; // สีส้มทอง
@@ -785,7 +828,6 @@
       return '#0284c7';
     }
 
-    // คำนวณคะแนนของรอบสื่อเพื่อจัดอันดับความใหม่-เก่า (เช่น 2026Q3Q4 > 2026Q1Q2 > 2025Q3Q4)
     function parsePeriodScore(periodStr) {
       if (!periodStr) return 0;
       const str = String(periodStr).toUpperCase().replace(/[\s\-_/]/g, '');
@@ -807,7 +849,6 @@
       return (year * 10) + subScore;
     }
 
-    // จัดกลุ่มรอบสื่อทั้งหมดที่พบในข้อมูล เพื่อหาว่าอันไหนใหม่สุด, เก่าลงมา 1 รอบ, และเก่าหลังจากนั้น
     function getSortedUniquePeriods() {
       const set = new Set();
       currentLocations.forEach(c => {
@@ -834,16 +875,13 @@
       if (rank === 1) {
         return { bg: '#1d4ed8', text: '#ffffff' };
       }
-      // อันดับ 2 เป็นต้นไป (เก่าหลังจากนั้นลงไป) = สีเทา
+      // อันดับ 2 เป็นต้นไป (เก่าหลังจากนั้น) = สีเทา
       return { bg: '#64748b', text: '#ffffff' };
     }
 
-    // แยกข้อความรอบสื่อเป็น 2 บรรทัด (บรรทัดแรก: ปี, บรรทัดที่ 2: ไตรมาส/รอบ)
     function splitPeriodTwoLines(periodStr) {
       if (!periodStr) return { line1: '', line2: '' };
       const raw = String(periodStr).trim();
-      
-      // ตัวอย่าง: 2026Q3Q4 หรือ 2026 Q1Q2 หรือ 26Q1
       const match = raw.match(/^(\d{4}|\d{2})[\s\-_/]*(.*)$/);
       if (match) {
         let y = match[1];
@@ -851,8 +889,6 @@
         let q = match[2] ? match[2].trim() : '';
         return { line1: y, line2: q };
       }
-
-      // ถ้าไม่มีรูปแบบปี ให้แบ่งครึ่งหรือแสดงบรรทัดแรก
       return { line1: raw, line2: '' };
     }
 
@@ -874,8 +910,6 @@
       const badgeStyle = getPeriodBadgeColor(periodLabel);
       const split = splitPeriodTwoLines(periodLabel);
 
-      // สร้างป้าย 2 บรรทัด ขนาดกะทัดรัด (เล็กกว่าหมุดประมาณ 4 เท่า)
-      // ติดมุมขวาบนของหมุดอย่างลงตัว (แสดงตามค่า isBadgesVisible)
       const badgeHtml = (isBadgesVisible && periodLabel) ? `
         <div style="position: absolute; top: -5px; right: -10px; background: ${badgeStyle.bg}; color: ${badgeStyle.text}; font-family: 'Prompt', sans-serif; padding: 1.5px 3.5px; border-radius: 5px; border: 1.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.4); text-align: center; line-height: 1.05; z-index: 25; pointer-events: none; min-width: 22px;">
           <div style="font-size: 7.5px; font-weight: 800; letter-spacing: -0.2px;">${split.line1}</div>
@@ -904,7 +938,6 @@
       markersLayer.clearLayers();
       const bounds = L.latLngBounds();
 
-      // ตรวจจับพิกัดซ้ำกัน เพื่อขยับเยื้องตำแหน่งเล็กน้อย ไม่ให้หมุดทับกันจนมิด
       const coordCounts = {};
 
       filteredLocations.forEach((court) => {
@@ -917,7 +950,7 @@
         if (coordCounts[key]) {
           const count = coordCounts[key];
           const angle = count * 1.2;
-          const radius = 0.00020 * count; // เยื้องประมาณ 15-20 เมตร
+          const radius = 0.00020 * count;
           displayLat += Math.sin(angle) * radius;
           displayLng += Math.cos(angle) * radius;
           coordCounts[key]++;
@@ -938,6 +971,7 @@
         const badgeColor = getPeriodBadgeColor(court.period);
         const budgetFormatted = `฿${Number(court.budget || 0).toLocaleString()}`;
         const budgetClass = isUnlocked ? 'font-bold text-emerald-700 block' : 'font-bold text-emerald-700 block sensitive-blur';
+        const displaySalesName = parseNameAndAvatar(court.sales).name;
 
         const popupContent = `
           <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
@@ -956,7 +990,7 @@
                 <span style="background: ${badgeColor.bg}; color: ${badgeColor.text};" class="text-[9px] font-extrabold px-2 py-0.5 rounded-full whitespace-nowrap shadow-xs">${court.period || ''}</span>
               </div>
               <p class="text-[10px] text-slate-500 mt-0.5 truncate">
-                เซล: <strong class="text-slate-700">${court.sales || '-'}</strong> | ${court.province || '-'}
+                เซล: <strong class="text-slate-700">${displaySalesName}</strong> | ${court.province || '-'}
               </p>
               ${hasMultiple ? `
                 <div class="mt-1 flex items-center gap-1 text-[9.5px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
@@ -1156,6 +1190,7 @@
         const sameNameCount = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === v.courtName.trim().toLowerCase()).length;
         const budgetFormatted = `฿${Number(v.budget || 0).toLocaleString()}`;
         const budgetClass = isUnlocked ? 'font-bold text-emerald-700' : 'font-bold text-emerald-700 sensitive-blur';
+        const displaySalesName = parseNameAndAvatar(v.sales).name;
 
         card.innerHTML = `
           <div class="relative flex-shrink-0">
@@ -1172,7 +1207,7 @@
               <span class="font-mono text-[8.5px] font-bold text-victor-blue ml-1 whitespace-nowrap">${v.period || ''}</span>
             </div>
             <p class="text-[10px] text-slate-500 truncate mt-0.5">
-              เซล: <strong class="text-slate-700">${v.sales || '-'}</strong> | ${v.province || '-'}
+              เซล: <strong class="text-slate-700">${displaySalesName}</strong> | ${v.province || '-'}
             </p>
             <div class="flex items-center justify-between mt-0.5 text-[10.5px]">
               <span class="text-slate-500 truncate max-w-[110px]">${v.courtCount && v.courtCount !== '-' ? `🏸 ${v.courtCount}` : (v.mediaType || 'ทั่วไป')}</span>
@@ -1279,7 +1314,7 @@
       const statuses = new Set();
 
       currentLocations.forEach(c => {
-        if (c.sales) salesSet.add(c.sales.trim());
+        if (c.sales) salesSet.add(parseNameAndAvatar(c.sales).name);
         if (c.province) provinces.add(c.province.trim());
         if (c.period) periods.add(c.period.trim());
         if (c.status) statuses.add(c.status.trim());
@@ -1326,9 +1361,13 @@
       if (clearBtn) clearBtn.classList.toggle('hidden', q.length === 0);
 
       filteredLocations = currentLocations.filter(c => {
-        const searchable = `${c.courtName} ${c.contactName} ${c.sales} ${c.installedBy} ${c.designedBy} ${c.province} ${c.installDate}`.toLowerCase();
+        const salesParsed = parseNameAndAvatar(c.sales).name;
+        const installerParsed = parseNameAndAvatar(c.installedBy).name;
+        const designerParsed = parseNameAndAvatar(c.designedBy).name;
+
+        const searchable = `${c.courtName} ${c.contactName} ${salesParsed} ${installerParsed} ${designerParsed} ${c.province} ${c.installDate}`.toLowerCase();
         const matchSearch = !q || searchable.includes(q);
-        const matchSales = !sales || c.sales === sales;
+        const matchSales = !sales || salesParsed === sales;
         const matchProvince = !prov || c.province === prov;
         const matchPeriod = !period || c.period === period;
         const matchMediaType = !mediaType || (c.mediaType && c.mediaType.includes(mediaType));
@@ -1463,7 +1502,25 @@
         phoneCont.className = 'mt-1';
       }
 
-      document.getElementById('modalSales').innerText = v.sales || '-';
+      // แสดงข้อมูลทีมงานพร้อมรูป Avatar
+      const salesInfo = parseNameAndAvatar(v.sales);
+      document.getElementById('modalSales').innerText = salesInfo.name;
+      const salesImgEl = document.getElementById('modalSalesImg');
+      salesImgEl.src = salesInfo.photo;
+      salesImgEl.onerror = () => { salesImgEl.src = VICTOR_LOGO_URL; };
+
+      const installerInfo = parseNameAndAvatar(v.installedBy);
+      document.getElementById('modalInstalledBy').innerText = installerInfo.name;
+      const installerImgEl = document.getElementById('modalInstalledByImg');
+      installerImgEl.src = installerInfo.photo;
+      installerImgEl.onerror = () => { installerImgEl.src = VICTOR_LOGO_URL; };
+
+      const designerInfo = parseNameAndAvatar(v.designedBy);
+      document.getElementById('modalDesignedBy').innerText = designerInfo.name;
+      const designerImgEl = document.getElementById('modalDesignedByImg');
+      designerImgEl.src = designerInfo.photo;
+      designerImgEl.onerror = () => { designerImgEl.src = VICTOR_LOGO_URL; };
+
       document.getElementById('modalProvince').innerText = `จังหวัด: ${v.province || '-'}`;
       document.getElementById('modalMediaType').innerText = v.mediaType || '-';
       document.getElementById('modalDate').innerText = `วันที่ติดตั้ง: ${v.installDate || '-'}`;
@@ -1476,16 +1533,6 @@
       } else {
         modalBudgetEl.classList.add('sensitive-blur');
         modalBudgetEl.title = 'คลิกเพื่อปลดล็อก';
-      }
-      
-      const installedByEl = document.getElementById('modalInstalledBy');
-      if (installedByEl && installedByEl.querySelector('span')) {
-        installedByEl.querySelector('span').innerText = v.installedBy || '-';
-      }
-
-      const designedByEl = document.getElementById('modalDesignedBy');
-      if (designedByEl && designedByEl.querySelector('span')) {
-        designedByEl.querySelector('span').innerText = v.designedBy || '-';
       }
 
       const courtCountEl = document.getElementById('modalCourtCount');
@@ -1561,6 +1608,69 @@
       updateCarousel();
     };
 
+    async function triggerSingleImageDownload(url, filename) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      } catch (err) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    }
+
+    function downloadCurrentModalImg() {
+      if (!activeModalCourt) return;
+      const rawImgs = (activeModalCourt.images && activeModalCourt.images.length > 0)
+        ? activeModalCourt.images
+        : [VICTOR_LOGO_URL];
+      const targetUrl = normalizeImageUrl(rawImgs[modalImageIndex]);
+      const filename = `${activeModalCourt.courtName}_${activeModalCourt.period || ''}_img${modalImageIndex + 1}.jpg`;
+      triggerSingleImageDownload(targetUrl, filename);
+      showToast('📥 กำลังดาวน์โหลดรูปภาพ...');
+    }
+
+    function downloadCurrentFullscreenImg() {
+      if (!activeFullscreenImages || activeFullscreenImages.length === 0) return;
+      const targetUrl = activeFullscreenImages[fullscreenIndex];
+      const title = document.getElementById('fullscreenTitle').innerText || 'VICTOR_Court';
+      const filename = `${title}_img${fullscreenIndex + 1}.jpg`;
+      triggerSingleImageDownload(targetUrl, filename);
+      showToast('📥 กำลังดาวน์โหลดรูปภาพนี้...');
+    }
+
+    async function downloadAllCourtImagesDirectly() {
+      if (!activeModalCourt || !activeModalCourt.images || activeModalCourt.images.length === 0) {
+        showToast('⚠️ สนามนี้ไม่มีรูปภาพสำหรับดาวน์โหลด');
+        return;
+      }
+
+      showToast(`📥 กำลังเริ่มดาวน์โหลด ${activeModalCourt.images.length} รูป...`);
+
+      for (let i = 0; i < activeModalCourt.images.length; i++) {
+        const rawUrl = activeModalCourt.images[i];
+        const targetUrl = normalizeImageUrl(rawUrl);
+        const filename = `${activeModalCourt.courtName}_${activeModalCourt.period || ''}_img${i + 1}.jpg`;
+        await triggerSingleImageDownload(targetUrl, filename);
+        // หน่วงเวลาสั้นๆ เพื่อให้เบราว์เซอร์ดาวน์โหลดทีละรูปไม่ชนกัน
+        await new Promise(resolve => setTimeout(resolve, 400));
+      }
+
+      showToast('✅ ดาวน์โหลดรูปภาพทั้งหมดเสร็จสิ้น!');
+    }
+
     window.openFullscreenViewer = function(courtId, startIndex = 0) {
       const court = currentLocations.find(c => c.id === courtId);
       if (!court) return;
@@ -1631,7 +1741,7 @@
       }
     }
 
-    // รองรับการปัดหน้าจอบนมือถือ (Swipe Left/Right) ในโหมดดูเต็มจอ
+    // รองรับการปัดหน้าจอบนมือถือ (Swipe Left/Right)
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -1683,7 +1793,7 @@
       const dateIdx = getIdx(['วันที่', 'ติดตั้งเมื่อ'], 8);
       const budgetIdx = getIdx(['งบประมาณ', 'งบ'], 9);
       const provIdx = getIdx(['จังหวัด'], 10);
-      // กำหนดคอลัมน์ L (Index 11) เป็นประเภทสื่อโฆษณาโดยตรง
+      // คอลัมน์ L (Index 11) เป็นประเภทสื่อโฆษณา
       const mediaIdx = (headers.length > 11 && headers[11]) ? 11 : getIdx(['ประเภทสื่อโฆษณา', 'ประเภทสื่อ', 'ชนิดสื่อ', 'media'], 11);
       const statusIdx = getIdx(['สถานะ'], 12);
       const periodIdx = getIdx(['รอบสื่อ', 'ปี'], 13);
@@ -1742,6 +1852,102 @@
       return parsed;
     }
 
+    // ข้อมูลจำลองสำหรับโหมดพรีวิวเมื่อไม่มีการเชื่อมต่อสด
+    function getFallbackMockData() {
+      return [
+        {
+          id: 'court-1',
+          courtName: 'ZIG ZAG Badminton Arena',
+          contactName: 'คุณกอล์ฟ ผู้จัดการ',
+          phone: '081-999-8877',
+          sales: 'ธนกฤต (https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150)',
+          mapsUrl: 'https://maps.google.com/?q=13.736717,100.523186',
+          lat: 13.736717,
+          lng: 100.523186,
+          images: [
+            'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800',
+            'https://images.unsplash.com/photo-1613918108466-292b78a8ef95?w=800'
+          ],
+          folderUrl: 'https://drive.google.com',
+          installDate: '2026-08-15',
+          budget: 45000,
+          province: 'กรุงเทพมหานคร',
+          mediaType: 'ไวนิล, ป้ายข้างคอร์ท, สติกเกอร์ติดกระจก',
+          status: 'ติดตั้งเสร็จสมบูรณ์',
+          period: '2026Q3Q4',
+          installedBy: 'ช่างวิเชียร (https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150)',
+          designedBy: 'รัชนีกร (https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150)',
+          courtCount: '12 คอร์ท'
+        },
+        {
+          id: 'court-2',
+          courtName: 'ZIG ZAG Badminton Arena',
+          contactName: 'คุณกอล์ฟ ผู้จัดการ',
+          phone: '081-999-8877',
+          sales: 'ธนกฤต',
+          mapsUrl: 'https://maps.google.com/?q=13.736717,100.523186',
+          lat: 13.736717,
+          lng: 100.523186,
+          images: ['https://images.unsplash.com/photo-1521537634581-0dced2fedc42?w=800'],
+          folderUrl: 'https://drive.google.com',
+          installDate: '2026-02-10',
+          budget: 32000,
+          province: 'กรุงเทพมหานคร',
+          mediaType: 'ป้ายข้างคอร์ท',
+          status: 'ติดตั้งเสร็จสมบูรณ์',
+          period: '2026Q1Q2',
+          installedBy: 'ช่างวิเชียร',
+          designedBy: 'รัชนีกร',
+          courtCount: '12 คอร์ท'
+        },
+        {
+          id: 'court-3',
+          courtName: 'Pattaya Monkey Badminton',
+          contactName: 'เฮียชัย พัทยา',
+          phone: '038-776-5544',
+          sales: 'สมชาย ผู้ดูแลภาคตะวันออก',
+          mapsUrl: 'https://maps.google.com/?q=12.927608,100.877081',
+          lat: 12.927608,
+          lng: 100.877081,
+          images: [
+            'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800',
+            'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=800'
+          ],
+          folderUrl: 'https://drive.google.com',
+          installDate: '2025-11-20',
+          budget: 58000,
+          province: 'ชลบุรี',
+          mediaType: 'ผ้าบังแสง, สติกเกอร์ติดผนัง, ป้ายเลขสนาม',
+          status: 'ชำรุดรอซ่อม',
+          period: '2025Q3Q4',
+          installedBy: 'ทีมช่างพัทยาโปร (https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150)',
+          designedBy: 'สิทธิชัย กราฟิก',
+          courtCount: '18 คอร์ท'
+        },
+        {
+          id: 'court-4',
+          courtName: 'Chiang Mai Smashing Club',
+          contactName: 'คุณนพดล',
+          phone: '053-112-2334',
+          sales: 'อนุชา ภาคเหนือ',
+          mapsUrl: 'https://maps.google.com/?q=18.7883,98.9853',
+          lat: 18.7883,
+          lng: 98.9853,
+          images: [],
+          folderUrl: '',
+          installDate: '',
+          budget: 25000,
+          province: 'เชียงใหม่',
+          mediaType: 'ป้ายทางเข้า, Foamboard',
+          status: 'อยู่ระหว่างติดตั้ง',
+          period: '2025Q1Q2',
+          installedBy: '-',
+          designedBy: 'รัชนีกร',
+          courtCount: '8 คอร์ท'
+        }
+      ];
+    }
+
     function loadDataFromSheets() {
       const icon = document.getElementById('refreshIcon');
       if (icon) icon.classList.add('animate-spin');
@@ -1765,12 +1971,19 @@
               return;
             }
           }
-          showToast('⚠️ รูปแบบตารางไม่ถูกต้อง');
+          // หากข้อมูลว่าง ให้ใช้ Fallback Data
+          currentLocations = getFallbackMockData();
+          rebuildDropdowns();
+          applyFilters();
+          showToast('⚠️ แสดงข้อมูลจำลอง');
         },
         error: (err) => {
           if (icon) icon.classList.remove('animate-spin');
-          console.error("Papa parse error:", err);
-          showToast('❌ ไม่สามารถโหลดข้อมูลจาก Google Sheets ได้');
+          console.warn("Using fallback preview data due to network:", err);
+          currentLocations = getFallbackMockData();
+          rebuildDropdowns();
+          applyFilters();
+          showToast('ℹ️ เปิดโหมดพรีวิวข้อมูลตัวอย่าง');
         }
       });
     }
