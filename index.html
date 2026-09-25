@@ -437,6 +437,51 @@
               </a>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- หน้าต่างดูรูปภาพขนาดเต็มจอ (Fullscreen Lightbox Modal) -->
+  <div id="fullscreenModal" class="hidden fixed inset-0 bg-black/95 z-[99999] flex flex-col select-none backdrop-blur-md">
+    <!-- แถบด้านบนของ Fullscreen Viewer -->
+    <div class="flex items-center justify-between px-3 sm:px-5 py-3 bg-black/60 text-white z-20 border-b border-white/10 flex-shrink-0">
+      <div class="flex items-center space-x-2 min-w-0 pr-2">
+        <i class="ph-bold ph-image text-amber-400 text-base flex-shrink-0"></i>
+        <h3 id="fullscreenTitle" class="text-xs sm:text-sm font-semibold truncate text-slate-100">-</h3>
+      </div>
+      <div class="flex items-center space-x-2.5 flex-shrink-0">
+        <span id="fullscreenCounter" class="text-[11px] sm:text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15">
+          1 / 1
+        </span>
+        <button type="button" onclick="closeFullscreenViewer()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition border border-white/15" title="ปิด (Esc)">
+          <i class="ph-bold ph-x text-base"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- พื้นที่แสดงรูปภาพเต็มจอ -->
+    <div class="flex-1 relative flex items-center justify-center p-2 sm:p-4 overflow-hidden" onclick="onLightboxBackdropClick(event)">
+      <!-- ปุ่มรูปก่อนหน้า -->
+      <button id="fullscreenPrevBtn" type="button" onclick="event.stopPropagation(); prevFullscreenImg();" class="absolute left-2.5 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex items-center justify-center transition border border-white/25 z-20 shadow-2xl" title="รูปก่อนหน้า (ลูกศรซ้าย)">
+        <i class="ph-bold ph-caret-left text-xl sm:text-2xl"></i>
+      </button>
+
+      <!-- รูปภาพหลัก -->
+      <img id="fullscreenImg" src="" alt="Fullscreen Court Photo" class="max-w-full max-h-[82vh] object-contain rounded-lg shadow-2xl transition duration-200 select-none cursor-default" onclick="event.stopPropagation()" />
+
+      <!-- ปุ่มรูปถัดไป -->
+      <button id="fullscreenNextBtn" type="button" onclick="event.stopPropagation(); nextFullscreenImg();" class="absolute right-2.5 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex items-center justify-center transition border border-white/25 z-20 shadow-2xl" title="รูปถัดไป (ลูกศรขวา)">
+        <i class="ph-bold ph-caret-right text-xl sm:text-2xl"></i>
+      </button>
+    </div>
+
+    <!-- แถบคำแนะนำด้านล่าง -->
+    <div class="px-4 py-2 bg-black/60 text-center text-[10.5px] sm:text-xs text-slate-400 border-t border-white/10 flex-shrink-0">
+      <span>กดลูกศร ◀ ▶ เพื่อเปลี่ยนรูป • ปัดซ้าย/ขวาบนมือถือ • กด Esc หรือแตะพื้นที่ว่างเพื่อปิด</span>
+    </div>
+  </div>
+
   <!-- หน้าต่างตั้งค่าแหล่งข้อมูล (Settings Modal) -->
   <div id="syncModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl border border-slate-100 space-y-3">
@@ -1585,6 +1630,29 @@
         closeFullscreenViewer();
       }
     }
+
+    // รองรับการปัดหน้าจอบนมือถือ (Swipe Left/Right) ในโหมดดูเต็มจอ
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      const modal = document.getElementById('fullscreenModal');
+      if (modal && !modal.classList.contains('hidden')) {
+        touchStartX = e.changedTouches[0].screenX;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const modal = document.getElementById('fullscreenModal');
+      if (modal && !modal.classList.contains('hidden')) {
+        touchEndX = e.changedTouches[0].screenX;
+        const diffX = touchEndX - touchStartX;
+        if (Math.abs(diffX) > 45) {
+          if (diffX < 0) nextFullscreenImg();
+          else prevFullscreenImg();
+        }
+      }
+    }, { passive: true });
 
     document.addEventListener('keydown', (e) => {
       const modal = document.getElementById('fullscreenModal');
