@@ -596,7 +596,15 @@
   <script>
     const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=0&single=true&output=csv";
     const VICTOR_LOGO_URL = "https://scontent.fbkk6-1.fna.fbcdn.net/v/t39.30808-6/351481026_3740027179563041_5049801915800968898_n.jpg?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=s2048x2048&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=wcSAPTyjTJUQ7kNvwGWcl8s&_nc_oc=Adp8jBkPP6oKByHCCYMktnJyweQTGOtDMftQxPVA9FgVsH484aGRllq5HXzHmU0frdo&_nc_zt=23&_nc_ht=scontent.fbkk6-1.fna&_nc_gid=thg9rzkRzwoPEdhZa_0bZg&_nc_ss=7b2a8&oh=00_AQIJ_G_1BKP3N5pBiYDNF0r_GzoFskT-cZaCeLWq8gqw8Q&oe=6ABADA78";
+    const FORZA_LOGO_URL = "https://scontent.fbkk7-3.fna.fbcdn.net/v/t39.30808-6/301943643_488370303300619_7315755865953000461_n.jpg?stp=dst-jpg_tt6&cstp=mx674x674&ctp=s674x674&_nc_cat=106&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=zXJtqwvDOZQQ7kNvwF8fDMp&_nc_oc=Adqzh0hNGeOEbbaksQIgiNQGrLIY3-_0LXtFny4eKExMafXwWJqLCO3djIQuYl2ZCyY&_nc_zt=23&_nc_ht=scontent.fbkk7-3.fna&_nc_gid=PsP6oLvnH2TKwvJcuw_CDA&_nc_ss=7b2a8&oh=00_AQNp8395ID40_S0WX-xpbVU4aj6kTNDKwW6CZqbQ9V07xw&oe=6ABFB124";
     const SECRET_PIN = "77181";
+
+    // ตรวจสอบว่าสนามนี้เป็นแบรนด์ FZ FORZA หรือไม่
+    function isForzaCourt(courtName) {
+      if (!courtName) return false;
+      const upper = String(courtName).toUpperCase();
+      return upper.includes('FZ FORZA') || upper.includes('(FZ FORZA)');
+    }
 
     let isUnlocked = false; // ค่าเริ่มต้นคือล็อก (เบลอข้อมูล)
     let currentLocations = [];
@@ -904,11 +912,14 @@
       return '<span class="text-emerald-500 font-bold">● ' + status + '</span>';
     }
 
-    function createMarkerIcon(status, period) {
+    function createMarkerIcon(status, period, courtName) {
       const color = getStatusColor(status);
       const periodLabel = (period && period.trim() && period.trim() !== '-') ? period.trim() : '';
       const badgeStyle = getPeriodBadgeColor(periodLabel);
       const split = splitPeriodTwoLines(periodLabel);
+
+      // ตรวจสอบโลโก้แบรนด์สำหรับหมุด (FZ FORZA หรือ VICTOR)
+      const markerLogoUrl = isForzaCourt(courtName) ? FORZA_LOGO_URL : VICTOR_LOGO_URL;
 
       const badgeHtml = (isBadgesVisible && periodLabel) ? `
         <div style="position: absolute; top: -5px; right: -10px; background: ${badgeStyle.bg}; color: ${badgeStyle.text}; font-family: 'Prompt', sans-serif; padding: 1.5px 3.5px; border-radius: 5px; border: 1.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.4); text-align: center; line-height: 1.05; z-index: 25; pointer-events: none; min-width: 22px;">
@@ -922,7 +933,7 @@
         html: `
           <div style="position: relative; width: 38px; height: 38px;">
             <div style="background-color: white; border: 3.5px solid ${color}; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 4px 14px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px; transition: transform 0.2s ease;">
-              <img src="${VICTOR_LOGO_URL}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none;" alt="V" onerror="this.outerHTML='🏸'" />
+              <img src="${markerLogoUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none;" alt="V" onerror="this.outerHTML='🏸'" />
             </div>
             ${badgeHtml}
           </div>
@@ -959,12 +970,13 @@
         }
 
         const marker = L.marker([displayLat, displayLng], {
-          icon: createMarkerIcon(court.status, court.period)
+          icon: createMarkerIcon(court.status, court.period, court.courtName)
         });
 
+        const courtBrandLogo = isForzaCourt(court.courtName) ? FORZA_LOGO_URL : VICTOR_LOGO_URL;
         const primaryImg = (court.images && court.images.length > 0)
           ? normalizeImageUrl(court.images[0])
-          : VICTOR_LOGO_URL;
+          : courtBrandLogo;
 
         const sameNameRecords = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === court.courtName.trim().toLowerCase());
         const hasMultiple = sameNameRecords.length > 1;
@@ -1185,7 +1197,7 @@
 
         const cardImg = (v.images && v.images.length > 0)
           ? normalizeImageUrl(v.images[0])
-          : VICTOR_LOGO_URL;
+          : (isForzaCourt(v.courtName) ? FORZA_LOGO_URL : VICTOR_LOGO_URL);
 
         const sameNameCount = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === v.courtName.trim().toLowerCase()).length;
         const budgetFormatted = `฿${Number(v.budget || 0).toLocaleString()}`;
