@@ -119,11 +119,11 @@
         <i class="ph-bold ph-list text-lg"></i>
       </button>
 
-      <!-- โลโก้ VICTOR มุมบนซ้าย (แสดงตามสัดส่วนจริง) -->
-      <div class="h-8 sm:h-9 px-1.5 sm:px-2 bg-white rounded-xl flex items-center justify-center shadow-md border-2 border-amber-400 flex-shrink-0 overflow-hidden">
+      <!-- โลโก้ VICTOR+ มุมบนซ้าย (แสดงตามสัดส่วนจริง) -->
+      <div class="h-8 sm:h-9 px-1.5 sm:px-2 bg-white rounded-xl flex items-center justify-center shadow-md border border-amber-400/80 flex-shrink-0 overflow-hidden">
         <img id="headerVictorLogo" src="https://lh3.googleusercontent.com/d/1635bFr8TC3_j7FCr5mHo3d3H3ZevC6q0" 
              alt="VICTOR Logo" 
-             class="h-full w-auto max-h-6 sm:max-h-7 object-contain rounded-md"
+             style="height: 100%; width: auto; max-width: 140px; object-fit: contain; display: block;"
              onerror="this.onerror=null; this.src='https://lh3.googleusercontent.com/d/1MppkVebrR2E82ex-hlV85F7tmiFT7Dfh';" />
       </div>
 
@@ -341,7 +341,6 @@
 
       </div>
 
-      <!-- รายชื่อสนาม / รายชื่องานแข่ง -->
       <div id="courtList" class="flex-1 overflow-y-auto custom-scrollbar p-2 sm:p-2.5 space-y-1.5 sm:space-y-2">
         <div id="courtLoadingState" class="text-center py-10 text-slate-400 text-xs">
           <div class="w-6 h-6 border-2 border-victor-accent border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
@@ -350,6 +349,7 @@
       </div>
     </aside>
 
+    <!-- พื้นที่แผนที่และแถบสถานะ -->
     <main class="flex-1 h-full relative overflow-hidden bg-slate-200">
       <div id="map"></div>
 
@@ -386,7 +386,6 @@
   <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
       
-      <!-- หัว Modal -->
       <div class="relative bg-victor-navy text-white p-3.5 sm:p-4 flex items-start justify-between">
         <div>
           <div class="flex items-center space-x-1.5 mb-1 flex-wrap gap-y-1">
@@ -406,7 +405,6 @@
       </div>
 
       <div class="p-3.5 sm:p-4 space-y-3">
-        <!-- แถบสลับรอบสื่อ (กรณีสนามเดียวกันมีหลายรอบ) -->
         <div id="modalMultiRoundBox" class="hidden p-2 rounded-xl bg-amber-50 border border-amber-200 space-y-1.5">
           <div class="flex items-center justify-between text-[11px] font-bold text-amber-800">
             <span class="flex items-center gap-1">
@@ -418,7 +416,6 @@
           <div id="modalRoundButtons" class="flex flex-wrap gap-1.5"></div>
         </div>
 
-        <!-- แกลเลอรีรูปภาพ -->
         <div class="space-y-1.5">
           <div class="relative w-full h-36 sm:h-48 md:h-56 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
             <img id="modalCarouselImg" src="" alt="Court Photo" class="w-full h-full object-cover transition duration-300 cursor-pointer" onclick="openActiveCourtFullscreen()" />
@@ -454,23 +451,19 @@
           </div>
         </div>
 
-        <!-- รายละเอียดแบบกริด -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <!-- ผู้ติดต่อและเบอร์โทรศัพท์ (มีระบบเบลอ) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ติดต่อ</p>
             <p id="modalContact" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
             <div id="modalPhoneContainer" onclick="promptIfLocked()" class="mt-1"></div>
           </div>
 
-          <!-- งบประมาณที่ใช้ (มีระบบเบลอ) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <p class="font-semibold text-slate-500 uppercase text-[9.5px]">งบประมาณที่ใช้</p>
             <p id="modalBudget" onclick="promptIfLocked()" class="font-bold text-emerald-700 text-sm sm:text-base mt-0.5 cursor-pointer">฿0</p>
             <p class="text-[10px] text-slate-400 mt-0.5">รวมภาษีและค่าติดตั้ง</p>
           </div>
 
-          <!-- เซล VICTOR ผู้ดูแล -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
             <img id="modalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
             <div class="min-w-0 flex-1">
@@ -480,14 +473,12 @@
             </div>
           </div>
 
-          <!-- ประเภทสื่อโฆษณา -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ประเภทสื่อโฆษณา</p>
             <p id="modalMediaType" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
             <p id="modalDate" class="text-slate-500 mt-1 text-[10.5px]">ติดตั้ง: -</p>
           </div>
 
-          <!-- ช่างผู้ติดตั้งสื่อ -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
             <img id="modalInstalledByImg" src="" alt="Installer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
             <div class="min-w-0 flex-1">
@@ -497,7 +488,6 @@
             </div>
           </div>
 
-          <!-- ผู้ออกแบบสื่อ -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
             <img id="modalDesignedByImg" src="" alt="Designer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
             <div class="min-w-0 flex-1">
@@ -507,7 +497,6 @@
             </div>
           </div>
 
-          <!-- จำนวนคอร์ท -->
           <div class="sm:col-span-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
             <div>
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">จำนวนคอร์ทแบดมินตัน</p>
@@ -519,7 +508,6 @@
             <span class="text-[10.5px] text-slate-400">คอลัมน์ Q ใน Google Sheets</span>
           </div>
 
-          <!-- GPS & Actions -->
           <div class="sm:col-span-2 p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">พิกัด GPS</p>
@@ -547,6 +535,7 @@
 
   <div id="tournamentModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
+      
       <div class="relative bg-gradient-to-r from-amber-600 via-amber-700 to-amber-900 text-white p-3.5 sm:p-4 flex items-start justify-between">
         <div>
           <div class="flex items-center space-x-1.5 mb-1 flex-wrap gap-y-1">
@@ -569,7 +558,7 @@
       </div>
 
       <div class="p-3.5 sm:p-4 space-y-3">
-        <!-- โปสเตอร์งานแข่งขัน -->
+        <!-- โปสเตอร์งานแข่งขัน (จากคอลัมน์ J) -->
         <div class="relative w-full h-48 sm:h-64 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
           <img id="tourModalPosterImg" src="" alt="Tournament Poster" class="w-full h-full object-contain cursor-pointer transition hover:scale-[1.02]" onclick="openActiveTournamentFullscreen()" />
           <button type="button" onclick="openActiveTournamentFullscreen()" class="absolute bottom-2 left-2 bg-black/75 hover:bg-black/90 text-white px-2.5 py-1 rounded-full text-[10.5px] font-medium flex items-center space-x-1 transition shadow-md">
@@ -582,70 +571,82 @@
           </button>
         </div>
 
-        <!-- รายละเอียดงานแข่งแบบกริด -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">สนามที่ใช้จัดแข่งขัน</p>
-            <p id="tourModalVenue" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
-            <p id="tourModalCourts" class="text-slate-500 text-[10.5px] mt-0.5">จำนวน: - คอร์ท</p>
-          </div>
+        <!-- รายละเอียดแบบ 2 ฝั่ง (แนวทางที่ 2: ฝั่งซ้ายข้อมูลหลัก, ฝั่งขวาหลอดลูกแบดทรงตั้ง 51x286) -->
+        <div class="flex flex-col sm:flex-row gap-2.5 items-stretch">
+          
+          <!-- ฝั่งซ้าย: ข้อมูลงานแข่ง -->
+          <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">สนามที่ใช้จัดแข่งขัน</p>
+              <p id="tourModalVenue" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
+              <p id="tourModalCourts" class="text-slate-500 text-[10.5px] mt-0.5">จำนวน: - คอร์ท</p>
+            </div>
 
-          <!-- บล็อกแสดงรูปลูกแบดมินตันและชื่อรุ่น -->
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
-            <img id="tourModalShuttleImg" src="" alt="Shuttlecock" class="w-10 h-10 rounded-xl object-contain border border-amber-200/80 bg-white shadow-xs flex-shrink-0 p-1" />
-            <div class="min-w-0 flex-1">
-              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ลูกแบดมินตันทางการ</p>
-              <p id="tourModalShuttle" class="font-bold text-amber-600 text-xs sm:text-sm mt-0.5 truncate">-</p>
-              <p class="text-[10px] text-slate-400 mt-0.5">ลูกแบดประจำทัวร์นาเมนต์</p>
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">จำนวนผู้เข้าร่วมแข่งขัน</p>
+              <p id="tourModalPlayers" class="font-bold text-blue-700 text-sm sm:text-base mt-0.5">0 คน</p>
+              <p class="text-[10px] text-slate-400 mt-0.5">นักกีฬาและทีมงาน</p>
+            </div>
+
+            <!-- บล็อกแสดงรูปองค์กร/ผู้จัดการแข่งขันและเบอร์โทรศัพท์ -->
+            <div class="sm:col-span-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start space-x-2.5">
+              <img id="tourModalOrganizerImg" src="" alt="Organizer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white mt-0.5" />
+              <div class="min-w-0 flex-1">
+                <p class="font-semibold text-slate-500 uppercase text-[9.5px]">องค์กร / ผู้จัดการแข่งขัน</p>
+                <p id="tourModalOrganizer" class="font-bold text-victor-navy text-xs sm:text-sm mt-0.5 truncate">-</p>
+                <div id="tourModalPhoneContainer" onclick="promptIfLocked()" class="mt-1"></div>
+              </div>
+            </div>
+
+            <!-- เซล VICTOR ที่ดูแลงานแข่ง (คอลัมน์ O) -->
+            <div class="sm:col-span-2 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/90 flex items-center space-x-2.5">
+              <img id="tourModalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
+              <div class="min-w-0 flex-1">
+                <p class="font-semibold text-amber-900 uppercase text-[9.5px] flex items-center gap-1">
+                  <i class="ph-bold ph-user-circle text-amber-700"></i>
+                  <span>เซล VICTOR ผู้ดูแล (คอลัมน์ O)</span>
+                </p>
+                <p id="tourModalSales" class="font-bold text-victor-navy text-xs sm:text-sm truncate">-</p>
+                <p class="text-[10px] text-slate-500">ผู้ประสานงานหลักจาก VICTOR</p>
+              </div>
+            </div>
+
+            <!-- GPS & Actions -->
+            <div class="sm:col-span-2 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <p class="font-semibold text-slate-500 uppercase text-[9.5px]">พิกัดสนามจัดแข่งขัน</p>
+                <p id="tourModalCoords" class="font-mono text-xs text-slate-800 font-semibold mt-0.5">0.0000, 0.0000</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button type="button" onclick="shareCurrentTournament()" class="inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-xs shadow-xs">
+                  <i class="ph-bold ph-share-network"></i>
+                  <span>แชร์งานแข่ง</span>
+                </button>
+                <a id="tourModalMapsNav" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-victor-blue hover:bg-blue-700 text-white rounded-lg font-semibold transition text-xs shadow-xs">
+                  <i class="ph-bold ph-navigation-arrow"></i>
+                  <span>นำทางไปสนาม</span>
+                </a>
+              </div>
             </div>
           </div>
 
-          <!-- บล็อกแสดงรูปองค์กร/ผู้จัดการแข่งขันและเบอร์โทรศัพท์ -->
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start space-x-2.5">
-            <img id="tourModalOrganizerImg" src="" alt="Organizer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white mt-0.5" />
-            <div class="min-w-0 flex-1">
-              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">องค์กร / ผู้จัดการแข่งขัน</p>
-              <p id="tourModalOrganizer" class="font-bold text-victor-navy text-xs sm:text-sm mt-0.5 truncate">-</p>
-              <div id="tourModalPhoneContainer" onclick="promptIfLocked()" class="mt-1"></div>
+          <!-- ฝั่งขวา: หลอดลูกแบดทรงตั้ง สัดส่วน 51x286 (Option 2) -->
+          <div class="w-full sm:w-36 md:w-40 flex-shrink-0 bg-gradient-to-b from-amber-50 to-amber-100/80 rounded-xl border border-amber-200/90 p-2.5 flex flex-col items-center justify-between text-center shadow-xs">
+            <div class="w-full">
+              <span class="text-[9px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded-full inline-block mb-1 border border-amber-300">Official Shuttlecock</span>
+              <p id="tourModalShuttleRightTitle" class="font-bold text-amber-950 text-xs truncate">-</p>
+            </div>
+            
+            <!-- กล่องแสดงรูปลูกแบดทรงหลอดยาว 51x286 -->
+            <div class="my-2 flex-1 flex items-center justify-center min-h-[160px] w-full py-1">
+              <img id="tourModalShuttleImg" src="" alt="Shuttlecock Tube" class="h-44 sm:h-52 w-auto max-w-full object-contain drop-shadow-md hover:scale-105 transition duration-200" />
+            </div>
+
+            <div class="w-full pt-1.5 border-t border-amber-200 text-[9.5px] text-amber-800 font-semibold">
+              ลูกแบดทางการ
             </div>
           </div>
 
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">จำนวนผู้เข้าร่วมแข่งขัน</p>
-            <p id="tourModalPlayers" class="font-bold text-blue-700 text-sm sm:text-base mt-0.5">0 คน</p>
-            <p class="text-[10px] text-slate-400 mt-0.5">นักกีฬาและทีมงาน</p>
-          </div>
-
-          <!-- เซล VICTOR ที่ดูแลงานแข่ง (คอลัมน์ O) -->
-          <div class="sm:col-span-2 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/90 flex items-center space-x-2.5">
-            <img id="tourModalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
-            <div class="min-w-0 flex-1">
-              <p class="font-semibold text-amber-900 uppercase text-[9.5px] flex items-center gap-1">
-                <i class="ph-bold ph-user-circle text-amber-700"></i>
-                <span>เซล VICTOR ผู้ดูแล (คอลัมน์ O)</span>
-              </p>
-              <p id="tourModalSales" class="font-bold text-victor-navy text-xs sm:text-sm truncate">-</p>
-              <p class="text-[10px] text-slate-500">ผู้ประสานงานหลักจาก VICTOR</p>
-            </div>
-          </div>
-
-          <!-- GPS & Actions -->
-          <div class="sm:col-span-2 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">พิกัดสนามจัดแข่งขัน</p>
-              <p id="tourModalCoords" class="font-mono text-xs text-slate-800 font-semibold mt-0.5">0.0000, 0.0000</p>
-            </div>
-            <div class="flex flex-wrap items-center gap-1.5">
-              <button type="button" onclick="shareCurrentTournament()" class="inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-xs shadow-xs">
-                <i class="ph-bold ph-share-network"></i>
-                <span>แชร์งานแข่ง</span>
-              </button>
-              <a id="tourModalMapsNav" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-victor-blue hover:bg-blue-700 text-white rounded-lg font-semibold transition text-xs shadow-xs">
-                <i class="ph-bold ph-navigation-arrow"></i>
-                <span>นำทางไปสนาม</span>
-              </a>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -687,7 +688,6 @@
     </div>
   </div>
 
-  <!-- หน้าต่างตั้งค่าแหล่งข้อมูล (Settings Modal) -->
   <div id="syncModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl border border-slate-100 space-y-3.5">
       <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
@@ -701,7 +701,6 @@
       </div>
 
       <div class="space-y-3 text-xs">
-        <!-- ลิงก์ CSV แท็บสื่อสนาม -->
         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <label class="block font-semibold text-slate-700">1. ลิงก์ CSV: แท็บสื่อโฆษณาสนาม (Media Tracker)</label>
           <input
@@ -712,7 +711,6 @@
           />
         </div>
 
-        <!-- ลิงก์ CSV แท็บงานแข่งขัน -->
         <div class="p-2.5 bg-amber-50/60 border border-amber-200 rounded-xl space-y-1">
           <label class="block font-semibold text-amber-900">2. ลิงก์ CSV: แท็บงานแข่งขัน (Tournaments)</label>
           <input
@@ -816,27 +814,89 @@
       return upper.includes('FZ FORZA') || upper.includes('(FZ FORZA)');
     }
 
-    // แปลงลิงก์ Google Drive ทุกรูปแบบ
+    // ฟังก์ชันจัดการแยกจำนวนผู้เข้าร่วม (รองรับช่วง เช่น 300-400 และ 500+ คน)
+    function parseParticipants(rawVal) {
+      if (!rawVal) return { num: 0, text: '-' };
+      const rawStr = String(rawVal).trim();
+      if (!rawStr || rawStr === '-' || rawStr === '0') return { num: 0, text: '-' };
+
+      // ตรวจหารูปแบบช่วงตัวเลข เช่น 300-400, 300 - 400, 300 ถึง 400
+      const rangeMatch = rawStr.match(/(\d+)\s*(?:[-–—~]|ถึง|to)\s*(\d+)/i);
+      if (rangeMatch) {
+        const min = parseInt(rangeMatch[1], 10);
+        const max = parseInt(rangeMatch[2], 10);
+        const avg = Math.round((min + max) / 2);
+        return {
+          num: avg,
+          maxVal: max,
+          text: `${min.toLocaleString()} - ${max.toLocaleString()} คน`
+        };
+      }
+
+      // ตรวจหารูปแบบ เช่น 500+, > 500, 500 คนขึ้นไป, มากกว่า 500
+      const plusMatch = rawStr.match(/(?:>|>=|มากกว่า)?\s*(\d+)\s*(?:\+|ขึ้นไป|คนขึ้นไป)?/i);
+      if (plusMatch && plusMatch[1]) {
+        const baseNum = parseInt(plusMatch[1], 10);
+        const isPlus = rawStr.includes('+') || rawStr.includes('>') || rawStr.includes('ขึ้นไป') || rawStr.includes('มากกว่า');
+        return {
+          num: baseNum,
+          maxVal: baseNum,
+          text: isPlus ? `${baseNum.toLocaleString()}+ คน` : `${baseNum.toLocaleString()} คน`
+        };
+      }
+
+      const numOnly = parseInt(rawStr.replace(/[^0-9]+/g, ''), 10) || 0;
+      return {
+        num: numOnly,
+        maxVal: numOnly,
+        text: numOnly > 0 ? `${numOnly.toLocaleString()} คน` : rawStr
+      };
+    }
+
+    function extractCleanUrl(val) {
+      if (!val) return '';
+      const str = String(val).trim();
+      const urlMatch = str.match(/https?:\/\/[^\s\)\"\'\]\}]+/i);
+      if (urlMatch) return urlMatch[0];
+      return str;
+    }
+
+    // แปลงลิงก์ Google Drive ทุกรูปแบบให้เป็น URL แสดงผลรูปภาพ
     function normalizeImageUrl(url) {
       if (!url) return '';
-      let cleanUrl = String(url).trim();
+      let cleanUrl = extractCleanUrl(url);
       
-      if (cleanUrl.includes('drive.google.com') || cleanUrl.includes('docs.google.com')) {
-        let fileId = '';
-        const m1 = cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-        if (m1 && m1[1]) fileId = m1[1];
-        
-        const m2 = cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-        if (!fileId && m2 && m2[1]) fileId = m2[1];
-
-        const m3 = cleanUrl.match(/\/open\?id=([a-zA-Z0-9_-]+)/);
-        if (!fileId && m3 && m3[1]) fileId = m3[1];
-
-        if (fileId) {
+      if (cleanUrl.includes('drive.google.com') || cleanUrl.includes('docs.google.com') || cleanUrl.includes('googleusercontent.com')) {
+        const idMatch = cleanUrl.match(/(?:\/d\/|\/folders\/|id=|open\?id=|\/file\/u\/\d+\/d\/)([a-zA-Z0-9_-]{20,})/i)
+                     || cleanUrl.match(/[-\w]{25,}/);
+        if (idMatch) {
+          const fileId = idMatch[1] || idMatch[0];
           return `https://lh3.googleusercontent.com/d/${fileId}`;
         }
       }
+
+      if (/^[a-zA-Z0-9_-]{25,50}$/.test(cleanUrl)) {
+        return `https://lh3.googleusercontent.com/d/${cleanUrl}`;
+      }
+
       return cleanUrl;
+    }
+
+    // ฟังก์ชันจัดการรูปเสียอัตโนมัติ (Dual-CDN Recovery)
+    function handleImageError(imgEl, originalUrl, fallbackUrl) {
+      if (!imgEl) return;
+      imgEl.onerror = null;
+      const clean = extractCleanUrl(originalUrl);
+      const match = clean.match(/[-\w]{25,}/);
+      if (match && !imgEl.src.includes('drive.google.com/thumbnail')) {
+        imgEl.src = `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1600`;
+        imgEl.onerror = () => {
+          imgEl.onerror = null;
+          imgEl.src = fallbackUrl || DEFAULT_PIN_URL;
+        };
+        return;
+      }
+      imgEl.src = fallbackUrl || DEFAULT_PIN_URL;
     }
 
     // แยกชื่อและ Avatar ในวงเล็บ
@@ -1189,7 +1249,6 @@
       const badgeStyle = getPeriodBadgeColor(periodLabel);
       const split = splitPeriodTwoLines(periodLabel);
       
-      // หมุดของสื่อสนาม: แสดง FZ FORZA สำหรับสนาม FZ FORZA และหมุด VICTOR สำหรับสนามทั่วไป
       const markerLogoUrl = isForzaCourt(courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL;
 
       const badgeHtml = (isBadgesVisible && periodLabel) ? `
@@ -1474,15 +1533,11 @@
       const statusInfo = getTournamentTimingStatus(tour.startDate, tour.endDate);
       const isLarge = !!tour.isLargePin;
 
-      // กฎแสดงรูปภาพหมุด:
-      // - เฉพาะ Level (2) เท่านั้นที่แสดงรูปภาพโลโก้ของงานแข่ง (จากในวงเล็บท้ายชื่องาน)
-      // - Level (1) หรือรายการปกติ จะแสดงหมุดรูปหลักมาตรฐานเสมอ ไม่เปลี่ยนตามตัวกรอง
       let logoSrc = DEFAULT_PIN_URL;
       if (isLarge && tour.logoUrl) {
         logoSrc = normalizeImageUrl(tour.logoUrl);
       }
 
-      // จัดการการแสดง Badge ตามค่า isBadgesVisible
       const levelBadgeHtml = (isBadgesVisible && tour.levelName) ? `
         <div style="position: absolute; top: -7px; left: -3px; background: linear-gradient(135deg, #f59e0b, #b45309); color: #ffffff; font-family: 'Prompt', sans-serif; font-size: 7.5px; font-weight: 800; padding: 0.5px 5px; border-radius: 9999px; border: 1.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3); text-align: center; white-space: nowrap; z-index: 30; pointer-events: none;">
           ⭐ ${tour.levelName || 'VIP'}
@@ -1567,11 +1622,12 @@
         const statusInfo = getTournamentTimingStatus(tour.startDate, tour.endDate);
         const durationText = calculateTournamentDays(tour.startDate, tour.endDate);
         const salesParsed = parseNameAndAvatar(tour.sales).name;
+        const displayPlayers = tour.participantsText || (tour.participants ? `${Number(tour.participants).toLocaleString()} คน` : '-');
 
         const popupContent = `
           <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
             <div class="relative w-full h-28 bg-slate-950 rounded-xl overflow-hidden group cursor-pointer" onclick="openFullscreenViewer('${tour.id}', 0)">
-              <img src="${posterImg}" alt="${tour.tournamentName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+              <img src="${posterImg}" alt="${tour.tournamentName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="handleImageError(this, '${tour.posterUrl}', '${DEFAULT_PIN_URL}')" />
               <div class="absolute bottom-1.5 left-1.5 bg-black/75 text-white px-2 py-0.5 rounded-full text-[9.5px] flex items-center space-x-1 font-medium">
                 <i class="ph-bold ph-arrows-out text-amber-300"></i>
                 <span>ดูโปสเตอร์</span>
@@ -1601,7 +1657,7 @@
 
             <div class="grid grid-cols-2 gap-1 py-1 px-1.5 bg-amber-50/70 rounded-lg text-[10px] border border-amber-100">
               <div class="flex items-center space-x-1.5 min-w-0">
-                <img src="${tour.shuttlePhoto || DEFAULT_PIN_URL}" class="w-5 h-5 rounded-md object-contain border border-amber-200 bg-white flex-shrink-0 p-0.5" alt="shuttle" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+                <img src="${tour.shuttlePhoto || DEFAULT_PIN_URL}" class="w-5 h-5 rounded-md object-contain border border-amber-200 bg-white flex-shrink-0 p-0.5" alt="shuttle" onerror="handleImageError(this, '${tour.shuttlePhoto}', '${DEFAULT_PIN_URL}')" />
                 <div class="min-w-0 truncate">
                   <span class="text-slate-400 block text-[9px]">ลูกแบดที่ใช้:</span>
                   <span class="font-bold text-amber-700 truncate block">${tour.shuttlecock || '-'}</span>
@@ -1609,7 +1665,7 @@
               </div>
               <div>
                 <span class="text-slate-400 block text-[9px]">ผู้เข้าร่วม:</span>
-                <span class="font-bold text-blue-700 block">${tour.participants ? `${Number(tour.participants).toLocaleString()} คน` : '-'}</span>
+                <span class="font-bold text-blue-700 block">${displayPlayers}</span>
               </div>
             </div>
 
@@ -1660,6 +1716,7 @@
         const posterImg = tour.posterUrl ? normalizeImageUrl(tour.posterUrl) : DEFAULT_PIN_URL;
         const durationText = calculateTournamentDays(tour.startDate, tour.endDate);
         const salesParsed = parseNameAndAvatar(tour.sales).name;
+        const displayPlayers = tour.participantsText || (tour.participants ? `${Number(tour.participants).toLocaleString()} คน` : '-');
 
         card.className = "bg-white p-2.5 rounded-xl border border-amber-200 hover:border-amber-500 hover:shadow-md cursor-pointer transition flex items-center space-x-2.5";
         card.onclick = () => {
@@ -1680,7 +1737,7 @@
 
         card.innerHTML = `
           <div class="relative flex-shrink-0">
-            <img src="${posterImg}" class="w-12 h-16 sm:w-14 sm:h-18 rounded-lg object-cover bg-slate-900 border border-amber-300 shadow-xs" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+            <img src="${posterImg}" class="w-12 h-16 sm:w-14 sm:h-18 rounded-lg object-cover bg-slate-900 border border-amber-300 shadow-xs" onerror="handleImageError(this, '${tour.posterUrl}', '${DEFAULT_PIN_URL}')" />
             <span style="background: ${statusInfo.bg}; color: ${statusInfo.textCol};" class="absolute -top-1 -left-1 text-[8px] font-extrabold px-1 rounded-full border border-white shadow-xs">
               ${statusInfo.text.replace(/^[🟢🔵⚪]\s*/, '')}
             </span>
@@ -1699,15 +1756,15 @@
               สนาม: <strong class="text-slate-700">${tour.venueName}</strong> (${tour.courtCount || '-'})
             </p>
             <p class="text-[9.5px] text-slate-600 truncate mt-0.5 flex items-center gap-1">
-              <img src="${tour.organizerPhoto || DEFAULT_PIN_URL}" class="w-3.5 h-3.5 rounded-full object-cover border border-slate-200 flex-shrink-0" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+              <img src="${tour.organizerPhoto || DEFAULT_PIN_URL}" class="w-3.5 h-3.5 rounded-full object-cover border border-slate-200 flex-shrink-0" onerror="handleImageError(this, '${tour.organizerPhoto}', '${DEFAULT_PIN_URL}')" />
               <span class="truncate">เซล: <strong class="text-amber-800">${salesParsed}</strong> | ผู้จัด: ${tour.organizer || '-'}</span>
             </p>
             <div class="flex items-center justify-between mt-1 text-[10px] pt-1 border-t border-slate-100">
               <div class="flex items-center space-x-1 min-w-0">
-                <img src="${tour.shuttlePhoto || DEFAULT_PIN_URL}" class="w-3.5 h-3.5 rounded object-contain border border-amber-200 bg-white flex-shrink-0" alt="shuttle" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+                <img src="${tour.shuttlePhoto || DEFAULT_PIN_URL}" class="w-3.5 h-3.5 rounded object-contain border border-amber-200 bg-white flex-shrink-0" alt="shuttle" onerror="handleImageError(this, '${tour.shuttlePhoto}', '${DEFAULT_PIN_URL}')" />
                 <span class="text-amber-800 font-bold truncate max-w-[120px]">${tour.shuttlecock || 'VICTOR'}</span>
               </div>
-              <span class="text-blue-700 font-bold">${tour.participants ? `${Number(tour.participants).toLocaleString()} คน` : '-'}</span>
+              <span class="text-blue-700 font-bold">${displayPlayers}</span>
             </div>
             <div class="flex items-center justify-between mt-1">
               <button type="button" onclick="event.stopPropagation(); openTournamentDetail('${tour.id}')" class="text-[9.5px] font-semibold text-amber-700 hover:text-amber-900 flex items-center gap-0.5">
@@ -2142,22 +2199,30 @@
       document.getElementById('tourModalVenue').innerText = tour.venueName || '-';
       document.getElementById('tourModalCourts').innerText = `จำนวน: ${tour.courtCount || '-'} คอร์ท`;
       
-      // แสดงรูปลูกแบดและชื่อรุ่นใน Modal
+      // แสดงรูปลูกแบดในกล่องแนวตั้งฝั่งขวา (Option 2: 51x286)
       const shuttleImgEl = document.getElementById('tourModalShuttleImg');
       if (shuttleImgEl) {
-        shuttleImgEl.src = tour.shuttlePhoto || DEFAULT_PIN_URL;
-        shuttleImgEl.onerror = () => { shuttleImgEl.onerror = null; shuttleImgEl.src = DEFAULT_PIN_URL; };
+        const shuttleSrc = tour.shuttlePhoto ? normalizeImageUrl(tour.shuttlePhoto) : DEFAULT_PIN_URL;
+        shuttleImgEl.src = shuttleSrc;
+        shuttleImgEl.onerror = () => handleImageError(shuttleImgEl, tour.shuttlePhoto, DEFAULT_PIN_URL);
       }
-      document.getElementById('tourModalShuttle').innerText = tour.shuttlecock || 'VICTOR MASTER NO.1';
+      const rightShuttleTitle = document.getElementById('tourModalShuttleRightTitle');
+      if (rightShuttleTitle) {
+        rightShuttleTitle.innerText = tour.shuttlecock || 'VICTOR MASTER NO.1';
+      }
 
       // แสดงรูปองค์กรผู้จัดและชื่อผู้จัดใน Modal
       const orgImgEl = document.getElementById('tourModalOrganizerImg');
       if (orgImgEl) {
-        orgImgEl.src = tour.organizerPhoto || DEFAULT_PIN_URL;
-        orgImgEl.onerror = () => { orgImgEl.onerror = null; orgImgEl.src = DEFAULT_PIN_URL; };
+        const orgPhotoSrc = tour.organizerPhoto ? normalizeImageUrl(tour.organizerPhoto) : DEFAULT_PIN_URL;
+        orgImgEl.src = orgPhotoSrc;
+        orgImgEl.onerror = () => handleImageError(orgImgEl, tour.organizerPhoto, DEFAULT_PIN_URL);
       }
       document.getElementById('tourModalOrganizer').innerText = tour.organizer || '-';
-      document.getElementById('tourModalPlayers').innerText = `${Number(tour.participants || 0).toLocaleString()} คน`;
+
+      // แสดงจำนวนผู้เข้าร่วม (รองรับช่วง 300-400 และ 500+)
+      const displayPlayers = tour.participantsText || (tour.participants ? `${Number(tour.participants).toLocaleString()} คน` : '-');
+      document.getElementById('tourModalPlayers').innerText = displayPlayers;
 
       // แสดงข้อมูลเซล VICTOR ที่ดูแลจากคอลัมน์ O
       const salesInfo = parseNameAndAvatar(tour.sales);
@@ -2165,12 +2230,16 @@
       const tourSalesImgEl = document.getElementById('tourModalSalesImg');
       if (tourSalesImgEl) {
         tourSalesImgEl.src = salesInfo.photo;
-        tourSalesImgEl.onerror = () => { tourSalesImgEl.onerror = null; tourSalesImgEl.src = DEFAULT_PIN_URL; };
+        tourSalesImgEl.onerror = () => handleImageError(tourSalesImgEl, tour.sales, DEFAULT_PIN_URL);
       }
 
+      // โหลดรูปโปสเตอร์งานแข่งจากคอลัมน์ J พร้อมระบบ Dual-CDN ป้องกันรูปเสีย
       const posterImg = document.getElementById('tourModalPosterImg');
-      posterImg.src = tour.posterUrl ? normalizeImageUrl(tour.posterUrl) : DEFAULT_PIN_URL;
-      posterImg.onerror = () => { posterImg.onerror = null; posterImg.src = DEFAULT_PIN_URL; };
+      if (posterImg) {
+        const posterSrc = tour.posterUrl ? normalizeImageUrl(tour.posterUrl) : DEFAULT_PIN_URL;
+        posterImg.src = posterSrc;
+        posterImg.onerror = () => handleImageError(posterImg, tour.posterUrl, DEFAULT_PIN_URL);
+      }
 
       const phoneCont = document.getElementById('tourModalPhoneContainer');
       if (tour.phone) {
@@ -2406,7 +2475,6 @@
       }
     }
 
-    // รองรับปัดหน้าจอบนมือถือ
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -2453,7 +2521,8 @@
       if (!tour) return;
       const base = window.location.origin + window.location.pathname;
       const shareUrl = `${base}?tour=${encodeURIComponent(tour.tournamentName)}`;
-      const shareText = `🏆 การแข่งขัน: ${tour.tournamentName}\n📅 วันที่: ${tour.startDate || ''} ถึง ${tour.endDate || ''}\n🏸 สนาม: ${tour.venueName} | ลูกแบด: ${tour.shuttlecock}\n📍 รายละเอียด: ${shareUrl}`;
+      const displayPlayers = tour.participantsText || (tour.participants ? `${Number(tour.participants).toLocaleString()} คน` : '-');
+      const shareText = `🏆 การแข่งขัน: ${tour.tournamentName}\n📅 วันที่: ${tour.startDate || ''} ถึง ${tour.endDate || ''}\n🏸 สนาม: ${tour.venueName} | ลูกแบด: ${tour.shuttlecock}\n👥 ผู้เข้าร่วม: ${displayPlayers}\n📍 รายละเอียด: ${shareUrl}`;
       if (navigator.share) navigator.share({ title: `VICTOR+ Tournament - ${tour.tournamentName}`, text: shareText, url: shareUrl }).catch(() => copyToClipboard(shareUrl));
       else copyToClipboard(shareUrl);
     };
@@ -2573,7 +2642,15 @@
       const phoneIdx = getIdx(['เบอร์โทร', 'โทร', 'phone', 'contact', 'tel'], 6);
       const playersIdx = getIdx(['ผู้เข้าร่วม', 'จำนวนคน', 'คน', 'participants', 'players'], 7);
       const shuttleIdx = getIdx(['ลูกแบด', 'ลูกที่ใช้', 'ลูกขนไก่', 'shuttlecock', 'shuttle'], 8);
-      const posterIdx = getIdx(['poster', 'โปสเตอร์', 'รูปโปสเตอร์', 'รูปภาพ', 'รูป', 'image'], 9);
+      
+      // คอลัมน์ J (Index 9): ตรวจจับ Poster การแข่งขัน โดยเฉพาะเจาะจง
+      let posterIdx = -1;
+      if (headers.length > 9 && (headers[9].toLowerCase().includes('poster') || headers[9].toLowerCase().includes('โปสเตอร์') || headers[9].toLowerCase().includes('การแข่งขัน'))) {
+        posterIdx = 9;
+      } else {
+        posterIdx = getIdx(['poster การแข่งขัน', 'poster', 'โปสเตอร์', 'รูปโปสเตอร์', 'แบนเนอร์', 'banner'], 9);
+      }
+
       const latIdx = getIdx(['lat', 'latitude', 'ละติจูด'], 10);
       const lngIdx = getIdx(['lng', 'longitude', 'ลองจิจูด', 'long'], 11);
       const mapsIdx = getIdx(['maps', 'link', 'แผนที่', 'พิกัด'], 12);
@@ -2615,6 +2692,27 @@
         const rawOrganizer = String(r[orgIdx] || 'VICTOR Club').trim();
         const orgParsed = parseNameAndAvatar(rawOrganizer);
 
+        // ตรวจดึงโปสเตอร์จากคอลัมน์ J อย่างแม่นยำ
+        let rawPoster = '';
+        if (posterIdx !== -1 && r[posterIdx]) {
+          rawPoster = String(r[posterIdx]).trim();
+        }
+        if (!rawPoster && r[9]) {
+          rawPoster = String(r[9]).trim();
+        }
+        if (!rawPoster) {
+          for (let c = 0; c < r.length; c++) {
+            const cell = String(r[c] || '').trim();
+            if (c !== salesIdx && c !== mapsIdx && c !== shuttleIdx && c !== orgIdx && (cell.includes('drive.google.com') || cell.includes('docs.google.com') || cell.startsWith('http'))) {
+              rawPoster = cell;
+              break;
+            }
+          }
+        }
+
+        // ประมวลผลจำนวนผู้เข้าร่วม (รองรับช่วง 300-400 และ 500+)
+        const participantData = parseParticipants(r[playersIdx]);
+
         parsed.push({
           id: `tour-${i}`,
           tournamentName: nameData.name,
@@ -2629,10 +2727,12 @@
           organizer: orgParsed.name,
           organizerPhoto: orgParsed.photo,
           phone: String(r[phoneIdx] || '').trim(),
-          participants: parseInt(String(r[playersIdx] || '0').replace(/[^0-9]+/g, ''), 10) || 0,
+          participants: participantData.num,
+          participantsText: participantData.text,
+          rawParticipants: String(r[playersIdx] || '').trim(),
           shuttlecock: shuttleParsed.name,
           shuttlePhoto: shuttleParsed.photo,
-          posterUrl: String(r[posterIdx] || '').trim(),
+          posterUrl: rawPoster,
           lat: (!isNaN(lat) && lat !== 0) ? lat : null,
           lng: (!isNaN(lng) && lng !== 0) ? lng : null,
           mapsUrl: mapsUrl,
@@ -2641,6 +2741,53 @@
       }
 
       return parsed;
+    }
+
+    function getFallbackCourtData() {
+      return [
+        {
+          id: 'court-1',
+          courtName: 'สนามแบดมินตัน วินเนอร์ คอร์ท',
+          contactName: 'คุณสมศักดิ์',
+          phone: '081-234-5678',
+          sales: 'โหน่ง (https://lh3.googleusercontent.com/d/1635bFr8TC3_j7FCr5mHo3d3H3ZevC6q0)',
+          mapsUrl: 'https://maps.google.com/?q=13.7563,100.5018',
+          lat: 13.7563,
+          lng: 100.5018,
+          images: [DEFAULT_PIN_URL],
+          folderUrl: '',
+          installDate: '2026-03-01',
+          budget: 45000,
+          province: 'กรุงเทพมหานคร',
+          mediaType: 'ป้ายคอร์ท, ป้ายต้อนรับ',
+          status: 'ติดตั้งเสร็จสมบูรณ์',
+          period: '2026Q1Q2',
+          installedBy: 'ช่างสมชาย',
+          designedBy: 'ดีไซน์เนอร์ กิตติ',
+          courtCount: '12 คอร์ท'
+        },
+        {
+          id: 'court-2',
+          courtName: 'สนามแบดมินตัน เชียงใหม่ สปอร์ต (FZ FORZA)',
+          contactName: 'คุณอารีย์',
+          phone: '089-876-5432',
+          sales: 'เอ้',
+          mapsUrl: 'https://maps.google.com/?q=18.7883,98.9853',
+          lat: 18.7883,
+          lng: 98.9853,
+          images: [FORZA_LOGO_URL],
+          folderUrl: '',
+          installDate: '2026-02-15',
+          budget: 38000,
+          province: 'เชียงใหม่',
+          mediaType: 'ป้ายข้างสนาม',
+          status: 'ติดตั้งเสร็จสมบูรณ์',
+          period: '2026Q1',
+          installedBy: 'ช่างประสิทธิ์',
+          designedBy: 'ดีไซน์เนอร์ วิภา',
+          courtCount: '18 คอร์ท'
+        }
+      ];
     }
 
     function getFallbackTournamentData() {
@@ -2660,6 +2807,8 @@
           organizerPhoto: DEFAULT_PIN_URL,
           phone: '02-252-8888',
           participants: 450,
+          participantsText: '450 คน',
+          rawParticipants: '450',
           shuttlecock: 'VICTOR MASTER NO.1',
           shuttlePhoto: DEFAULT_PIN_URL,
           posterUrl: DEFAULT_PIN_URL,
@@ -2682,7 +2831,9 @@
           organizer: 'ชมรมแบดมินตันบ้านทองหยอด',
           organizerPhoto: DEFAULT_PIN_URL,
           phone: '081-998-7766',
-          participants: 320,
+          participants: 350,
+          participantsText: '300 - 400 คน',
+          rawParticipants: '300-400',
           shuttlecock: 'VICTOR CHAMPION NO.1',
           shuttlePhoto: DEFAULT_PIN_URL,
           posterUrl: DEFAULT_PIN_URL,
