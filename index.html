@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>VICTOR Sport - Badminton Media Tracker</title>
+  <title>VICTOR+ | Media &amp; Tournament Tracker</title>
 
-  <!-- Favicon: โลโก้ VICTOR จริง -->
-  <link rel="icon" type="image/jpeg" href="https://scontent.fbkk6-1.fna.fbcdn.net/v/t39.30808-6/351481026_3740027179563041_5049801915800968898_n.jpg?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=s2048x2048&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=wcSAPTyjTJUQ7kNvwGWcl8s&_nc_oc=Adp8jBkPP6oKByHCCYMktnJyweQTGOtDMftQxPVA9FgVsH484aGRllq5HXzHmU0frdo&_nc_zt=23&_nc_ht=scontent.fbkk6-1.fna&_nc_gid=thg9rzkRzwoPEdhZa_0bZg&_nc_ss=7b2a8&oh=00_AQIJ_G_1BKP3N5pBiYDNF0r_GzoFskT-cZaCeLWq8gqw8Q&oe=6ABADA78" />
+  <!-- Favicon: Google Drive CDN Direct Link -->
+  <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1635bFr8TC3_j7FCr5mHo3d3H3ZevC6q0" />
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -68,6 +68,13 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     
+    /* ป้องกัน Leaflet บังคับ max-width: none จนรูปขยายหลุดทะลุกรอบ */
+    .custom-leaflet-marker img {
+      max-width: 100% !important;
+      max-height: 100% !important;
+      pointer-events: none;
+    }
+
     /* สไตล์สำหรับการเบลอข้อมูลลับ */
     .sensitive-blur {
       filter: blur(4.5px);
@@ -88,7 +95,7 @@
     }
     .leaflet-popup-content {
       margin: 0 !important;
-      width: 270px !important;
+      width: 280px !important;
       max-width: calc(100vw - 44px) !important;
       line-height: 1.35 !important;
       max-height: 75vh;
@@ -105,28 +112,39 @@
 </head>
 <body class="bg-slate-100 flex flex-col h-full text-slate-800 antialiased select-none">
 
-  <header class="bg-gradient-to-r from-victor-navy via-victor-blue to-blue-950 text-white px-3 py-2 sm:px-4 sm:py-2.5 flex items-center justify-between shadow-lg z-40 flex-shrink-0 border-b border-blue-800/50">
+  <header class="bg-gradient-to-r from-victor-navy via-victor-blue to-blue-950 text-white px-2.5 py-2 sm:px-4 sm:py-2 flex items-center justify-between shadow-lg z-40 flex-shrink-0 border-b border-blue-800/50">
     <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
       <!-- ปุ่มเปิดปิดเมนูสำหรับมือถือ -->
       <button type="button" onclick="toggleSidebar()" aria-label="Toggle Menu" class="md:hidden w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center transition border border-white/15 text-white flex-shrink-0">
         <i class="ph-bold ph-list text-lg"></i>
       </button>
 
-      <!-- โลโก้ VICTOR มุมซ้ายบนสุด -->
-      <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center p-0.5 shadow-md border-2 border-amber-400 flex-shrink-0 overflow-hidden">
-        <img src="https://scontent.fbkk6-1.fna.fbcdn.net/v/t39.30808-6/351481026_3740027179563041_5049801915800968898_n.jpg?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=s2048x2048&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=wcSAPTyjTJUQ7kNvwGWcl8s&_nc_oc=Adp8jBkPP6oKByHCCYMktnJyweQTGOtDMftQxPVA9FgVsH484aGRllq5HXzHmU0frdo&_nc_zt=23&_nc_ht=scontent.fbkk6-1.fna&_nc_gid=thg9rzkRzwoPEdhZa_0bZg&_nc_ss=7b2a8&oh=00_AQIJ_G_1BKP3N5pBiYDNF0r_GzoFskT-cZaCeLWq8gqw8Q&oe=6ABADA78" 
+      <!-- โลโก้ VICTOR มุมบนซ้าย (แสดงตามสัดส่วนจริง) -->
+      <div class="h-8 sm:h-9 px-1.5 sm:px-2 bg-white rounded-xl flex items-center justify-center shadow-md border-2 border-amber-400 flex-shrink-0 overflow-hidden">
+        <img id="headerVictorLogo" src="https://lh3.googleusercontent.com/d/1635bFr8TC3_j7FCr5mHo3d3H3ZevC6q0" 
              alt="VICTOR Logo" 
-             class="w-full h-full object-cover rounded-lg" />
+             class="h-full w-auto max-h-6 sm:max-h-7 object-contain rounded-md"
+             onerror="this.onerror=null; this.src='https://lh3.googleusercontent.com/d/1MppkVebrR2E82ex-hlV85F7tmiFT7Dfh';" />
       </div>
 
-      <div class="min-w-0">
-        <div class="flex items-center space-x-2">
-          <h1 class="font-bold text-xs sm:text-base md:text-lg leading-tight tracking-wide text-white truncate">VICTOR Media Tracker</h1>
-          <span class="px-2 py-0.5 text-[9.5px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider">
-            GitHub Live
+      <div class="min-w-0 pr-1">
+        <div class="flex items-center space-x-1.5">
+          <h1 class="font-bold text-xs sm:text-base md:text-lg leading-tight tracking-wide text-white truncate">VICTOR+</h1>
+          <span id="activeModeBadge" class="px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider truncate">
+            สื่อโฆษณา
           </span>
         </div>
-        <p class="text-[10px] sm:text-[11px] text-blue-200 hidden sm:block truncate">ระบบติดตามสื่อโฆษณา & ฐานข้อมูลสนามแบดมินตัน VICTOR</p>
+        <p class="text-[9.5px] sm:text-[11px] text-blue-200 hidden sm:block truncate">Media &amp; Tournament Tracker</p>
+      </div>
+
+      <!-- สวิตช์สลับโหมด: สื่อสนาม vs งานแข่งขัน -->
+      <div class="flex items-center bg-black/35 p-0.5 rounded-xl border border-white/15 shadow-inner">
+        <button type="button" id="tabModeMedia" onclick="switchSystemMode('media')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 bg-victor-accent text-white shadow-xs">
+          <span>🏸 สื่อสนาม</span>
+        </button>
+        <button type="button" id="tabModeTournament" onclick="switchSystemMode('tournament')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center space-x-1 text-blue-200 hover:text-white">
+          <span>🏆 งานแข่ง</span>
+        </button>
       </div>
     </div>
 
@@ -142,29 +160,32 @@
 
     <!-- ปุ่มการทำงาน Header -->
     <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
-      <!-- ปุ่มล็อก/ปลดล็อกข้อมูลลับ -->
+      <!-- ปุ่มล็อก/ปลดล็อกข้อมูลสำคัญ (เบอร์โทร & งบ) -->
       <button type="button" id="authLockBtn" onclick="toggleAuthLockAction()" title="ล็อก/ปลดล็อกข้อมูลสำคัญ (เบอร์โทรและงบประมาณ)" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40">
         <i class="ph-bold ph-lock-key" id="authLockIcon"></i>
-        <span id="authLockText" class="hidden sm:inline">ปลดล็อกข้อมูล</span>
+        <span id="authLockText" class="hidden sm:inline">ปลดล็อก</span>
       </button>
 
-      <button type="button" onclick="loadDataFromSheets()" title="รีเฟรชข้อมูลสดจาก Google Sheets" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-700 text-white text-xs font-semibold flex items-center space-x-1 border border-blue-500/40 shadow-sm transition active:scale-95">
+      <!-- ปุ่มรีเฟรชข้อมูล -->
+      <button type="button" onclick="refreshCurrentData()" title="รีเฟรชข้อมูลสด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-700 text-white text-xs font-semibold flex items-center space-x-1 border border-blue-500/40 shadow-sm transition active:scale-95">
         <i class="ph-bold ph-arrows-clockwise text-xs sm:text-sm" id="refreshIcon"></i>
         <span class="hidden sm:inline">รีเฟรช</span>
       </button>
 
-      <!-- ปุ่มเปิด/ปิด Badge รอบสื่อบนหมุด -->
-      <button type="button" id="badgeToggleBtn" onclick="toggleBadgesVisibility()" title="เปิด/ปิดการแสดง Badge รอบสื่อบนหมุด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold flex items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95">
+      <!-- ปุ่มเปิด/ปิด Badge บนหมุด -->
+      <button type="button" id="badgeToggleBtn" onclick="toggleBadgesVisibility()" title="เปิด/ปิดการแสดง Badge บนหมุด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold flex items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95">
         <i class="ph-bold ph-tag text-xs sm:text-sm" id="badgeToggleIcon"></i>
         <span id="badgeToggleText" class="hidden sm:inline">ซ่อน Badge</span>
       </button>
 
-      <button type="button" onclick="resetFilters()" title="รีเซ็ตตัวกรองทั้งหมด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center space-x-1 border border-slate-600/50 shadow-sm transition active:scale-95">
+      <!-- ปุ่มรีเซ็ตตัวกรอง -->
+      <button type="button" onclick="resetActiveFilters()" title="รีเซ็ตตัวกรองทั้งหมด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center space-x-1 border border-slate-600/50 shadow-sm transition active:scale-95">
         <i class="ph-bold ph-arrow-counter-clockwise text-xs sm:text-sm"></i>
         <span class="hidden md:inline">รีเซ็ต</span>
       </button>
 
-      <button type="button" onclick="toggleModal('syncModal')" title="ตั้งค่าแหล่งข้อมูล" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-victor-accent hover:bg-sky-500 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95">
+      <!-- ปุ่มตั้งค่า CSV -->
+      <button type="button" onclick="toggleModal('syncModal')" title="ตั้งค่าแหล่งข้อมูล Google Sheets" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-victor-accent hover:bg-sky-500 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95">
         <i class="ph-bold ph-gear text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">ตั้งค่า</span>
       </button>
@@ -183,7 +204,7 @@
       <div class="p-2.5 border-b border-slate-200 bg-slate-100 flex items-center justify-between md:hidden">
         <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
           <i class="ph-bold ph-faders text-victor-blue text-base"></i>
-          <span>ตัวกรองและการจัดเรียง</span>
+          <span id="mobileSidebarTitle">ตัวกรองและการจัดเรียง</span>
         </span>
         <button type="button" onclick="toggleSidebar(false)" class="w-7 h-7 rounded-lg bg-slate-200/80 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition">
           <i class="ph-bold ph-x text-sm"></i>
@@ -193,7 +214,7 @@
       <!-- แผงค้นหาและตัวกรอง -->
       <div class="p-2.5 sm:p-3 bg-slate-50 border-b border-slate-200 space-y-1.5 sm:space-y-2 text-xs flex-shrink-0">
         
-        <!-- ช่องค้นหา -->
+        <!-- ช่องค้นหาอัจฉริยะ -->
         <div class="relative">
           <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
           <input
@@ -207,69 +228,124 @@
           </button>
         </div>
 
-        <!-- ตัวเลือกเรียงลำดับ -->
-        <div>
-          <label class="block text-[10.5px] font-bold text-slate-600 mb-0.5 flex items-center gap-1">
-            <i class="ph-bold ph-arrows-down-up text-victor-blue"></i>
-            <span>เรียงลำดับข้อมูล</span>
-          </label>
-          <select id="sortBy" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg font-medium text-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-victor-accent/40 shadow-xs">
-            <option value="date-desc">📅 วันที่ติดตั้ง: ใหม่ล่าสุด &rarr; เก่าสุด</option>
-            <option value="date-asc">📅 วันที่ติดตั้ง: เก่าสุด &rarr; ใหม่ล่าสุด</option>
-            <option value="budget-desc">💰 งบประมาณ: สูง &rarr; ต่ำ</option>
-            <option value="budget-asc">💰 งบประมาณ: ต่ำ &rarr; สูง</option>
-            <option value="name-asc">🔤 ชื่อสนาม: ก - ฮ (A - Z)</option>
-          </select>
+        <!-- 1) ชุดตัวกรองสำหรับโหมด: สื่อโฆษณาสนาม (Media Mode) -->
+        <div id="mediaFiltersContainer" class="space-y-1.5">
+          <div>
+            <label class="block text-[10.5px] font-bold text-slate-600 mb-0.5 flex items-center gap-1">
+              <i class="ph-bold ph-arrows-down-up text-victor-blue"></i>
+              <span>เรียงลำดับสนาม</span>
+            </label>
+            <select id="sortBy" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg font-medium text-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-victor-accent/40 shadow-xs">
+              <option value="date-desc">📅 วันที่ติดตั้ง: ใหม่ล่าสุด &rarr; เก่าสุด</option>
+              <option value="date-asc">📅 วันที่ติดตั้ง: เก่าสุด &rarr; ใหม่ล่าสุด</option>
+              <option value="budget-desc">💰 งบประมาณ: สูง &rarr; ต่ำ</option>
+              <option value="budget-asc">💰 งบประมาณ: ต่ำ &rarr; สูง</option>
+              <option value="name-asc">🔤 ชื่อสนาม: ก - ฮ (A - Z)</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5 text-xs">
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">เซลผู้ดูแล</label>
+              <select id="filterSales" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
+                <option value="">ทั้งหมด</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">จังหวัด</label>
+              <select id="filterProvince" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
+                <option value="">ทั้งหมด</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">รอบสื่อ/ปี</label>
+              <select id="filterPeriod" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
+                <option value="">ทั้งหมด</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">ประเภทสื่อ</label>
+              <select id="filterMediaType" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
+                <option value="">ทั้งหมด</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">สถานะการติดตั้ง</label>
+            <select id="filterStatus" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent">
+              <option value="">ทั้งหมด</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between pt-1.5 border-t border-slate-200 text-xs">
+            <span class="text-slate-500">พบ <strong id="locationCount" class="text-victor-blue font-bold text-sm">0</strong> แห่ง</span>
+            <span class="text-slate-600">งบรวม: <strong id="totalBudget" onclick="promptIfLocked()" class="text-emerald-700 font-bold text-sm cursor-pointer">฿0</strong></span>
+          </div>
         </div>
 
-        <!-- ตัวกรอง 4 มิติ -->
-        <div class="grid grid-cols-2 gap-1.5 text-xs">
+        <!-- 2) ชุดตัวกรองสำหรับโหมด: งานแข่งขัน (Tournament Mode) -->
+        <div id="tournamentFiltersContainer" class="hidden space-y-1.5">
           <div>
-            <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">เซลผู้ดูแล</label>
-            <select id="filterSales" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
-              <option value="">ทั้งหมด</option>
+            <label class="block text-[10.5px] font-bold text-slate-600 mb-0.5 flex items-center gap-1">
+              <i class="ph-bold ph-arrows-down-up text-amber-600"></i>
+              <span>เรียงลำดับงานแข่ง</span>
+            </label>
+            <select id="sortTournamentBy" onchange="applyTournamentFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg font-medium text-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs">
+              <option value="date-asc">📅 วันแข่ง: ใกล้ถึงสุด &rarr; ไกลสุด</option>
+              <option value="date-desc">📅 วันแข่ง: ล่าสุด &rarr; เก่าสุด</option>
+              <option value="players-desc">👥 จำนวนคนเข้าร่วม: มาก &rarr; น้อย</option>
+              <option value="name-asc">🔤 ชื่องานแข่ง: ก - ฮ (A - Z)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">จังหวัด</label>
-            <select id="filterProvince" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
-              <option value="">ทั้งหมด</option>
-            </select>
+
+          <div class="grid grid-cols-2 gap-1.5 text-xs">
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">สถานะการแข่งขัน</label>
+              <select id="filterTourStatus" onchange="applyTournamentFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500 truncate">
+                <option value="">ทั้งหมด</option>
+                <option value="ongoing">🟢 กำลังแข่งขัน</option>
+                <option value="upcoming">🔵 เร็วๆ นี้</option>
+                <option value="finished">⚪ แข่งเสร็จสิ้นแล้ว</option>
+              </select>
+            </div>
+            <!-- ตัวกรองเซลผู้ดูแลงานแข่ง (คอลัมน์ O) -->
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-500 mb-0.5 flex items-center gap-1">
+                <span>เซล VICTOR</span>
+                <span class="text-[9px] text-amber-600 font-bold">(คอลัมน์ O)</span>
+              </label>
+              <select id="filterTourSales" onchange="applyTournamentFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500 truncate">
+                <option value="">ทั้งหมด</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">ลูกแบดที่ใช้แข่ง</label>
+              <select id="filterTourShuttle" onchange="applyTournamentFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500 truncate">
+                <option value="">ทั้งหมด</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">ผู้จัด / องค์กร</label>
+              <select id="filterTourOrganizer" onchange="applyTournamentFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500 truncate">
+                <option value="">ทั้งหมด</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">รอบสื่อ/ปี</label>
-            <select id="filterPeriod" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
-              <option value="">ทั้งหมด</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">ประเภทสื่อ</label>
-            <select id="filterMediaType" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
-              <option value="">ทั้งหมด</option>
-            </select>
+
+          <div class="flex items-center justify-between pt-1.5 border-t border-slate-200 text-xs">
+            <span class="text-slate-500">พบ <strong id="tournamentCount" class="text-amber-600 font-bold text-sm">0</strong> งาน</span>
+            <span class="text-slate-600">นักกีฬารวม: <strong id="totalPlayers" class="text-blue-700 font-bold text-sm">0</strong> คน</span>
           </div>
         </div>
 
-        <!-- ตัวกรองสถานะ -->
-        <div>
-          <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">สถานะการติดตั้ง</label>
-          <select id="filterStatus" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent">
-            <option value="">ทั้งหมด</option>
-          </select>
-        </div>
-
-        <!-- แถบสรุปยอด -->
-        <div class="flex items-center justify-between pt-1.5 border-t border-slate-200 text-xs">
-          <span class="text-slate-500">พบ <strong id="locationCount" class="text-victor-blue font-bold text-sm">0</strong> แห่ง</span>
-          <span class="text-slate-600">งบรวม: <strong id="totalBudget" onclick="promptIfLocked()" class="text-emerald-700 font-bold text-sm cursor-pointer">฿0</strong></span>
-        </div>
       </div>
 
-      <!-- รายชื่อสนาม -->
+      <!-- รายชื่อสนาม / รายชื่องานแข่ง -->
       <div id="courtList" class="flex-1 overflow-y-auto custom-scrollbar p-2 sm:p-2.5 space-y-1.5 sm:space-y-2">
         <div id="courtLoadingState" class="text-center py-10 text-slate-400 text-xs">
           <div class="w-6 h-6 border-2 border-victor-accent border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          กำลังโหลดข้อมูลสนามจาก Google Sheets...
+          กำลังโหลดข้อมูลสดจาก Google Sheets...
         </div>
       </div>
     </aside>
@@ -280,32 +356,33 @@
       <!-- ปุ่มลอยเปิดเมนูสำหรับมือถือ -->
       <button type="button" id="mobileFloatingFilterBtn" onclick="toggleSidebar(true)" class="md:hidden absolute top-3 left-3 z-20 bg-victor-navy/95 hover:bg-victor-navy text-white px-2.5 py-1.5 rounded-xl shadow-xl flex items-center space-x-1.5 text-xs font-bold border border-white/20 active:scale-95 transition backdrop-blur-xs">
         <i class="ph-bold ph-list-dashes text-sm text-amber-300"></i>
-        <span>รายการ & ตัวกรอง</span>
+        <span>รายการ &amp; ตัวกรอง</span>
       </button>
 
-      <!-- ป้ายคำอธิบายสถานะ -->
-      <div class="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-2 rounded-xl shadow-lg border border-slate-200 z-20 text-[10px] sm:text-[11px] space-y-1 select-none">
-        <div class="font-bold text-slate-800 text-[9.5px] uppercase tracking-wider mb-0.5 flex items-center space-x-1">
+      <!-- ป้ายคำอธิบายสถานะมุมขวาล่าง -->
+      <div id="legendBox" class="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-2 rounded-xl shadow-lg border border-slate-200 z-20 text-[10px] sm:text-[11px] space-y-1 select-none">
+        <div id="legendTitle" class="font-bold text-slate-800 text-[9.5px] uppercase tracking-wider mb-0.5 flex items-center space-x-1">
           <i class="ph-bold ph-map-pin text-victor-accent"></i>
           <span>สถานะสื่อ VICTOR</span>
         </div>
-        <div class="flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-xs"></span>
-          <span class="text-slate-700 font-medium">ติดตั้งเสร็จสมบูรณ์</span>
-        </div>
-        <div class="flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-amber-500 shadow-xs"></span>
-          <span class="text-slate-700 font-medium">อยู่ระหว่างติดตั้ง</span>
-        </div>
-        <div class="flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-rose-500 shadow-xs"></span>
-          <span class="text-slate-700 font-medium">ชำรุดรอซ่อม</span>
+        <div id="legendItems" class="space-y-1">
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-xs"></span>
+            <span class="text-slate-700 font-medium">ติดตั้งเสร็จสมบูรณ์</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 shadow-xs"></span>
+            <span class="text-slate-700 font-medium">อยู่ระหว่างติดตั้ง</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-rose-500 shadow-xs"></span>
+            <span class="text-slate-700 font-medium">ชำรุดรอซ่อม</span>
+          </div>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- หน้าต่างรายละเอียดสนาม (Detail Modal) -->
   <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
       
@@ -329,7 +406,7 @@
       </div>
 
       <div class="p-3.5 sm:p-4 space-y-3">
-        <!-- แถบสลับรอบสื่อ (กรณีสนามเดียวกันมีหลายรอบ/หลายรายการ) -->
+        <!-- แถบสลับรอบสื่อ (กรณีสนามเดียวกันมีหลายรอบ) -->
         <div id="modalMultiRoundBox" class="hidden p-2 rounded-xl bg-amber-50 border border-amber-200 space-y-1.5">
           <div class="flex items-center justify-between text-[11px] font-bold text-amber-800">
             <span class="flex items-center gap-1">
@@ -362,7 +439,6 @@
             </button>
           </div>
 
-          <!-- แถบปุ่มดาวน์โหลดรูปภาพ (รูปนี้ / ทั้งหมดแยกไฟล์) -->
           <div class="flex items-center justify-between pt-0.5">
             <span class="text-[10px] text-slate-500 font-medium">จัดการรูปถ่ายสนาม:</span>
             <div class="flex items-center space-x-1.5">
@@ -394,7 +470,7 @@
             <p class="text-[10px] text-slate-400 mt-0.5">รวมภาษีและค่าติดตั้ง</p>
           </div>
 
-          <!-- เซล VICTOR ผู้ดูแล (พร้อมรูป Avatar) -->
+          <!-- เซล VICTOR ผู้ดูแล -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
             <img id="modalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
             <div class="min-w-0 flex-1">
@@ -404,14 +480,14 @@
             </div>
           </div>
 
-          <!-- ประเภทสื่อโฆษณา (Column L) -->
+          <!-- ประเภทสื่อโฆษณา -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ประเภทสื่อโฆษณา</p>
             <p id="modalMediaType" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
             <p id="modalDate" class="text-slate-500 mt-1 text-[10.5px]">ติดตั้ง: -</p>
           </div>
 
-          <!-- ช่างผู้ติดตั้งสื่อ (พร้อมรูป Avatar) -->
+          <!-- ช่างผู้ติดตั้งสื่อ -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
             <img id="modalInstalledByImg" src="" alt="Installer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
             <div class="min-w-0 flex-1">
@@ -421,7 +497,7 @@
             </div>
           </div>
 
-          <!-- ผู้ออกแบบสื่อ (พร้อมรูป Avatar) -->
+          <!-- ผู้ออกแบบสื่อ -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
             <img id="modalDesignedByImg" src="" alt="Designer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
             <div class="min-w-0 flex-1">
@@ -431,7 +507,7 @@
             </div>
           </div>
 
-          <!-- จำนวนคอร์ท (Column Q) -->
+          <!-- จำนวนคอร์ท -->
           <div class="sm:col-span-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
             <div>
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">จำนวนคอร์ทแบดมินตัน</p>
@@ -450,7 +526,6 @@
               <p id="modalCoords" class="font-mono text-xs text-slate-800 font-semibold mt-0.5">0.0000, 0.0000</p>
             </div>
             <div class="flex flex-wrap items-center gap-1.5">
-              <!-- ปุ่มเปิดโฟลเดอร์ Google Drive -->
               <a id="modalDriveFolder" href="#" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold transition text-xs shadow-xs">
                 <i class="ph-bold ph-folder-open text-sm"></i>
                 <span>เปิดโฟลเดอร์ Drive</span>
@@ -470,15 +545,119 @@
     </div>
   </div>
 
-  <!-- หน้าต่างดูรูปภาพขนาดเต็มจอ (Fullscreen Lightbox Modal) -->
+  <div id="tournamentModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
+      <div class="relative bg-gradient-to-r from-amber-600 via-amber-700 to-amber-900 text-white p-3.5 sm:p-4 flex items-start justify-between">
+        <div>
+          <div class="flex items-center space-x-1.5 mb-1 flex-wrap gap-y-1">
+            <span id="tourModalStatusBadge" class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full uppercase bg-white/20 text-white border border-white/30">
+              -
+            </span>
+            <span id="tourModalShuttleBadge" class="text-[9.5px] font-bold px-2 py-0.5 rounded bg-black/20 text-amber-200 flex items-center gap-1">
+              🏸 -
+            </span>
+          </div>
+          <h2 id="tourModalTitle" class="text-sm sm:text-base font-bold leading-tight text-white">-</h2>
+          <p id="tourModalDates" class="text-[11px] text-amber-100 mt-0.5 flex items-center gap-1">
+            <i class="ph-bold ph-calendar"></i>
+            <span>-</span>
+          </p>
+        </div>
+        <button type="button" onclick="closeTournamentModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition flex-shrink-0 ml-2">
+          <i class="ph-bold ph-x text-sm"></i>
+        </button>
+      </div>
+
+      <div class="p-3.5 sm:p-4 space-y-3">
+        <!-- โปสเตอร์งานแข่งขัน -->
+        <div class="relative w-full h-48 sm:h-64 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
+          <img id="tourModalPosterImg" src="" alt="Tournament Poster" class="w-full h-full object-contain cursor-pointer transition hover:scale-[1.02]" onclick="openActiveTournamentFullscreen()" />
+          <button type="button" onclick="openActiveTournamentFullscreen()" class="absolute bottom-2 left-2 bg-black/75 hover:bg-black/90 text-white px-2.5 py-1 rounded-full text-[10.5px] font-medium flex items-center space-x-1 transition shadow-md">
+            <i class="ph-bold ph-arrows-out text-amber-300"></i>
+            <span>ดูโปสเตอร์เต็มจอ</span>
+          </button>
+          <button type="button" onclick="downloadCurrentTournamentPoster()" class="absolute bottom-2 right-2 bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded-full text-[10.5px] font-medium flex items-center space-x-1 transition shadow-md">
+            <i class="ph-bold ph-download-simple"></i>
+            <span>ดาวน์โหลดโปสเตอร์</span>
+          </button>
+        </div>
+
+        <!-- รายละเอียดงานแข่งแบบกริด -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">สนามที่ใช้จัดแข่งขัน</p>
+            <p id="tourModalVenue" class="font-bold text-slate-800 text-xs sm:text-sm mt-0.5">-</p>
+            <p id="tourModalCourts" class="text-slate-500 text-[10.5px] mt-0.5">จำนวน: - คอร์ท</p>
+          </div>
+
+          <!-- บล็อกแสดงรูปลูกแบดมินตันและชื่อรุ่น -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
+            <img id="tourModalShuttleImg" src="" alt="Shuttlecock" class="w-10 h-10 rounded-xl object-contain border border-amber-200/80 bg-white shadow-xs flex-shrink-0 p-1" />
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ลูกแบดมินตันทางการ</p>
+              <p id="tourModalShuttle" class="font-bold text-amber-600 text-xs sm:text-sm mt-0.5 truncate">-</p>
+              <p class="text-[10px] text-slate-400 mt-0.5">ลูกแบดประจำทัวร์นาเมนต์</p>
+            </div>
+          </div>
+
+          <!-- บล็อกแสดงรูปองค์กร/ผู้จัดการแข่งขันและเบอร์โทรศัพท์ -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start space-x-2.5">
+            <img id="tourModalOrganizerImg" src="" alt="Organizer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white mt-0.5" />
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">องค์กร / ผู้จัดการแข่งขัน</p>
+              <p id="tourModalOrganizer" class="font-bold text-victor-navy text-xs sm:text-sm mt-0.5 truncate">-</p>
+              <div id="tourModalPhoneContainer" onclick="promptIfLocked()" class="mt-1"></div>
+            </div>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <p class="font-semibold text-slate-500 uppercase text-[9.5px]">จำนวนผู้เข้าร่วมแข่งขัน</p>
+            <p id="tourModalPlayers" class="font-bold text-blue-700 text-sm sm:text-base mt-0.5">0 คน</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">นักกีฬาและทีมงาน</p>
+          </div>
+
+          <!-- เซล VICTOR ที่ดูแลงานแข่ง (คอลัมน์ O) -->
+          <div class="sm:col-span-2 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/90 flex items-center space-x-2.5">
+            <img id="tourModalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-amber-900 uppercase text-[9.5px] flex items-center gap-1">
+                <i class="ph-bold ph-user-circle text-amber-700"></i>
+                <span>เซล VICTOR ผู้ดูแล (คอลัมน์ O)</span>
+              </p>
+              <p id="tourModalSales" class="font-bold text-victor-navy text-xs sm:text-sm truncate">-</p>
+              <p class="text-[10px] text-slate-500">ผู้ประสานงานหลักจาก VICTOR</p>
+            </div>
+          </div>
+
+          <!-- GPS & Actions -->
+          <div class="sm:col-span-2 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <p class="font-semibold text-slate-500 uppercase text-[9.5px]">พิกัดสนามจัดแข่งขัน</p>
+              <p id="tourModalCoords" class="font-mono text-xs text-slate-800 font-semibold mt-0.5">0.0000, 0.0000</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button type="button" onclick="shareCurrentTournament()" class="inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-xs shadow-xs">
+                <i class="ph-bold ph-share-network"></i>
+                <span>แชร์งานแข่ง</span>
+              </button>
+              <a id="tourModalMapsNav" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center space-x-1 px-3 py-1.5 bg-victor-blue hover:bg-blue-700 text-white rounded-lg font-semibold transition text-xs shadow-xs">
+                <i class="ph-bold ph-navigation-arrow"></i>
+                <span>นำทางไปสนาม</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="fullscreenModal" class="hidden fixed inset-0 bg-black/95 z-[99999] flex flex-col select-none backdrop-blur-md">
-    <!-- แถบด้านบนของ Fullscreen Viewer -->
     <div class="flex items-center justify-between px-3 sm:px-5 py-3 bg-black/60 text-white z-20 border-b border-white/10 flex-shrink-0">
       <div class="flex items-center space-x-2 min-w-0 pr-2">
         <i class="ph-bold ph-image text-amber-400 text-base flex-shrink-0"></i>
         <h3 id="fullscreenTitle" class="text-xs sm:text-sm font-semibold truncate text-slate-100">-</h3>
       </div>
-      <div class="flex items-center space-x-2 flex-shrink-0">
+      <div class="flex items-center space-x-2.5 flex-shrink-0">
         <span id="fullscreenCounter" class="text-[11px] sm:text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15">
           1 / 1
         </span>
@@ -491,23 +670,18 @@
       </div>
     </div>
 
-    <!-- พื้นที่แสดงรูปภาพเต็มจอ -->
     <div class="flex-1 relative flex items-center justify-center p-2 sm:p-4 overflow-hidden" onclick="onLightboxBackdropClick(event)">
-      <!-- ปุ่มรูปก่อนหน้า -->
-      <button id="fullscreenPrevBtn" type="button" onclick="event.stopPropagation(); prevFullscreenImg();" class="absolute left-2.5 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex items-center justify-center transition border border-white/25 z-20 shadow-2xl" title="รูปก่อนหน้า (ลูกศรซ้าย)">
+      <button id="fullscreenPrevBtn" type="button" onclick="event.stopPropagation(); prevFullscreenImg();" class="absolute left-2.5 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex items-center justify-center transition border border-white/25 z-20 shadow-2xl" title="รูปก่อนหน้า">
         <i class="ph-bold ph-caret-left text-xl sm:text-2xl"></i>
       </button>
 
-      <!-- รูปภาพหลัก -->
-      <img id="fullscreenImg" src="" alt="Fullscreen Court Photo" class="max-w-full max-h-[82vh] object-contain rounded-lg shadow-2xl transition duration-200 select-none cursor-default" onclick="event.stopPropagation()" />
+      <img id="fullscreenImg" src="" alt="Fullscreen Photo" class="max-w-full max-h-[82vh] object-contain rounded-lg shadow-2xl transition duration-200 select-none cursor-default" onclick="event.stopPropagation()" />
 
-      <!-- ปุ่มรูปถัดไป -->
-      <button id="fullscreenNextBtn" type="button" onclick="event.stopPropagation(); nextFullscreenImg();" class="absolute right-2.5 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex items-center justify-center transition border border-white/25 z-20 shadow-2xl" title="รูปถัดไป (ลูกศรขวา)">
+      <button id="fullscreenNextBtn" type="button" onclick="event.stopPropagation(); nextFullscreenImg();" class="absolute right-2.5 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex items-center justify-center transition border border-white/25 z-20 shadow-2xl" title="รูปถัดไป">
         <i class="ph-bold ph-caret-right text-xl sm:text-2xl"></i>
       </button>
     </div>
 
-    <!-- แถบคำแนะนำด้านล่าง -->
     <div class="px-4 py-2 bg-black/60 text-center text-[10.5px] sm:text-xs text-slate-400 border-t border-white/10 flex-shrink-0">
       <span>กดลูกศร ◀ ▶ เพื่อเปลี่ยนรูป • ปัดซ้าย/ขวาบนมือถือ • กด Esc หรือแตะพื้นที่ว่างเพื่อปิด</span>
     </div>
@@ -515,11 +689,11 @@
 
   <!-- หน้าต่างตั้งค่าแหล่งข้อมูล (Settings Modal) -->
   <div id="syncModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl border border-slate-100 space-y-3">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl border border-slate-100 space-y-3.5">
       <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-gear text-victor-accent text-lg"></i>
-          <h3 class="font-bold text-sm sm:text-base text-slate-900">การตั้งค่าระบบ</h3>
+          <h3 class="font-bold text-sm sm:text-base text-slate-900">การตั้งค่าแหล่งข้อมูล Google Sheets</h3>
         </div>
         <button type="button" onclick="toggleModal('syncModal')" class="text-slate-400 hover:text-slate-600">
           <i class="ph-bold ph-x text-lg"></i>
@@ -527,32 +701,42 @@
       </div>
 
       <div class="space-y-3 text-xs">
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
-          <div class="flex items-center justify-between">
-            <span class="font-semibold text-slate-700">สถานะฐานข้อมูล Google Sheets:</span>
-            <span class="text-emerald-700 font-bold flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>เชื่อมต่อแล้ว (Private)</span>
-            </span>
-          </div>
-          <div class="relative">
-            <input
-              type="password"
-              id="csvUrlInput"
-              readonly
-              value="••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••"
-              class="w-full text-xs p-2 bg-slate-100 border border-slate-300 rounded-lg text-slate-500 font-mono select-none cursor-not-allowed"
-            />
-          </div>
-          <p class="text-[10px] text-slate-500">
-            🔒 ที่อยู่แหล่งข้อมูลถูกเข้ารหัสและซ่อนไว้เพื่อความปลอดภัยของข้อมูลบริษัท
-          </p>
+        <!-- ลิงก์ CSV แท็บสื่อสนาม -->
+        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+          <label class="block font-semibold text-slate-700">1. ลิงก์ CSV: แท็บสื่อโฆษณาสนาม (Media Tracker)</label>
+          <input
+            type="text"
+            id="csvUrlInput"
+            placeholder="วางลิงก์ CSV แท็บสื่อ..."
+            class="w-full text-xs p-2 bg-white border border-slate-300 rounded-lg text-slate-700 font-mono focus:ring-1 focus:ring-victor-accent focus:outline-none"
+          />
         </div>
 
-        <button type="button" onclick="loadDataFromSheets(); toggleModal('syncModal');" class="w-full py-2 bg-victor-blue hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-xs flex items-center justify-center space-x-1.5">
-          <i class="ph-bold ph-arrows-clockwise text-base"></i>
-          <span>ซิงค์ข้อมูลใหม่จาก Sheets</span>
-        </button>
+        <!-- ลิงก์ CSV แท็บงานแข่งขัน -->
+        <div class="p-2.5 bg-amber-50/60 border border-amber-200 rounded-xl space-y-1">
+          <label class="block font-semibold text-amber-900">2. ลิงก์ CSV: แท็บงานแข่งขัน (Tournaments)</label>
+          <input
+            type="text"
+            id="tournamentCsvUrlInput"
+            placeholder="วางลิงก์ CSV แท็บงานแข่ง (gid=...)"
+            class="w-full text-xs p-2 bg-white border border-amber-300 rounded-lg text-slate-700 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none"
+          />
+        </div>
+
+        <p class="text-[10.5px] text-slate-500">
+          💡 วิธีดึงลิงก์: ใน Google Sheets ไปที่ <strong>ไฟล์ &rarr; แชร์ &rarr; เผยแพร่ไปยังเว็บ &rarr; เลือกแท็บ &rarr; .csv</strong>
+        </p>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="saveSettings()" class="flex-1 py-2 bg-victor-navy hover:bg-blue-900 text-white text-xs font-semibold rounded-lg transition shadow-xs flex items-center justify-center space-x-1.5">
+            <i class="ph-bold ph-floppy-disk text-base"></i>
+            <span>บันทึกการตั้งค่า</span>
+          </button>
+          <button type="button" onclick="refreshCurrentData(); toggleModal('syncModal');" class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center justify-center space-x-1">
+            <i class="ph-bold ph-arrows-clockwise text-base"></i>
+            <span>ซิงค์ทันที</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -565,7 +749,7 @@
       </div>
       <div>
         <h3 class="font-bold text-slate-900 text-sm sm:text-base">ยืนยันรหัสความปลอดภัย</h3>
-        <p class="text-[11px] text-slate-500 mt-0.5">กรอกรหัส 5 หลักเพื่อดูงบประมาณและเบอร์โทรศัพท์</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">กรอกรหัสเพื่อดูงบประมาณและเบอร์โทรศัพท์</p>
       </div>
       
       <form onsubmit="verifyPasscode(event)" class="space-y-3">
@@ -595,29 +779,44 @@
 
   <script>
     const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=0&single=true&output=csv";
-    const VICTOR_LOGO_URL = "https://scontent.fbkk6-1.fna.fbcdn.net/v/t39.30808-6/351481026_3740027179563041_5049801915800968898_n.jpg?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=s2048x2048&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=wcSAPTyjTJUQ7kNvwGWcl8s&_nc_oc=Adp8jBkPP6oKByHCCYMktnJyweQTGOtDMftQxPVA9FgVsH484aGRllq5HXzHmU0frdo&_nc_zt=23&_nc_ht=scontent.fbkk6-1.fna&_nc_gid=thg9rzkRzwoPEdhZa_0bZg&_nc_ss=7b2a8&oh=00_AQIJ_G_1BKP3N5pBiYDNF0r_GzoFskT-cZaCeLWq8gqw8Q&oe=6ABADA78";
-    const FORZA_LOGO_URL = "https://scontent.fbkk7-3.fna.fbcdn.net/v/t39.30808-6/301943643_488370303300619_7315755865953000461_n.jpg?stp=dst-jpg_tt6&cstp=mx674x674&ctp=s674x674&_nc_cat=106&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=zXJtqwvDOZQQ7kNvwF8fDMp&_nc_oc=Adqzh0hNGeOEbbaksQIgiNQGrLIY3-_0LXtFny4eKExMafXwWJqLCO3djIQuYl2ZCyY&_nc_zt=23&_nc_ht=scontent.fbkk7-3.fna&_nc_gid=PsP6oLvnH2TKwvJcuw_CDA&_nc_ss=7b2a8&oh=00_AQNp8395ID40_S0WX-xpbVU4aj6kTNDKwW6CZqbQ9V07xw&oe=6ABFB124";
+    const DEFAULT_TOURNAMENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=1317801346&single=true&output=csv";
+    
+    // รูปภาพหลักทั้งหมดตามลิงก์ Google Drive
+    const DEFAULT_LOGO_URL = "https://lh3.googleusercontent.com/d/1635bFr8TC3_j7FCr5mHo3d3H3ZevC6q0";
+    const DEFAULT_PIN_URL = "https://lh3.googleusercontent.com/d/1MppkVebrR2E82ex-hlV85F7tmiFT7Dfh";
+    const FORZA_LOGO_URL = "https://lh3.googleusercontent.com/d/1FcaG84U5X1RuOj-IBuxIBRkcvWkdm5fo";
+    
     const SECRET_PIN = "77181";
 
-    // ตรวจสอบว่าสนามนี้เป็นแบรนด์ FZ FORZA หรือไม่
+    let currentSystemMode = 'media'; // 'media' | 'tournament'
+    let isUnlocked = false; // ค่าเริ่มต้นล็อก
+    let map = null;
+    let markersLayer = null;
+
+    // ข้อมูลฝั่งสื่อสนาม
+    let currentLocations = [];
+    let filteredLocations = [];
+    let activeModalCourt = null;
+    let modalImageIndex = 0;
+    let isBadgesVisible = localStorage.getItem('victor_show_badges') !== 'false';
+
+    // ข้อมูลฝั่งงานแข่งขัน
+    let currentTournaments = [];
+    let filteredTournaments = [];
+    let activeModalTournament = null;
+
+    // ระบบดูรูปเต็มจอ Lightbox
+    let activeFullscreenImages = [];
+    let fullscreenIndex = 0;
+
+    // ตรวจสอบสนาม FZ FORZA
     function isForzaCourt(courtName) {
       if (!courtName) return false;
       const upper = String(courtName).toUpperCase();
       return upper.includes('FZ FORZA') || upper.includes('(FZ FORZA)');
     }
 
-    let isUnlocked = false; // ค่าเริ่มต้นคือล็อก (เบลอข้อมูล)
-    let currentLocations = [];
-    let filteredLocations = [];
-    let map = null;
-    let markersLayer = null;
-    let activeModalCourt = null;
-    let modalImageIndex = 0;
-    let activeFullscreenImages = [];
-    let fullscreenIndex = 0;
-    let isBadgesVisible = localStorage.getItem('victor_show_badges') !== 'false'; // ค่าเริ่มต้นคือแสดง
-
-    // แปลงลิงก์ Google Drive ทุกรูปแบบให้กลายเป็น Direct CDN Image URL อัตโนมัติ
+    // แปลงลิงก์ Google Drive ทุกรูปแบบ
     function normalizeImageUrl(url) {
       if (!url) return '';
       let cleanUrl = String(url).trim();
@@ -640,30 +839,99 @@
       return cleanUrl;
     }
 
-    // ฟังก์ชันแยก "ชื่อ" และ "ลิงก์รูปภาพในวงเล็บ" เช่น รัชนีกร (https://...)
+    // แยกชื่อและ Avatar ในวงเล็บ
     function parseNameAndAvatar(rawText) {
-      if (!rawText) return { name: '-', photo: VICTOR_LOGO_URL };
+      if (!rawText) return { name: '-', photo: DEFAULT_PIN_URL };
       const str = String(rawText).trim();
-      if (!str || str === '-') return { name: '-', photo: VICTOR_LOGO_URL };
+      if (!str || str === '-') return { name: '-', photo: DEFAULT_PIN_URL };
 
       const match = str.match(/^(.*?)\s*[\(\[\{](https?:\/\/[^\s\)\]\}]+)[\)\]\}]\s*$/);
       if (match) {
         const parsedName = match[1].trim() || '-';
         const parsedPhoto = normalizeImageUrl(match[2].trim());
-        return { name: parsedName, photo: parsedPhoto || VICTOR_LOGO_URL };
+        return { name: parsedName, photo: parsedPhoto || DEFAULT_PIN_URL };
       }
 
-      return { name: str, photo: VICTOR_LOGO_URL };
+      return { name: str, photo: DEFAULT_PIN_URL };
+    }
+
+    function switchSystemMode(mode) {
+      if (currentSystemMode === mode) return;
+      currentSystemMode = mode;
+
+      const btnMedia = document.getElementById('tabModeMedia');
+      const btnTour = document.getElementById('tabModeTournament');
+      const modeBadge = document.getElementById('activeModeBadge');
+      const mediaFilters = document.getElementById('mediaFiltersContainer');
+      const tourFilters = document.getElementById('tournamentFiltersContainer');
+      const searchInput = document.getElementById('searchInput');
+
+      if (mode === 'media') {
+        btnMedia.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 bg-victor-accent text-white shadow-xs";
+        btnTour.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center space-x-1 text-blue-200 hover:text-white";
+        modeBadge.className = "px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider truncate";
+        modeBadge.innerText = "สื่อโฆษณา";
+        mediaFilters.classList.remove('hidden');
+        tourFilters.classList.add('hidden');
+        if (searchInput) searchInput.placeholder = "ค้นหาชื่อสนาม, เซล, ผู้ติดต่อ, ช่าง...";
+        updateLegendForMode('media');
+        renderMarkers();
+        renderList();
+      } else {
+        btnTour.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 bg-amber-500 text-white shadow-xs";
+        btnMedia.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center space-x-1 text-blue-200 hover:text-white";
+        modeBadge.className = "px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-amber-500/25 text-amber-300 border border-amber-400/40 tracking-wider truncate";
+        modeBadge.innerText = "งานแข่งขัน";
+        tourFilters.classList.remove('hidden');
+        mediaFilters.classList.add('hidden');
+        if (searchInput) searchInput.placeholder = "ค้นหาชื่องานแข่ง, สนาม, ลูกแบด, เซล, ผู้จัด...";
+        updateLegendForMode('tournament');
+        if (currentTournaments.length === 0) {
+          loadTournamentsFromSheets();
+        } else {
+          applyTournamentFilters();
+        }
+      }
+
+      showToast(mode === 'media' ? '🏸 สลับมาที่โหมด: สื่อสนาม' : '🏆 สลับมาที่โหมด: ปฏิทินงานแข่ง');
+    }
+
+    function updateLegendForMode(mode) {
+      const legendTitle = document.getElementById('legendTitle');
+      const legendItems = document.getElementById('legendItems');
+      if (!legendTitle || !legendItems) return;
+
+      if (mode === 'media') {
+        legendTitle.innerHTML = `<i class="ph-bold ph-map-pin text-victor-accent"></i><span>สถานะสื่อ VICTOR</span>`;
+        legendItems.innerHTML = `
+          <div class="flex items-center space-x-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-xs"></span><span class="text-slate-700 font-medium">ติดตั้งเสร็จสมบูรณ์</span></div>
+          <div class="flex items-center space-x-1.5"><span class="w-2 h-2 rounded-full bg-amber-500 shadow-xs"></span><span class="text-slate-700 font-medium">อยู่ระหว่างติดตั้ง</span></div>
+          <div class="flex items-center space-x-1.5"><span class="w-2 h-2 rounded-full bg-rose-500 shadow-xs"></span><span class="text-slate-700 font-medium">ชำรุดรอซ่อม</span></div>
+        `;
+      } else {
+        legendTitle.innerHTML = `<i class="ph-bold ph-trophy text-amber-500"></i><span>สถานะงานแข่งขัน</span>`;
+        legendItems.innerHTML = `
+          <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs"></span><span class="text-slate-700 font-medium">กำลังแข่งขัน (Ongoing)</span></div>
+          <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-xs"></span><span class="text-slate-700 font-medium">เร็วๆ นี้ (Upcoming)</span></div>
+          <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-400 shadow-xs"></span><span class="text-slate-700 font-medium">เสร็จสิ้นแล้ว (Finished)</span></div>
+        `;
+      }
     }
 
     function toggleAuthLockAction() {
       if (isUnlocked) {
         isUnlocked = false;
         updateAuthButtonState();
-        renderMarkers();
-        renderList();
-        if (activeModalCourt) window.openCourtDetail(activeModalCourt.id);
-        showToast('🔒 ล็อกการแสดงผลงบประมาณและเบอร์โทรแล้ว');
+        if (currentSystemMode === 'media') {
+          renderMarkers();
+          renderList();
+          if (activeModalCourt) window.openCourtDetail(activeModalCourt.id);
+        } else {
+          renderTournamentMarkers();
+          renderTournamentList();
+          if (activeModalTournament) window.openTournamentDetail(activeModalTournament.id);
+        }
+        showToast('🔒 ล็อกการแสดงผลข้อมูลสำคัญแล้ว');
       } else {
         openAuthModal();
       }
@@ -696,9 +964,15 @@
         isUnlocked = true;
         toggleModal('authModal');
         updateAuthButtonState();
-        renderMarkers();
-        renderList();
-        if (activeModalCourt) window.openCourtDetail(activeModalCourt.id);
+        if (currentSystemMode === 'media') {
+          renderMarkers();
+          renderList();
+          if (activeModalCourt) window.openCourtDetail(activeModalCourt.id);
+        } else {
+          renderTournamentMarkers();
+          renderTournamentList();
+          if (activeModalTournament) window.openTournamentDetail(activeModalTournament.id);
+        }
         showToast('🔓 ปลดล็อกการแสดงผลงบประมาณและเบอร์โทรสำเร็จ!');
       } else {
         showToast('❌ รหัสผ่านไม่ถูกต้อง');
@@ -716,11 +990,11 @@
       if (isUnlocked) {
         btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-emerald-400/40";
         if (icon) icon.className = "ph-bold ph-lock-key-open";
-        if (text) text.innerText = "ล็อกข้อมูล";
+        if (text) text.innerText = "ล็อก";
       } else {
         btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40";
         if (icon) icon.className = "ph-bold ph-lock-key";
-        if (text) text.innerText = "ปลดล็อกข้อมูล";
+        if (text) text.innerText = "ปลดล็อก";
       }
     }
 
@@ -728,8 +1002,12 @@
       isBadgesVisible = !isBadgesVisible;
       localStorage.setItem('victor_show_badges', isBadgesVisible ? 'true' : 'false');
       updateBadgeToggleButtonState();
-      renderMarkers();
-      showToast(isBadgesVisible ? '🏷️ แสดง Badge รอบสื่อแล้ว' : '🙈 ซ่อน Badge รอบสื่อแล้ว');
+      if (currentSystemMode === 'media') {
+        renderMarkers();
+      } else {
+        renderTournamentMarkers();
+      }
+      showToast(isBadgesVisible ? '🏷️ แสดง Badge บนหมุดแล้ว' : '🙈 ซ่อน Badge บนหมุดแล้ว');
     }
 
     function updateBadgeToggleButtonState() {
@@ -825,15 +1103,27 @@
       if (!status) return '#10b981';
       const s = String(status).trim().toLowerCase();
       if (s.includes('ชำรุด') || s.includes('ซ่อม') || s.includes('รอซ่อม') || s.includes('เสียหาย') || s.includes('แก้ไข') || s.includes('repair')) {
-        return '#e11d48'; // สีแดงสด
+        return '#e11d48';
       }
       if (s.includes('ระหว่าง') || s.includes('กำลัง') || s.includes('รอติดตั้ง') || s.includes('รอดำเนินการ') || s.includes('pending')) {
-        return '#f59e0b'; // สีส้มทอง
+        return '#f59e0b';
       }
       if (s.includes('เสร็จ') || s.includes('สมบูรณ์') || s.includes('ติดตั้งแล้ว') || s.includes('เรียบร้อย') || s.includes('complete') || s.includes('done')) {
-        return '#10b981'; // สีเขียวมรกต
+        return '#10b981';
       }
       return '#0284c7';
+    }
+
+    function getStatusBadge(status) {
+      if (!status) return '<span class="text-emerald-500 font-bold">● ติดตั้งเสร็จสมบูรณ์</span>';
+      const s = String(status).trim().toLowerCase();
+      if (s.includes('ชำรุด') || s.includes('ซ่อม') || s.includes('รอซ่อม') || s.includes('เสียหาย')) {
+        return '<span class="text-rose-600 font-bold">● ' + status + '</span>';
+      }
+      if (s.includes('ระหว่าง') || s.includes('รอ')) {
+        return '<span class="text-amber-500 font-bold">● ' + status + '</span>';
+      }
+      return '<span class="text-emerald-500 font-bold">● ' + status + '</span>';
     }
 
     function parsePeriodScore(periodStr) {
@@ -869,21 +1159,14 @@
 
     function getPeriodBadgeColor(period) {
       if (!period || period.trim() === '-' || period.trim() === '') {
-        return { bg: '#64748b', text: '#ffffff' }; // เทา
+        return { bg: '#64748b', text: '#ffffff' };
       }
       const trimmed = period.trim();
       const sortedPeriods = getSortedUniquePeriods();
       const rank = sortedPeriods.indexOf(trimmed);
 
-      // อันดับ 0 (ใหม่ล่าสุด) = สีแดง
-      if (rank === 0) {
-        return { bg: '#dc2626', text: '#ffffff' };
-      }
-      // อันดับ 1 (เก่าลงไป 1 รอบ) = สีน้ำเงิน
-      if (rank === 1) {
-        return { bg: '#1d4ed8', text: '#ffffff' };
-      }
-      // อันดับ 2 เป็นต้นไป (เก่าหลังจากนั้น) = สีเทา
+      if (rank === 0) return { bg: '#dc2626', text: '#ffffff' };
+      if (rank === 1) return { bg: '#1d4ed8', text: '#ffffff' };
       return { bg: '#64748b', text: '#ffffff' };
     }
 
@@ -900,26 +1183,14 @@
       return { line1: raw, line2: '' };
     }
 
-    function getStatusBadge(status) {
-      if (!status) return '<span class="text-emerald-500 font-bold">● ติดตั้งเสร็จสมบูรณ์</span>';
-      const s = String(status).trim().toLowerCase();
-      if (s.includes('ชำรุด') || s.includes('ซ่อม') || s.includes('รอซ่อม') || s.includes('เสียหาย')) {
-        return '<span class="text-rose-600 font-bold">● ' + status + '</span>';
-      }
-      if (s.includes('ระหว่าง') || s.includes('รอ')) {
-        return '<span class="text-amber-500 font-bold">● ' + status + '</span>';
-      }
-      return '<span class="text-emerald-500 font-bold">● ' + status + '</span>';
-    }
-
     function createMarkerIcon(status, period, courtName) {
       const color = getStatusColor(status);
       const periodLabel = (period && period.trim() && period.trim() !== '-') ? period.trim() : '';
       const badgeStyle = getPeriodBadgeColor(periodLabel);
       const split = splitPeriodTwoLines(periodLabel);
-
-      // ตรวจสอบโลโก้แบรนด์สำหรับหมุด (FZ FORZA หรือ VICTOR)
-      const markerLogoUrl = isForzaCourt(courtName) ? FORZA_LOGO_URL : VICTOR_LOGO_URL;
+      
+      // หมุดของสื่อสนาม: แสดง FZ FORZA สำหรับสนาม FZ FORZA และหมุด VICTOR สำหรับสนามทั่วไป
+      const markerLogoUrl = isForzaCourt(courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL;
 
       const badgeHtml = (isBadgesVisible && periodLabel) ? `
         <div style="position: absolute; top: -5px; right: -10px; background: ${badgeStyle.bg}; color: ${badgeStyle.text}; font-family: 'Prompt', sans-serif; padding: 1.5px 3.5px; border-radius: 5px; border: 1.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.4); text-align: center; line-height: 1.05; z-index: 25; pointer-events: none; min-width: 22px;">
@@ -933,7 +1204,7 @@
         html: `
           <div style="position: relative; width: 38px; height: 38px;">
             <div style="background-color: white; border: 3.5px solid ${color}; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 4px 14px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px; transition: transform 0.2s ease;">
-              <img src="${markerLogoUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none;" alt="V" onerror="this.outerHTML='🏸'" />
+              <img src="${markerLogoUrl}" style="width: 100% !important; height: 100% !important; object-fit: cover; border-radius: 50%; pointer-events: none;" alt="Pin" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
             </div>
             ${badgeHtml}
           </div>
@@ -948,7 +1219,6 @@
       if (!markersLayer || !map) return;
       markersLayer.clearLayers();
       const bounds = L.latLngBounds();
-
       const coordCounts = {};
 
       filteredLocations.forEach((court) => {
@@ -973,7 +1243,7 @@
           icon: createMarkerIcon(court.status, court.period, court.courtName)
         });
 
-        const courtBrandLogo = isForzaCourt(court.courtName) ? FORZA_LOGO_URL : VICTOR_LOGO_URL;
+        const courtBrandLogo = isForzaCourt(court.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL;
         const primaryImg = (court.images && court.images.length > 0)
           ? normalizeImageUrl(court.images[0])
           : courtBrandLogo;
@@ -988,7 +1258,7 @@
         const popupContent = `
           <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
             <div class="relative w-full h-24 sm:h-28 bg-slate-950 rounded-xl overflow-hidden group cursor-pointer" onclick="openFullscreenViewer('${court.id}', 0)">
-              <img src="${primaryImg}" alt="${court.courtName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${VICTOR_LOGO_URL}'" />
+              <img src="${primaryImg}" alt="${court.courtName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${courtBrandLogo}';" />
               <div class="absolute bottom-1.5 left-1.5 bg-black/75 text-white px-2 py-0.5 rounded-full text-[9.5px] flex items-center space-x-1 font-medium">
                 <i class="ph-bold ph-arrows-out text-amber-300"></i>
                 <span>ดูเต็มจอ</span>
@@ -1053,109 +1323,6 @@
       }
     }
 
-    function getShareBaseUrl() {
-      return window.location.origin + window.location.pathname;
-    }
-
-    window.shareCourtById = function(courtId) {
-      const court = currentLocations.find(c => c.id === courtId);
-      if (!court) return;
-
-      const base = getShareBaseUrl();
-      const shareUrl = `${base}?court=${encodeURIComponent(court.courtName)}`;
-      
-      const shareText = `🏸 สนาม: ${court.courtName} (${court.province || 'ไม่ระบุจังหวัด'})\n` +
-                        `💰 งบ: ฿${Number(court.budget || 0).toLocaleString()} | ${court.courtCount || ''}\n` +
-                        `📍 แผนที่: ${shareUrl}`;
-
-      if (navigator.share) {
-        navigator.share({
-          title: `VICTOR Media Tracker - ${court.courtName}`,
-          text: shareText,
-          url: shareUrl
-        }).catch(() => {
-          copyToClipboard(shareUrl);
-        });
-      } else {
-        copyToClipboard(shareUrl);
-      }
-    };
-
-    function shareCurrentCourt() {
-      if (activeModalCourt) {
-        window.shareCourtById(activeModalCourt.id);
-      }
-    }
-
-    function copyToClipboard(text) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-          showToast('🔗 คัดลอกลิงก์แชร์สนามเรียบร้อยแล้ว!');
-        }).catch(() => fallbackCopy(text));
-      } else {
-        fallbackCopy(text);
-      }
-    }
-
-    function fallbackCopy(text) {
-      const tempInput = document.createElement('input');
-      tempInput.value = text;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      try {
-        document.execCommand('copy');
-        showToast('🔗 คัดลอกลิงก์แชร์สนามเรียบร้อยแล้ว!');
-      } catch (err) {
-        prompt('คัดลอกลิงก์ด้านล่างเพื่อแชร์:', text);
-      }
-      document.body.removeChild(tempInput);
-    }
-
-    function checkUrlCourtParam() {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const p = urlParams.get('court');
-        if (p) {
-          focusOnTargetCourt(p);
-        }
-      } catch (e) {
-        console.warn(e);
-      }
-    }
-
-    function focusOnTargetCourt(courtIdentifier) {
-      if (!courtIdentifier) return;
-      const decoded = decodeURIComponent(courtIdentifier).trim().toLowerCase();
-      
-      const found = currentLocations.find(c => 
-        (c.courtName && c.courtName.trim().toLowerCase() === decoded) ||
-        (c.id && c.id.toLowerCase() === decoded) ||
-        (c.courtName && c.courtName.toLowerCase().includes(decoded))
-      );
-
-      if (!found) return;
-
-      if (window.innerWidth < 768) {
-        toggleSidebar(false);
-      }
-
-      if (found.lat && found.lng && map) {
-        setTimeout(() => {
-          map.flyTo([found.lat, found.lng], 16, { duration: 1.5 });
-          if (markersLayer) {
-            markersLayer.eachLayer((layer) => {
-              if (layer.getLatLng && 
-                  Math.abs(layer.getLatLng().lat - found.lat) < 0.0001 && 
-                  Math.abs(layer.getLatLng().lng - found.lng) < 0.0001) {
-                layer.openPopup();
-              }
-            });
-          }
-          showToast(`📍 ซูมไปที่สนาม: ${found.courtName}`);
-        }, 600);
-      }
-    }
-
     function renderList() {
       const container = document.getElementById('courtList');
       const countEl = document.getElementById('locationCount');
@@ -1197,7 +1364,7 @@
 
         const cardImg = (v.images && v.images.length > 0)
           ? normalizeImageUrl(v.images[0])
-          : (isForzaCourt(v.courtName) ? FORZA_LOGO_URL : VICTOR_LOGO_URL);
+          : (isForzaCourt(v.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL);
 
         const sameNameCount = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === v.courtName.trim().toLowerCase()).length;
         const budgetFormatted = `฿${Number(v.budget || 0).toLocaleString()}`;
@@ -1206,7 +1373,7 @@
 
         card.innerHTML = `
           <div class="relative flex-shrink-0">
-            <img src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200" onerror="this.src='${VICTOR_LOGO_URL}'" />
+            <img src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200" onerror="this.onerror=null; this.src='${isForzaCourt(v.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL}';" />
             ${sameNameCount > 1 ? `
               <span class="absolute -top-1 -right-1 bg-amber-500 text-white text-[8px] font-bold px-1 rounded-full border border-white shadow-xs">
                 ${sameNameCount}
@@ -1254,6 +1421,308 @@
         totalBudgetEl.classList.remove('sensitive-blur');
         totalBudgetEl.title = '';
       }
+    }
+
+    function getTournamentTimingStatus(startDateStr, endDateStr) {
+      const now = new Date().setHours(0, 0, 0, 0);
+      const start = parseFlexibleDate(startDateStr);
+      const end = parseFlexibleDate(endDateStr) || start;
+
+      if (!start) return { code: 'unknown', text: 'ไม่ระบุวัน', bg: '#64748b', textCol: '#ffffff' };
+
+      if (now >= start && now <= (end + 86400000 - 1)) {
+        return { code: 'ongoing', text: '🟢 กำลังแข่ง', bg: '#10b981', textCol: '#ffffff' };
+      } else if (now < start) {
+        return { code: 'upcoming', text: '🔵 เร็วๆ นี้', bg: '#0284c7', textCol: '#ffffff' };
+      } else {
+        return { code: 'finished', text: '⚪ แข่งเสร็จแล้ว', bg: '#64748b', textCol: '#ffffff' };
+      }
+    }
+
+    function parseTournamentNameAndLogo(rawText) {
+      if (!rawText) return { name: '-', logoUrl: '' };
+      const str = String(rawText).trim();
+      const match = str.match(/^(.*?)\s*[\(\[\{](https?:\/\/[^\s\)\]\}]+)[\)\]\}]\s*$/);
+      if (match) {
+        return {
+          name: match[1].trim() || str,
+          logoUrl: normalizeImageUrl(match[2].trim())
+        };
+      }
+      return { name: str, logoUrl: '' };
+    }
+
+    function parseTournamentLevelAndSize(rawLevel) {
+      if (!rawLevel) return { levelName: 'ทั่วไป', isLarge: false };
+      const str = String(rawLevel).trim();
+      const isLarge = str.includes('(2)');
+      const levelName = str.replace(/\([12]\)/g, '').trim() || str;
+      return { levelName, isLarge };
+    }
+
+    function calculateTournamentDays(startDateStr, endDateStr) {
+      const start = parseFlexibleDate(startDateStr);
+      const end = parseFlexibleDate(endDateStr);
+      if (!start) return '';
+      if (!end || end === start) return '1 วัน';
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      return `${diffDays} วัน`;
+    }
+
+    function createTournamentMarkerIcon(tour) {
+      const statusInfo = getTournamentTimingStatus(tour.startDate, tour.endDate);
+      const isLarge = !!tour.isLargePin;
+
+      // กฎแสดงรูปภาพหมุด:
+      // - เฉพาะ Level (2) เท่านั้นที่แสดงรูปภาพโลโก้ของงานแข่ง (จากในวงเล็บท้ายชื่องาน)
+      // - Level (1) หรือรายการปกติ จะแสดงหมุดรูปหลักมาตรฐานเสมอ ไม่เปลี่ยนตามตัวกรอง
+      let logoSrc = DEFAULT_PIN_URL;
+      if (isLarge && tour.logoUrl) {
+        logoSrc = normalizeImageUrl(tour.logoUrl);
+      }
+
+      // จัดการการแสดง Badge ตามค่า isBadgesVisible
+      const levelBadgeHtml = (isBadgesVisible && tour.levelName) ? `
+        <div style="position: absolute; top: -7px; left: -3px; background: linear-gradient(135deg, #f59e0b, #b45309); color: #ffffff; font-family: 'Prompt', sans-serif; font-size: 7.5px; font-weight: 800; padding: 0.5px 5px; border-radius: 9999px; border: 1.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.3); text-align: center; white-space: nowrap; z-index: 30; pointer-events: none;">
+          ⭐ ${tour.levelName || 'VIP'}
+        </div>
+      ` : '';
+
+      const statusBadgeHtml = isBadgesVisible ? `
+        <div style="position: absolute; bottom: -6px; right: -3px; background: ${statusInfo.bg}; color: ${statusInfo.textCol}; font-family: 'Prompt', sans-serif; font-size: 7px; font-weight: 800; padding: 0.5px 4px; border-radius: 4px; border: 1.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25); text-align: center; white-space: nowrap; z-index: 30; pointer-events: none;">
+          ${statusInfo.text}
+        </div>
+      ` : '';
+
+      const regularBadgeHtml = isBadgesVisible ? `
+        <div style="position: absolute; top: -6px; right: -8px; background: ${statusInfo.bg}; color: ${statusInfo.textCol}; font-family: 'Prompt', sans-serif; font-size: 8px; font-weight: 800; padding: 1px 4px; border-radius: 4px; border: 1.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.3); text-align: center; line-height: 1.1; pointer-events: none; white-space: nowrap;">
+          ${statusInfo.text}
+        </div>
+      ` : '';
+
+      if (isLarge) {
+        return L.divIcon({
+          className: 'custom-leaflet-marker',
+          html: `
+            <div style="position: relative; width: 48px; height: 42px; display: flex; align-items: center; justify-content: center;">
+              <div style="background: rgba(15, 23, 42, 0.95); border: 2.5px solid #f59e0b; border-radius: 10px; width: 48px; height: 38px; box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 10px rgba(245, 158, 11, 0.35); display: flex; align-items: center; justify-content: center; padding: 2px; overflow: hidden; box-sizing: border-box;">
+                <img src="${logoSrc}" style="width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; object-fit: contain; border-radius: 4px; display: block;" alt="Logo" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+              </div>
+              ${levelBadgeHtml}
+              ${statusBadgeHtml}
+            </div>
+          `,
+          iconSize: [48, 42],
+          iconAnchor: [24, 21],
+          popupAnchor: [0, -21]
+        });
+      }
+
+      return L.divIcon({
+        className: 'custom-leaflet-marker',
+        html: `
+          <div style="position: relative; width: 42px; height: 42px;">
+            <div style="background: white; border: 3px solid #f59e0b; width: 42px; height: 42px; border-radius: 50%; box-shadow: 0 4px 14px rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2.5px;">
+              <img src="${logoSrc}" style="width: 100% !important; height: 100% !important; object-fit: cover; border-radius: 50%;" alt="Logo" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+            </div>
+            ${regularBadgeHtml}
+          </div>
+        `,
+        iconSize: [42, 42],
+        iconAnchor: [21, 21],
+        popupAnchor: [0, -21]
+      });
+    }
+
+    function renderTournamentMarkers() {
+      if (!markersLayer || !map) return;
+      markersLayer.clearLayers();
+      const bounds = L.latLngBounds();
+      const coordCounts = {};
+
+      filteredTournaments.forEach((tour) => {
+        if (!tour.lat || !tour.lng || isNaN(tour.lat) || isNaN(tour.lng)) return;
+
+        const key = `${tour.lat.toFixed(5)}_${tour.lng.toFixed(5)}`;
+        let displayLat = tour.lat;
+        let displayLng = tour.lng;
+
+        if (coordCounts[key]) {
+          const count = coordCounts[key];
+          const angle = count * 1.2;
+          const radius = 0.00020 * count;
+          displayLat += Math.sin(angle) * radius;
+          displayLng += Math.cos(angle) * radius;
+          coordCounts[key]++;
+        } else {
+          coordCounts[key] = 1;
+        }
+
+        const marker = L.marker([displayLat, displayLng], {
+          icon: createTournamentMarkerIcon(tour)
+        });
+
+        const posterImg = tour.posterUrl ? normalizeImageUrl(tour.posterUrl) : DEFAULT_PIN_URL;
+        const statusInfo = getTournamentTimingStatus(tour.startDate, tour.endDate);
+        const durationText = calculateTournamentDays(tour.startDate, tour.endDate);
+        const salesParsed = parseNameAndAvatar(tour.sales).name;
+
+        const popupContent = `
+          <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
+            <div class="relative w-full h-28 bg-slate-950 rounded-xl overflow-hidden group cursor-pointer" onclick="openFullscreenViewer('${tour.id}', 0)">
+              <img src="${posterImg}" alt="${tour.tournamentName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+              <div class="absolute bottom-1.5 left-1.5 bg-black/75 text-white px-2 py-0.5 rounded-full text-[9.5px] flex items-center space-x-1 font-medium">
+                <i class="ph-bold ph-arrows-out text-amber-300"></i>
+                <span>ดูโปสเตอร์</span>
+              </div>
+              <span style="background: ${statusInfo.bg}; color: ${statusInfo.textCol};" class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold shadow-sm">
+                ${statusInfo.text}
+              </span>
+            </div>
+
+            <div>
+              <div class="flex items-start justify-between gap-1">
+                <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">${tour.tournamentName}</h4>
+                ${tour.levelName ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[9px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap">${tour.levelName}</span>` : ''}
+              </div>
+              <p class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
+                <i class="ph-bold ph-calendar text-amber-600"></i>
+                <span>${tour.startDate || '-'} ${tour.endDate ? `&rarr; ${tour.endDate}` : ''}</span>
+                ${durationText ? `<span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.2 rounded ml-1">รวม ${durationText}</span>` : ''}
+              </p>
+              <p class="text-[10.5px] text-slate-600 mt-0.5 truncate">
+                สนาม: <strong class="text-slate-800">${tour.venueName || '-'}</strong> (${tour.courtCount || '-'})
+              </p>
+              <p class="text-[10px] text-amber-800 font-semibold mt-0.5 truncate">
+                เซลผู้ดูแล: <strong>${salesParsed}</strong>
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-1 py-1 px-1.5 bg-amber-50/70 rounded-lg text-[10px] border border-amber-100">
+              <div class="flex items-center space-x-1.5 min-w-0">
+                <img src="${tour.shuttlePhoto || DEFAULT_PIN_URL}" class="w-5 h-5 rounded-md object-contain border border-amber-200 bg-white flex-shrink-0 p-0.5" alt="shuttle" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+                <div class="min-w-0 truncate">
+                  <span class="text-slate-400 block text-[9px]">ลูกแบดที่ใช้:</span>
+                  <span class="font-bold text-amber-700 truncate block">${tour.shuttlecock || '-'}</span>
+                </div>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[9px]">ผู้เข้าร่วม:</span>
+                <span class="font-bold text-blue-700 block">${tour.participants ? `${Number(tour.participants).toLocaleString()} คน` : '-'}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 pt-1 border-t border-slate-100">
+              <button type="button" onclick="openTournamentDetail('${tour.id}')" class="flex-1 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold text-center text-[10.5px] transition shadow-xs">
+                รายละเอียดงาน
+              </button>
+              <button type="button" onclick="window.shareTournamentById('${tour.id}')" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-center text-[10.5px] transition shadow-xs flex items-center justify-center space-x-1">
+                <i class="ph-bold ph-share-network"></i>
+                <span>แชร์</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        markersLayer.addLayer(marker);
+        bounds.extend([displayLat, displayLng]);
+      });
+
+      if (filteredTournaments.length > 0 && bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
+      }
+    }
+
+    function renderTournamentList() {
+      const container = document.getElementById('courtList');
+      const countEl = document.getElementById('tournamentCount');
+      const totalPlayersEl = document.getElementById('totalPlayers');
+
+      if (!container || !countEl || !totalPlayersEl) return;
+
+      container.innerHTML = '';
+      countEl.innerText = filteredTournaments.length;
+
+      let playersSum = 0;
+      if (filteredTournaments.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 text-slate-400 text-xs">ไม่พบรายการแข่งขันที่ตรงตามเงื่อนไข</div>';
+        totalPlayersEl.innerText = '0';
+        return;
+      }
+
+      filteredTournaments.forEach((tour) => {
+        playersSum += Number(tour.participants || 0);
+        const card = document.createElement('div');
+        const hasCoords = tour.lat && tour.lng && !isNaN(tour.lat) && !isNaN(tour.lng);
+        const statusInfo = getTournamentTimingStatus(tour.startDate, tour.endDate);
+        const posterImg = tour.posterUrl ? normalizeImageUrl(tour.posterUrl) : DEFAULT_PIN_URL;
+        const durationText = calculateTournamentDays(tour.startDate, tour.endDate);
+        const salesParsed = parseNameAndAvatar(tour.sales).name;
+
+        card.className = "bg-white p-2.5 rounded-xl border border-amber-200 hover:border-amber-500 hover:shadow-md cursor-pointer transition flex items-center space-x-2.5";
+        card.onclick = () => {
+          if (hasCoords && map) {
+            map.flyTo([tour.lat, tour.lng], 16, { duration: 1.2 });
+            markersLayer.eachLayer((layer) => {
+              if (layer.getLatLng && Math.abs(layer.getLatLng().lat - tour.lat) < 0.0001 && Math.abs(layer.getLatLng().lng - tour.lng) < 0.0001) {
+                layer.openPopup();
+              }
+            });
+            if (window.innerWidth < 768) {
+              toggleSidebar(false);
+            }
+          } else {
+            showToast('⚠️ รายการนี้ยังไม่ได้ระบุพิกัด GPS');
+          }
+        };
+
+        card.innerHTML = `
+          <div class="relative flex-shrink-0">
+            <img src="${posterImg}" class="w-12 h-16 sm:w-14 sm:h-18 rounded-lg object-cover bg-slate-900 border border-amber-300 shadow-xs" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+            <span style="background: ${statusInfo.bg}; color: ${statusInfo.textCol};" class="absolute -top-1 -left-1 text-[8px] font-extrabold px-1 rounded-full border border-white shadow-xs">
+              ${statusInfo.text.replace(/^[🟢🔵⚪]\s*/, '')}
+            </span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-1">
+              <h4 class="font-bold text-slate-900 text-xs leading-snug line-clamp-1">${tour.tournamentName}</h4>
+              ${tour.levelName ? `<span class="bg-amber-100 text-amber-900 border border-amber-200 text-[8.5px] font-bold px-1.5 py-0.2 rounded whitespace-nowrap">${tour.levelName}</span>` : ''}
+            </div>
+            <p class="text-[10px] text-amber-700 font-semibold mt-0.5 flex items-center gap-1 flex-wrap">
+              <i class="ph-bold ph-calendar"></i>
+              <span>${tour.startDate || '-'}${tour.endDate ? ` - ${tour.endDate}` : ''}</span>
+              ${durationText ? `<span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.2 rounded ml-1">(${durationText})</span>` : ''}
+            </p>
+            <p class="text-[10px] text-slate-500 truncate mt-0.5">
+              สนาม: <strong class="text-slate-700">${tour.venueName}</strong> (${tour.courtCount || '-'})
+            </p>
+            <p class="text-[9.5px] text-slate-600 truncate mt-0.5 flex items-center gap-1">
+              <img src="${tour.organizerPhoto || DEFAULT_PIN_URL}" class="w-3.5 h-3.5 rounded-full object-cover border border-slate-200 flex-shrink-0" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+              <span class="truncate">เซล: <strong class="text-amber-800">${salesParsed}</strong> | ผู้จัด: ${tour.organizer || '-'}</span>
+            </p>
+            <div class="flex items-center justify-between mt-1 text-[10px] pt-1 border-t border-slate-100">
+              <div class="flex items-center space-x-1 min-w-0">
+                <img src="${tour.shuttlePhoto || DEFAULT_PIN_URL}" class="w-3.5 h-3.5 rounded object-contain border border-amber-200 bg-white flex-shrink-0" alt="shuttle" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+                <span class="text-amber-800 font-bold truncate max-w-[120px]">${tour.shuttlecock || 'VICTOR'}</span>
+              </div>
+              <span class="text-blue-700 font-bold">${tour.participants ? `${Number(tour.participants).toLocaleString()} คน` : '-'}</span>
+            </div>
+            <div class="flex items-center justify-between mt-1">
+              <button type="button" onclick="event.stopPropagation(); openTournamentDetail('${tour.id}')" class="text-[9.5px] font-semibold text-amber-700 hover:text-amber-900 flex items-center gap-0.5">
+                <span>ดูรายละเอียด</span> &rarr;
+              </button>
+              <button type="button" onclick="event.stopPropagation(); window.shareTournamentById('${tour.id}')" title="แชร์งานแข่งนี้" class="text-slate-400 hover:text-emerald-600 p-0.5 rounded transition">
+                <i class="ph-bold ph-share-network text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      totalPlayersEl.innerText = Number(playersSum).toLocaleString();
     }
 
     function parseFlexibleDate(dateStr) {
@@ -1344,6 +1813,25 @@
       populateSelect('filterStatus', statuses);
     }
 
+    function rebuildTournamentDropdowns() {
+      const sales = new Set();
+      const shuttles = new Set();
+      const organizers = new Set();
+
+      currentTournaments.forEach(t => {
+        if (t.sales) {
+          const sName = parseNameAndAvatar(t.sales).name;
+          if (sName && sName !== '-') sales.add(sName);
+        }
+        if (t.shuttlecock) shuttles.add(t.shuttlecock.trim());
+        if (t.organizer) organizers.add(t.organizer.trim());
+      });
+
+      populateSelect('filterTourSales', sales);
+      populateSelect('filterTourShuttle', shuttles);
+      populateSelect('filterTourOrganizer', organizers);
+    }
+
     function populateSelect(id, set) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -1395,7 +1883,6 @@
           const hasA = dateA > 0;
           const hasB = dateB > 0;
 
-          // หากไม่มีวันที่ติดตั้ง ให้ผลักไปไว้ด้านล่างสุดเสมอ
           if (!hasA && !hasB) return 0;
           if (!hasA) return 1;
           if (!hasB) return -1;
@@ -1415,21 +1902,80 @@
       renderList();
     }
 
-    function clearSearch() {
-      document.getElementById('searchInput').value = '';
-      applyFilters();
+    function applyTournamentFilters() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const statusFilter = document.getElementById('filterTourStatus').value;
+      const salesFilter = document.getElementById('filterTourSales').value;
+      const shuttleFilter = document.getElementById('filterTourShuttle').value;
+      const organizerFilter = document.getElementById('filterTourOrganizer').value;
+      const sortBy = document.getElementById('sortTournamentBy').value;
+
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) clearBtn.classList.toggle('hidden', q.length === 0);
+
+      filteredTournaments = currentTournaments.filter(t => {
+        const salesParsed = parseNameAndAvatar(t.sales).name;
+        const searchable = `${t.tournamentName} ${t.venueName} ${t.organizer} ${salesParsed} ${t.shuttlecock} ${t.levelName || ''} ${t.startDate} ${t.endDate}`.toLowerCase();
+        const timingStatus = getTournamentTimingStatus(t.startDate, t.endDate).code;
+
+        const matchSearch = !q || searchable.includes(q);
+        const matchStatus = !statusFilter || timingStatus === statusFilter;
+        const matchSales = !salesFilter || salesParsed === salesFilter;
+        const matchShuttle = !shuttleFilter || t.shuttlecock === shuttleFilter;
+        const matchOrganizer = !organizerFilter || t.organizer === organizerFilter;
+
+        return matchSearch && matchStatus && matchSales && matchShuttle && matchOrganizer;
+      });
+
+      filteredTournaments.sort((a, b) => {
+        if (sortBy === 'date-asc' || sortBy === 'date-desc') {
+          const dateA = parseFlexibleDate(a.startDate);
+          const dateB = parseFlexibleDate(b.startDate);
+          const hasA = dateA > 0;
+          const hasB = dateB > 0;
+
+          if (!hasA && !hasB) return 0;
+          if (!hasA) return 1;
+          if (!hasB) return -1;
+
+          return sortBy === 'date-asc' ? (dateA - dateB) : (dateB - dateA);
+        } else if (sortBy === 'players-desc') {
+          return (Number(b.participants) || 0) - (Number(a.participants) || 0);
+        } else if (sortBy === 'name-asc') {
+          return (a.tournamentName || '').localeCompare(b.tournamentName || '', 'th');
+        }
+        return 0;
+      });
+
+      renderTournamentMarkers();
+      renderTournamentList();
     }
 
-    function resetFilters() {
+    function clearSearch() {
       document.getElementById('searchInput').value = '';
-      document.getElementById('filterSales').value = '';
-      document.getElementById('filterProvince').value = '';
-      document.getElementById('filterPeriod').value = '';
-      document.getElementById('filterMediaType').value = '';
-      document.getElementById('filterStatus').value = '';
-      document.getElementById('sortBy').value = 'date-desc';
-      applyFilters();
-      showToast('🔄 รีเซ็ตตัวกรองทั้งหมดแล้ว');
+      if (currentSystemMode === 'media') applyFilters();
+      else applyTournamentFilters();
+    }
+
+    function resetActiveFilters() {
+      document.getElementById('searchInput').value = '';
+      if (currentSystemMode === 'media') {
+        document.getElementById('filterSales').value = '';
+        document.getElementById('filterProvince').value = '';
+        document.getElementById('filterPeriod').value = '';
+        document.getElementById('filterMediaType').value = '';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('sortBy').value = 'date-desc';
+        applyFilters();
+      } else {
+        document.getElementById('filterTourStatus').value = '';
+        document.getElementById('filterTourSales').value = '';
+        document.getElementById('filterTourShuttle').value = '';
+        document.getElementById('filterTourOrganizer').value = '';
+        document.getElementById('sortTournamentBy').value = 'date-asc';
+        applyTournamentFilters();
+      }
+      showToast('🔄 รีเซ็ตตัวกรองแล้ว');
     }
 
     window.openCourtDetail = function(courtId) {
@@ -1452,7 +1998,6 @@
 
       document.getElementById('modalContact').innerText = v.contactName || '-';
 
-      // จัดการปุ่มโฟลเดอร์ Google Drive
       const folderBtn = document.getElementById('modalDriveFolder');
       if (folderBtn) {
         if (v.folderUrl && v.folderUrl.startsWith('http')) {
@@ -1463,7 +2008,6 @@
         }
       }
 
-      // ตรวจสอบกรณีสนามเดียวกันมีหลายรอบ (Multi-Round Switcher)
       const sameNameRecords = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === v.courtName.trim().toLowerCase());
       const multiBox = document.getElementById('modalMultiRoundBox');
       const roundButtons = document.getElementById('modalRoundButtons');
@@ -1514,24 +2058,23 @@
         phoneCont.className = 'mt-1';
       }
 
-      // แสดงข้อมูลทีมงานพร้อมรูป Avatar
       const salesInfo = parseNameAndAvatar(v.sales);
       document.getElementById('modalSales').innerText = salesInfo.name;
       const salesImgEl = document.getElementById('modalSalesImg');
       salesImgEl.src = salesInfo.photo;
-      salesImgEl.onerror = () => { salesImgEl.src = VICTOR_LOGO_URL; };
+      salesImgEl.onerror = () => { salesImgEl.onerror = null; salesImgEl.src = DEFAULT_PIN_URL; };
 
       const installerInfo = parseNameAndAvatar(v.installedBy);
       document.getElementById('modalInstalledBy').innerText = installerInfo.name;
       const installerImgEl = document.getElementById('modalInstalledByImg');
       installerImgEl.src = installerInfo.photo;
-      installerImgEl.onerror = () => { installerImgEl.src = VICTOR_LOGO_URL; };
+      installerImgEl.onerror = () => { installerImgEl.onerror = null; installerImgEl.src = DEFAULT_PIN_URL; };
 
       const designerInfo = parseNameAndAvatar(v.designedBy);
       document.getElementById('modalDesignedBy').innerText = designerInfo.name;
       const designerImgEl = document.getElementById('modalDesignedByImg');
       designerImgEl.src = designerInfo.photo;
-      designerImgEl.onerror = () => { designerImgEl.src = VICTOR_LOGO_URL; };
+      designerImgEl.onerror = () => { designerImgEl.onerror = null; designerImgEl.src = DEFAULT_PIN_URL; };
 
       document.getElementById('modalProvince').innerText = `จังหวัด: ${v.province || '-'}`;
       document.getElementById('modalMediaType').innerText = v.mediaType || '-';
@@ -1578,11 +2121,106 @@
       activeModalCourt = null;
     }
 
+    window.openTournamentDetail = function(tourId) {
+      const tour = currentTournaments.find(t => t.id === tourId);
+      if (!tour) return;
+
+      activeModalTournament = tour;
+      const statusInfo = getTournamentTimingStatus(tour.startDate, tour.endDate);
+
+      document.getElementById('tourModalTitle').innerText = tour.tournamentName;
+      
+      const statusBadge = document.getElementById('tourModalStatusBadge');
+      statusBadge.innerText = statusInfo.text;
+      statusBadge.style.backgroundColor = statusInfo.bg;
+
+      const durationText = calculateTournamentDays(tour.startDate, tour.endDate);
+      const durationBadge = durationText ? ` (รวม ${durationText})` : '';
+      document.getElementById('tourModalDates').querySelector('span').innerText = `${tour.startDate || '-'}${tour.endDate ? ` ถึง ${tour.endDate}` : ''}${durationBadge}`;
+
+      document.getElementById('tourModalShuttleBadge').innerText = `🏸 ${tour.shuttlecock || 'VICTOR'}`;
+      document.getElementById('tourModalVenue').innerText = tour.venueName || '-';
+      document.getElementById('tourModalCourts').innerText = `จำนวน: ${tour.courtCount || '-'} คอร์ท`;
+      
+      // แสดงรูปลูกแบดและชื่อรุ่นใน Modal
+      const shuttleImgEl = document.getElementById('tourModalShuttleImg');
+      if (shuttleImgEl) {
+        shuttleImgEl.src = tour.shuttlePhoto || DEFAULT_PIN_URL;
+        shuttleImgEl.onerror = () => { shuttleImgEl.onerror = null; shuttleImgEl.src = DEFAULT_PIN_URL; };
+      }
+      document.getElementById('tourModalShuttle').innerText = tour.shuttlecock || 'VICTOR MASTER NO.1';
+
+      // แสดงรูปองค์กรผู้จัดและชื่อผู้จัดใน Modal
+      const orgImgEl = document.getElementById('tourModalOrganizerImg');
+      if (orgImgEl) {
+        orgImgEl.src = tour.organizerPhoto || DEFAULT_PIN_URL;
+        orgImgEl.onerror = () => { orgImgEl.onerror = null; orgImgEl.src = DEFAULT_PIN_URL; };
+      }
+      document.getElementById('tourModalOrganizer').innerText = tour.organizer || '-';
+      document.getElementById('tourModalPlayers').innerText = `${Number(tour.participants || 0).toLocaleString()} คน`;
+
+      // แสดงข้อมูลเซล VICTOR ที่ดูแลจากคอลัมน์ O
+      const salesInfo = parseNameAndAvatar(tour.sales);
+      document.getElementById('tourModalSales').innerText = salesInfo.name;
+      const tourSalesImgEl = document.getElementById('tourModalSalesImg');
+      if (tourSalesImgEl) {
+        tourSalesImgEl.src = salesInfo.photo;
+        tourSalesImgEl.onerror = () => { tourSalesImgEl.onerror = null; tourSalesImgEl.src = DEFAULT_PIN_URL; };
+      }
+
+      const posterImg = document.getElementById('tourModalPosterImg');
+      posterImg.src = tour.posterUrl ? normalizeImageUrl(tour.posterUrl) : DEFAULT_PIN_URL;
+      posterImg.onerror = () => { posterImg.onerror = null; posterImg.src = DEFAULT_PIN_URL; };
+
+      const phoneCont = document.getElementById('tourModalPhoneContainer');
+      if (tour.phone) {
+        if (isUnlocked) {
+          phoneCont.innerHTML = `
+            <a href="tel:${tour.phone}" class="inline-flex items-center space-x-1 text-emerald-600 font-semibold hover:underline text-xs">
+              <i class="ph-bold ph-phone-call"></i>
+              <span>${tour.phone} (โทรออก)</span>
+            </a>
+          `;
+          phoneCont.className = 'mt-1';
+        } else {
+          phoneCont.innerHTML = `
+            <span class="inline-flex items-center space-x-1 text-emerald-600 font-semibold sensitive-blur text-xs" title="คลิกเพื่อปลดล็อก">
+              <i class="ph-bold ph-phone-call"></i>
+              <span>${tour.phone}</span>
+            </span>
+          `;
+          phoneCont.className = 'mt-1 cursor-pointer';
+        }
+      } else {
+        phoneCont.innerHTML = `<span class="text-slate-400 text-xs">ไม่มีเบอร์โทร</span>`;
+        phoneCont.className = 'mt-1';
+      }
+
+      const coordsEl = document.getElementById('tourModalCoords');
+      if (tour.lat && tour.lng) {
+        coordsEl.innerText = `${tour.lat.toFixed(6)}, ${tour.lng.toFixed(6)}`;
+      } else {
+        coordsEl.innerText = 'ยังไม่มีข้อมูลพิกัด';
+      }
+
+      const mapsNav = document.getElementById('tourModalMapsNav');
+      mapsNav.href = tour.mapsUrl && tour.mapsUrl.startsWith('http') 
+        ? tour.mapsUrl 
+        : `https://maps.google.com/?q=${tour.lat},${tour.lng}`;
+
+      document.getElementById('tournamentModal').classList.remove('hidden');
+    };
+
+    function closeTournamentModal() {
+      document.getElementById('tournamentModal').classList.add('hidden');
+      activeModalTournament = null;
+    }
+
     function updateCarousel() {
       if (!activeModalCourt) return;
       const rawImgs = (activeModalCourt.images && activeModalCourt.images.length > 0)
         ? activeModalCourt.images
-        : [VICTOR_LOGO_URL];
+        : [DEFAULT_PIN_URL];
 
       const imgs = rawImgs.map(img => normalizeImageUrl(img));
 
@@ -1592,7 +2230,7 @@
       const nextBtn = document.getElementById('modalNextBtn');
 
       imgEl.src = imgs[modalImageIndex];
-      imgEl.onerror = () => { imgEl.src = VICTOR_LOGO_URL; };
+      imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = (isForzaCourt(activeModalCourt.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL); };
       counterEl.innerText = `${modalImageIndex + 1} / ${imgs.length}`;
 
       if (imgs.length <= 1) {
@@ -1647,17 +2285,25 @@
       if (!activeModalCourt) return;
       const rawImgs = (activeModalCourt.images && activeModalCourt.images.length > 0)
         ? activeModalCourt.images
-        : [VICTOR_LOGO_URL];
+        : [DEFAULT_PIN_URL];
       const targetUrl = normalizeImageUrl(rawImgs[modalImageIndex]);
       const filename = `${activeModalCourt.courtName}_${activeModalCourt.period || ''}_img${modalImageIndex + 1}.jpg`;
       triggerSingleImageDownload(targetUrl, filename);
       showToast('📥 กำลังดาวน์โหลดรูปภาพ...');
     }
 
+    function downloadCurrentTournamentPoster() {
+      if (!activeModalTournament) return;
+      const targetUrl = normalizeImageUrl(activeModalTournament.posterUrl || DEFAULT_PIN_URL);
+      const filename = `${activeModalTournament.tournamentName}_Poster.jpg`;
+      triggerSingleImageDownload(targetUrl, filename);
+      showToast('📥 กำลังดาวน์โหลดโปสเตอร์...');
+    }
+
     function downloadCurrentFullscreenImg() {
       if (!activeFullscreenImages || activeFullscreenImages.length === 0) return;
       const targetUrl = activeFullscreenImages[fullscreenIndex];
-      const title = document.getElementById('fullscreenTitle').innerText || 'VICTOR_Court';
+      const title = document.getElementById('fullscreenTitle').innerText || 'VICTOR_Item';
       const filename = `${title}_img${fullscreenIndex + 1}.jpg`;
       triggerSingleImageDownload(targetUrl, filename);
       showToast('📥 กำลังดาวน์โหลดรูปภาพนี้...');
@@ -1676,27 +2322,29 @@
         const targetUrl = normalizeImageUrl(rawUrl);
         const filename = `${activeModalCourt.courtName}_${activeModalCourt.period || ''}_img${i + 1}.jpg`;
         await triggerSingleImageDownload(targetUrl, filename);
-        // หน่วงเวลาสั้นๆ เพื่อให้เบราว์เซอร์ดาวน์โหลดทีละรูปไม่ชนกัน
-        await new Promise(resolve => setTimeout(resolve, 400));
+        await new Promise(resolve => setTimeout(resolve, 350));
       }
 
       showToast('✅ ดาวน์โหลดรูปภาพทั้งหมดเสร็จสิ้น!');
     }
 
-    window.openFullscreenViewer = function(courtId, startIndex = 0) {
-      const court = currentLocations.find(c => c.id === courtId);
-      if (!court) return;
-
-      const rawImgs = (court.images && court.images.length > 0)
-        ? court.images
-        : [VICTOR_LOGO_URL];
-
-      activeFullscreenImages = rawImgs.map(img => normalizeImageUrl(img));
+    window.openFullscreenViewer = function(itemId, startIndex = 0) {
+      if (currentSystemMode === 'media') {
+        const court = currentLocations.find(c => c.id === itemId);
+        if (!court) return;
+        const rawImgs = (court.images && court.images.length > 0) ? court.images : [DEFAULT_PIN_URL];
+        activeFullscreenImages = rawImgs.map(img => normalizeImageUrl(img));
+        const titleEl = document.getElementById('fullscreenTitle');
+        if (titleEl) titleEl.innerText = court.courtName || '-';
+      } else {
+        const tour = currentTournaments.find(t => t.id === itemId);
+        if (!tour) return;
+        activeFullscreenImages = [normalizeImageUrl(tour.posterUrl || DEFAULT_PIN_URL)];
+        const titleEl = document.getElementById('fullscreenTitle');
+        if (titleEl) titleEl.innerText = tour.tournamentName || '-';
+      }
 
       fullscreenIndex = Math.min(Math.max(0, startIndex), activeFullscreenImages.length - 1);
-      const titleEl = document.getElementById('fullscreenTitle');
-      if (titleEl) titleEl.innerText = court.courtName || '-';
-
       updateFullscreenDisplay();
       const modalEl = document.getElementById('fullscreenModal');
       if (modalEl) modalEl.classList.remove('hidden');
@@ -1705,6 +2353,11 @@
     function openActiveCourtFullscreen() {
       if (!activeModalCourt) return;
       window.openFullscreenViewer(activeModalCourt.id, modalImageIndex);
+    }
+
+    function openActiveTournamentFullscreen() {
+      if (!activeModalTournament) return;
+      window.openFullscreenViewer(activeModalTournament.id, 0);
     }
 
     function closeFullscreenViewer() {
@@ -1753,7 +2406,7 @@
       }
     }
 
-    // รองรับการปัดหน้าจอบนมือถือ (Swipe Left/Right)
+    // รองรับปัดหน้าจอบนมือถือ
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -1785,6 +2438,45 @@
       }
     });
 
+    window.shareCourtById = function(courtId) {
+      const court = currentLocations.find(c => c.id === courtId);
+      if (!court) return;
+      const base = window.location.origin + window.location.pathname;
+      const shareUrl = `${base}?court=${encodeURIComponent(court.courtName)}`;
+      const shareText = `🏸 สนาม: ${court.courtName} (${court.province || 'ไม่ระบุ'})\n💰 งบ: ฿${Number(court.budget || 0).toLocaleString()} | ${court.courtCount || ''}\n📍 แผนที่: ${shareUrl}`;
+      if (navigator.share) navigator.share({ title: `VICTOR+ Media - ${court.courtName}`, text: shareText, url: shareUrl }).catch(() => copyToClipboard(shareUrl));
+      else copyToClipboard(shareUrl);
+    };
+
+    window.shareTournamentById = function(tourId) {
+      const tour = currentTournaments.find(t => t.id === tourId);
+      if (!tour) return;
+      const base = window.location.origin + window.location.pathname;
+      const shareUrl = `${base}?tour=${encodeURIComponent(tour.tournamentName)}`;
+      const shareText = `🏆 การแข่งขัน: ${tour.tournamentName}\n📅 วันที่: ${tour.startDate || ''} ถึง ${tour.endDate || ''}\n🏸 สนาม: ${tour.venueName} | ลูกแบด: ${tour.shuttlecock}\n📍 รายละเอียด: ${shareUrl}`;
+      if (navigator.share) navigator.share({ title: `VICTOR+ Tournament - ${tour.tournamentName}`, text: shareText, url: shareUrl }).catch(() => copyToClipboard(shareUrl));
+      else copyToClipboard(shareUrl);
+    };
+
+    function shareCurrentCourt() { if (activeModalCourt) window.shareCourtById(activeModalCourt.id); }
+    function shareCurrentTournament() { if (activeModalTournament) window.shareTournamentById(activeModalTournament.id); }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast('🔗 คัดลอกลิงก์แชร์แล้ว!')).catch(() => fallbackCopy(text));
+      } else fallbackCopy(text);
+    }
+
+    function fallbackCopy(text) {
+      const tempInput = document.createElement('input');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try { document.execCommand('copy'); showToast('🔗 คัดลอกลิงก์แชร์แล้ว!'); }
+      catch (err) { prompt('คัดลอกลิงก์ด้านล่างเพื่อแชร์:', text); }
+      document.body.removeChild(tempInput);
+    }
+
     function parse2DArrayData(rows) {
       if (!rows || rows.length < 2) return [];
       const headers = rows[0].map(h => String(h || '').trim());
@@ -1797,7 +2489,7 @@
       const nameIdx = getIdx(['ชื่อสนาม', 'ชื่อร้าน', 'สนาม'], 0);
       const contactIdx = getIdx(['ผู้ติดต่อ', 'ชื่อผู้ติดต่อ'], 1);
       const phoneIdx = getIdx(['เบอร์โทร', 'โทร'], 2);
-      const salesIdx = getIdx(['เซล', 'ผู้ดูแล'], 3);
+      const salesIdx = getIdx(['เซลvictorที่ดูแล', 'เซลvictor', 'เซล', 'ผู้ดูแล'], 3);
       const mapsIdx = getIdx(['maps link', 'google maps', 'maps'], 4);
       const latIdx = getIdx(['latitude', 'lat', 'ละติจูด'], 5);
       const lngIdx = getIdx(['longitude', 'lng', 'ลองจิจูด'], 6);
@@ -1805,7 +2497,6 @@
       const dateIdx = getIdx(['วันที่', 'ติดตั้งเมื่อ'], 8);
       const budgetIdx = getIdx(['งบประมาณ', 'งบ'], 9);
       const provIdx = getIdx(['จังหวัด'], 10);
-      // คอลัมน์ L (Index 11) เป็นประเภทสื่อโฆษณา
       const mediaIdx = (headers.length > 11 && headers[11]) ? 11 : getIdx(['ประเภทสื่อโฆษณา', 'ประเภทสื่อ', 'ชนิดสื่อ', 'media'], 11);
       const statusIdx = getIdx(['สถานะ'], 12);
       const periodIdx = getIdx(['รอบสื่อ', 'ปี'], 13);
@@ -1864,98 +2555,141 @@
       return parsed;
     }
 
-    // ข้อมูลจำลองสำหรับโหมดพรีวิวเมื่อไม่มีการเชื่อมต่อสด
-    function getFallbackMockData() {
+    function parseTournamentData(rows) {
+      if (!rows || rows.length < 2) return [];
+      const headers = rows[0].map(h => String(h || '').trim());
+
+      const getIdx = (keywords, defaultIdx) => {
+        const found = headers.findIndex(h => keywords.some(k => h.toLowerCase().includes(k.toLowerCase())));
+        return found !== -1 ? found : defaultIdx;
+      };
+
+      const nameIdx = getIdx(['ชื่อรายการ', 'รายการแข่ง', 'ชื่อการแข่งขัน', 'tournament', 'ชื่องาน'], 0);
+      const venueIdx = getIdx(['ชื่อสนาม', 'สนามที่จัด', 'สถานที่', 'venue', 'สนาม'], 1);
+      const startIdx = getIdx(['เริ่มแข่ง', 'วันที่เริ่ม', 'เริ่ม', 'start date', 'start'], 2);
+      const endIdx = getIdx(['แข่งเสร็จ', 'วันที่เสร็จ', 'สิ้นสุด', 'ถึงวันที่', 'end date', 'end'], 3);
+      const courtsIdx = getIdx(['จำนวนสนาม', 'จำนวนคอร์ท', 'คอร์ท', 'คอร์ด'], 4);
+      const orgIdx = getIdx(['องค์กร', 'หน่วยงาน', 'ผู้จัด', 'organizer'], 5);
+      const phoneIdx = getIdx(['เบอร์โทร', 'โทร', 'phone', 'contact', 'tel'], 6);
+      const playersIdx = getIdx(['ผู้เข้าร่วม', 'จำนวนคน', 'คน', 'participants', 'players'], 7);
+      const shuttleIdx = getIdx(['ลูกแบด', 'ลูกที่ใช้', 'ลูกขนไก่', 'shuttlecock', 'shuttle'], 8);
+      const posterIdx = getIdx(['poster', 'โปสเตอร์', 'รูปโปสเตอร์', 'รูปภาพ', 'รูป', 'image'], 9);
+      const latIdx = getIdx(['lat', 'latitude', 'ละติจูด'], 10);
+      const lngIdx = getIdx(['lng', 'longitude', 'ลองจิจูด', 'long'], 11);
+      const mapsIdx = getIdx(['maps', 'link', 'แผนที่', 'พิกัด'], 12);
+      const levelIdx = getIdx(['level', 'ระดับ', 'ระดับการแข่งขัน', 'เกรด', 'tier'], 13);
+      
+      // คอลัมน์ O (Index 14): เซลVICTORที่ดูแล
+      const salesIdx = (headers.length > 14 && headers[14]) ? 14 : getIdx(['เซลvictorที่ดูแล', 'เซลvictor', 'เซลผู้ดูแล', 'เซล', 'ผู้ดูแล', 'sales'], 14);
+
+      const parsed = [];
+      for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        const rawName = String(r[nameIdx] || '').trim();
+        if (!rawName) continue;
+
+        let lat = parseFloat(r[latIdx]);
+        let lng = parseFloat(r[lngIdx]);
+        const mapsUrl = String(r[mapsIdx] || '').trim();
+
+        if ((isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) && mapsUrl) {
+          const mCoord = mapsUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) || 
+                         mapsUrl.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/) || 
+                         mapsUrl.match(/q=(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+                         mapsUrl.match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
+          if (mCoord) {
+            lat = parseFloat(mCoord[1]);
+            lng = parseFloat(mCoord[2]);
+          }
+        }
+
+        const nameData = parseTournamentNameAndLogo(rawName);
+        const rawLevel = String((r[levelIdx] !== undefined ? r[levelIdx] : r[13]) || 'ทั่วไป (1)').trim();
+        const levelData = parseTournamentLevelAndSize(rawLevel);
+
+        // แยกชื่อลูกแบดและรูปลูกแบดในวงเล็บ
+        const rawShuttle = String(r[shuttleIdx] || 'VICTOR MASTER NO.1').trim();
+        const shuttleParsed = parseNameAndAvatar(rawShuttle);
+
+        // แยกชื่อองค์กร/ผู้จัด และรูปองค์กรในวงเล็บ
+        const rawOrganizer = String(r[orgIdx] || 'VICTOR Club').trim();
+        const orgParsed = parseNameAndAvatar(rawOrganizer);
+
+        parsed.push({
+          id: `tour-${i}`,
+          tournamentName: nameData.name,
+          logoUrl: nameData.logoUrl,
+          rawLevel: rawLevel,
+          levelName: levelData.levelName,
+          isLargePin: levelData.isLarge,
+          venueName: String(r[venueIdx] || 'สนามแบดมินตันมาตรฐาน').trim(),
+          startDate: String(r[startIdx] || '').trim(),
+          endDate: String(r[endIdx] || '').trim(),
+          courtCount: String(r[courtsIdx] || '-').trim(),
+          organizer: orgParsed.name,
+          organizerPhoto: orgParsed.photo,
+          phone: String(r[phoneIdx] || '').trim(),
+          participants: parseInt(String(r[playersIdx] || '0').replace(/[^0-9]+/g, ''), 10) || 0,
+          shuttlecock: shuttleParsed.name,
+          shuttlePhoto: shuttleParsed.photo,
+          posterUrl: String(r[posterIdx] || '').trim(),
+          lat: (!isNaN(lat) && lat !== 0) ? lat : null,
+          lng: (!isNaN(lng) && lng !== 0) ? lng : null,
+          mapsUrl: mapsUrl,
+          sales: String(r[salesIdx] || '-').trim()
+        });
+      }
+
+      return parsed;
+    }
+
+    function getFallbackTournamentData() {
       return [
         {
-          id: 'court-1',
-          courtName: 'ZIG ZAG Badminton Arena',
-          contactName: 'คุณกอล์ฟ ผู้จัดการ',
-          phone: '081-999-8877',
-          sales: 'ธนกฤต (https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150)',
-          mapsUrl: 'https://maps.google.com/?q=13.736717,100.523186',
-          lat: 13.736717,
-          lng: 100.523186,
-          images: [
-            'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800',
-            'https://images.unsplash.com/photo-1613918108466-292b78a8ef95?w=800'
-          ],
-          folderUrl: 'https://drive.google.com',
-          installDate: '2026-08-15',
-          budget: 45000,
-          province: 'กรุงเทพมหานคร',
-          mediaType: 'ไวนิล, ป้ายข้างคอร์ท, สติกเกอร์ติดกระจก',
-          status: 'ติดตั้งเสร็จสมบูรณ์',
-          period: '2026Q3Q4',
-          installedBy: 'ช่างวิเชียร (https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150)',
-          designedBy: 'รัชนีกร (https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150)',
-          courtCount: '12 คอร์ท'
+          id: 'tour-1',
+          tournamentName: 'VICTOR Thailand Open 2026',
+          logoUrl: DEFAULT_PIN_URL,
+          rawLevel: 'Super 500 (2)',
+          levelName: 'Super 500',
+          isLargePin: true,
+          venueName: 'อาคารนิมิบุตร สนามกีฬาแห่งชาติ',
+          startDate: '2026-10-15',
+          endDate: '2026-10-20',
+          courtCount: '12 คอร์ท',
+          organizer: 'สมาคมกีฬาแบดมินตันแห่งประเทศไทยฯ',
+          organizerPhoto: DEFAULT_PIN_URL,
+          phone: '02-252-8888',
+          participants: 450,
+          shuttlecock: 'VICTOR MASTER NO.1',
+          shuttlePhoto: DEFAULT_PIN_URL,
+          posterUrl: DEFAULT_PIN_URL,
+          lat: 13.7462,
+          lng: 100.5292,
+          mapsUrl: 'https://maps.google.com/?q=13.7462,100.5292',
+          sales: 'หน่อง'
         },
         {
-          id: 'court-2',
-          courtName: 'ZIG ZAG Badminton Arena',
-          contactName: 'คุณกอล์ฟ ผู้จัดการ',
-          phone: '081-999-8877',
-          sales: 'ธนกฤต',
-          mapsUrl: 'https://maps.google.com/?q=13.736717,100.523186',
-          lat: 13.736717,
-          lng: 100.523186,
-          images: ['https://images.unsplash.com/photo-1521537634581-0dced2fedc42?w=800'],
-          folderUrl: 'https://drive.google.com',
-          installDate: '2026-02-10',
-          budget: 32000,
-          province: 'กรุงเทพมหานคร',
-          mediaType: 'ป้ายข้างคอร์ท',
-          status: 'ติดตั้งเสร็จสมบูรณ์',
-          period: '2026Q1Q2',
-          installedBy: 'ช่างวิเชียร',
-          designedBy: 'รัชนีกร',
-          courtCount: '12 คอร์ท'
-        },
-        {
-          id: 'court-3',
-          courtName: 'Pattaya Monkey Badminton',
-          contactName: 'เฮียชัย พัทยา',
-          phone: '038-776-5544',
-          sales: 'สมชาย ผู้ดูแลภาคตะวันออก',
-          mapsUrl: 'https://maps.google.com/?q=12.927608,100.877081',
-          lat: 12.927608,
-          lng: 100.877081,
-          images: [
-            'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800',
-            'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=800'
-          ],
-          folderUrl: 'https://drive.google.com',
-          installDate: '2025-11-20',
-          budget: 58000,
-          province: 'ชลบุรี',
-          mediaType: 'ผ้าบังแสง, สติกเกอร์ติดผนัง, ป้ายเลขสนาม',
-          status: 'ชำรุดรอซ่อม',
-          period: '2025Q3Q4',
-          installedBy: 'ทีมช่างพัทยาโปร (https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150)',
-          designedBy: 'สิทธิชัย กราฟิก',
-          courtCount: '18 คอร์ท'
-        },
-        {
-          id: 'court-4',
-          courtName: 'Chiang Mai Smashing Club',
-          contactName: 'คุณนพดล',
-          phone: '053-112-2334',
-          sales: 'อนุชา ภาคเหนือ',
-          mapsUrl: 'https://maps.google.com/?q=18.7883,98.9853',
-          lat: 18.7883,
-          lng: 98.9853,
-          images: [],
-          folderUrl: '',
-          installDate: '',
-          budget: 25000,
-          province: 'เชียงใหม่',
-          mediaType: 'ป้ายทางเข้า, Foamboard',
-          status: 'อยู่ระหว่างติดตั้ง',
-          period: '2025Q1Q2',
-          installedBy: '-',
-          designedBy: 'รัชนีกร',
-          courtCount: '8 คอร์ท'
+          id: 'tour-2',
+          tournamentName: 'VICTOR Youth Championship 2026',
+          logoUrl: DEFAULT_PIN_URL,
+          rawLevel: 'Junior International (1)',
+          levelName: 'Junior International',
+          isLargePin: false,
+          venueName: 'สนามแบดมินตันบ้านทองหยอด',
+          startDate: '2026-11-05',
+          endDate: '2026-11-08',
+          courtCount: '18 คอร์ท',
+          organizer: 'ชมรมแบดมินตันบ้านทองหยอด',
+          organizerPhoto: DEFAULT_PIN_URL,
+          phone: '081-998-7766',
+          participants: 320,
+          shuttlecock: 'VICTOR CHAMPION NO.1',
+          shuttlePhoto: DEFAULT_PIN_URL,
+          posterUrl: DEFAULT_PIN_URL,
+          lat: 13.7123,
+          lng: 100.4067,
+          mapsUrl: 'https://maps.google.com/?q=13.7123,100.4067',
+          sales: 'อุ้ม'
         }
       ];
     }
@@ -1964,7 +2698,8 @@
       const icon = document.getElementById('refreshIcon');
       if (icon) icon.classList.add('animate-spin');
 
-      const csvUrl = localStorage.getItem('victor_csv_url') || DEFAULT_CSV_URL;
+      const savedCsvUrl = localStorage.getItem('victor_csv_url');
+      const csvUrl = (savedCsvUrl && savedCsvUrl.trim().length > 15) ? savedCsvUrl.trim() : DEFAULT_CSV_URL;
 
       Papa.parse(csvUrl, {
         download: true,
@@ -1979,34 +2714,120 @@
               rebuildDropdowns();
               applyFilters();
               checkUrlCourtParam();
-              showToast(`✅ โหลดข้อมูลสดสำเร็จ (${parsed.length} สนาม)`);
+              showToast(`🏸 โหลดข้อมูลสื่อสนามสดสำเร็จ (${parsed.length} แห่ง)`);
               return;
             }
           }
-          // หากข้อมูลว่าง ให้ใช้ Fallback Data
-          currentLocations = getFallbackMockData();
+          currentLocations = getFallbackCourtData();
           rebuildDropdowns();
           applyFilters();
-          showToast('⚠️ แสดงข้อมูลจำลอง');
+          checkUrlCourtParam();
+          showToast('⚠️ แสดงข้อมูลสนามตัวอย่าง');
         },
         error: (err) => {
           if (icon) icon.classList.remove('animate-spin');
-          console.warn("Using fallback preview data due to network:", err);
-          currentLocations = getFallbackMockData();
+          console.error("Papa parse media error:", err);
+          currentLocations = getFallbackCourtData();
           rebuildDropdowns();
           applyFilters();
-          showToast('ℹ️ เปิดโหมดพรีวิวข้อมูลตัวอย่าง');
+          checkUrlCourtParam();
+          showToast('❌ ไม่สามารถโหลด CSV สื่อได้ แสดงโหมดพรีวิว');
         }
       });
     }
 
+    function checkUrlCourtParam() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const p = urlParams.get('court');
+        if (p && map) {
+          const decoded = decodeURIComponent(p).trim().toLowerCase();
+          const found = currentLocations.find(c => 
+            (c.courtName && c.courtName.trim().toLowerCase() === decoded) ||
+            (c.id && c.id.toLowerCase() === decoded) ||
+            (c.courtName && c.courtName.toLowerCase().includes(decoded))
+          );
+          if (found && found.lat && found.lng) {
+            setTimeout(() => {
+              map.flyTo([found.lat, found.lng], 16, { duration: 1.5 });
+              if (markersLayer) {
+                markersLayer.eachLayer((layer) => {
+                  if (layer.getLatLng && Math.abs(layer.getLatLng().lat - found.lat) < 0.0001 && Math.abs(layer.getLatLng().lng - found.lng) < 0.0001) {
+                    layer.openPopup();
+                  }
+                });
+              }
+            }, 600);
+          }
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    function loadTournamentsFromSheets() {
+      const icon = document.getElementById('refreshIcon');
+      if (icon) icon.classList.add('animate-spin');
+
+      const savedTourUrl = localStorage.getItem('victor_tournament_csv_url');
+      const tourCsvUrl = (savedTourUrl && savedTourUrl.trim().length > 15) ? savedTourUrl.trim() : DEFAULT_TOURNAMENT_CSV_URL;
+
+      if (!tourCsvUrl) {
+        if (icon) icon.classList.remove('animate-spin');
+        currentTournaments = getFallbackTournamentData();
+        rebuildTournamentDropdowns();
+        applyTournamentFilters();
+        showToast('ℹ️ แสดงข้อมูลงานแข่งขันจำลอง (ยังไม่ได้ใส่ลิงก์ CSV)');
+        return;
+      }
+
+      Papa.parse(tourCsvUrl, {
+        download: true,
+        header: false,
+        skipEmptyLines: 'greedy',
+        complete: (results) => {
+          if (icon) icon.classList.remove('animate-spin');
+          if (results.data && results.data.length > 1) {
+            const parsed = parseTournamentData(results.data);
+            if (parsed.length > 0) {
+              currentTournaments = parsed;
+              rebuildTournamentDropdowns();
+              applyTournamentFilters();
+              showToast(`🏆 โหลดข้อมูลงานแข่งสดสำเร็จ (${parsed.length} รายการ)`);
+              return;
+            }
+          }
+          currentTournaments = getFallbackTournamentData();
+          rebuildTournamentDropdowns();
+          applyTournamentFilters();
+          showToast('⚠️ ตารางงานแข่งยังไม่มีข้อมูล กำลังแสดงตัวอย่าง');
+        },
+        error: (err) => {
+          if (icon) icon.classList.remove('animate-spin');
+          console.error("Papa parse tournament error:", err);
+          currentTournaments = getFallbackTournamentData();
+          rebuildTournamentDropdowns();
+          applyTournamentFilters();
+          showToast('❌ ไม่สามารถโหลด CSV งานแข่งได้ แสดงโหมดพรีวิว');
+        }
+      });
+    }
+
+    function refreshCurrentData() {
+      if (currentSystemMode === 'media') loadDataFromSheets();
+      else loadTournamentsFromSheets();
+    }
+
     function saveSettings() {
       const csvUrl = document.getElementById('csvUrlInput').value.trim();
-      if (csvUrl) {
-        localStorage.setItem('victor_csv_url', csvUrl);
-      }
+      const tourCsvUrl = document.getElementById('tournamentCsvUrlInput').value.trim();
+
+      if (csvUrl) localStorage.setItem('victor_csv_url', csvUrl);
+      if (tourCsvUrl) localStorage.setItem('victor_tournament_csv_url', tourCsvUrl);
+
       toggleModal('syncModal');
-      loadDataFromSheets();
+      refreshCurrentData();
+      showToast('💾 บันทึกการตั้งค่าแหล่งข้อมูลแล้ว');
     }
 
     function bootstrapApp() {
@@ -2014,13 +2835,18 @@
       updateBadgeToggleButtonState();
 
       const csvInput = document.getElementById('csvUrlInput');
-      if (csvInput) {
-        csvInput.value = localStorage.getItem('victor_csv_url') || DEFAULT_CSV_URL;
-      }
+      if (csvInput) csvInput.value = localStorage.getItem('victor_csv_url') || DEFAULT_CSV_URL;
+
+      const tourInput = document.getElementById('tournamentCsvUrlInput');
+      const savedTour = localStorage.getItem('victor_tournament_csv_url');
+      if (tourInput) tourInput.value = (savedTour && savedTour.trim().length > 15) ? savedTour : DEFAULT_TOURNAMENT_CSV_URL;
 
       const searchInput = document.getElementById('searchInput');
       if (searchInput) {
-        searchInput.addEventListener('input', applyFilters);
+        searchInput.addEventListener('input', () => {
+          if (currentSystemMode === 'media') applyFilters();
+          else applyTournamentFilters();
+        });
       }
 
       window.addEventListener('resize', () => {
