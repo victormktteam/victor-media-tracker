@@ -112,82 +112,80 @@
 </head>
 <body class="bg-slate-100 flex flex-col h-full text-slate-800 antialiased select-none">
 
-  <header class="bg-gradient-to-r from-victor-navy via-victor-blue to-blue-950 text-white px-2.5 py-2 sm:px-4 sm:py-2 flex items-center justify-between shadow-lg z-40 flex-shrink-0 border-b border-blue-800/50">
-    <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
-      <!-- ปุ่มเปิดปิดเมนูสำหรับมือถือ -->
-      <button type="button" onclick="toggleSidebar()" aria-label="Toggle Menu" class="md:hidden w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center transition border border-white/15 text-white flex-shrink-0">
-        <i class="ph-bold ph-list text-lg"></i>
-      </button>
-
+  <header class="bg-gradient-to-r from-victor-navy via-victor-blue to-blue-950 text-white px-2 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between shadow-lg z-40 flex-shrink-0 border-b border-blue-800/50 gap-1.5">
+    
+    <!-- ฝั่งซ้าย: โลโก้, ชื่อ และสวิตช์โหมด -->
+    <div class="flex items-center space-x-1.5 sm:space-x-3 min-w-0 flex-shrink">
       <!-- โลโก้ VICTOR+ มุมบนซ้าย (แสดงตามสัดส่วนจริง) -->
-      <div class="h-8 sm:h-9 px-1.5 sm:px-2 bg-white rounded-xl flex items-center justify-center shadow-md border border-amber-400/80 flex-shrink-0 overflow-hidden">
+      <div class="h-7 sm:h-8 md:h-9 px-1.5 bg-white rounded-lg sm:rounded-xl flex items-center justify-center shadow-md border border-amber-400/80 flex-shrink-0 overflow-hidden">
         <img id="headerVictorLogo" src="https://lh3.googleusercontent.com/d/1635bFr8TC3_j7FCr5mHo3d3H3ZevC6q0" 
              alt="VICTOR Logo" 
-             style="height: 100%; width: auto; max-width: 140px; object-fit: contain; display: block;"
+             style="height: 100%; width: auto; max-width: 110px; object-fit: contain; display: block;"
              onerror="this.onerror=null; this.src='https://lh3.googleusercontent.com/d/1MppkVebrR2E82ex-hlV85F7tmiFT7Dfh';" />
       </div>
 
-      <div class="min-w-0 pr-1">
-        <div class="flex items-center space-x-1.5">
-          <h1 class="font-bold text-xs sm:text-base md:text-lg leading-tight tracking-wide text-white truncate">VICTOR+</h1>
-          <span id="activeModeBadge" class="px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider truncate">
+      <div class="min-w-0 pr-0.5 hidden xs:block sm:block">
+        <div class="flex items-center space-x-1">
+          <h1 class="font-bold text-xs sm:text-base leading-tight tracking-wide text-white truncate">VICTOR+</h1>
+          <span id="activeModeBadge" class="hidden sm:inline-block px-1.5 py-0.5 text-[8.5px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider truncate">
             สื่อโฆษณา
           </span>
         </div>
-        <p class="text-[9.5px] sm:text-[11px] text-blue-200 hidden sm:block truncate">Media &amp; Tournament Tracker</p>
+        <p class="text-[9px] sm:text-[10px] text-blue-200 hidden md:block truncate">Media &amp; Tournament Tracker</p>
       </div>
 
       <!-- สวิตช์สลับโหมด: สื่อสนาม vs งานแข่งขัน -->
-      <div class="flex items-center bg-black/35 p-0.5 rounded-xl border border-white/15 shadow-inner">
-        <button type="button" id="tabModeMedia" onclick="switchSystemMode('media')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 bg-victor-accent text-white shadow-xs">
-          <span>🏸 สื่อสนาม</span>
+      <div class="flex items-center bg-black/35 p-0.5 rounded-lg sm:rounded-xl border border-white/15 shadow-inner">
+        <button type="button" id="tabModeMedia" onclick="switchSystemMode('media')" class="px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center space-x-0.5 sm:space-x-1 bg-victor-accent text-white shadow-xs">
+          <span>🏸</span><span class="hidden xs:inline">สื่อสนาม</span>
         </button>
-        <button type="button" id="tabModeTournament" onclick="switchSystemMode('tournament')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center space-x-1 text-blue-200 hover:text-white">
-          <span>🏆 งานแข่ง</span>
+        <button type="button" id="tabModeTournament" onclick="switchSystemMode('tournament')" class="px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-semibold transition flex items-center space-x-0.5 sm:space-x-1 text-blue-200 hover:text-white">
+          <span>🏆</span><span class="hidden xs:inline">งานแข่ง</span>
         </button>
       </div>
     </div>
 
-    <!-- ปุ่มสลับมุมมอง แผนที่ / รายการ (เฉพาะมือถือ) -->
-    <div class="flex md:hidden items-center bg-black/25 p-0.5 rounded-lg border border-white/10 mx-1">
-      <button type="button" id="mobileTabMap" onclick="toggleSidebar(false)" class="px-2 py-1 rounded text-[11px] font-semibold text-white bg-white/20 transition">
-        🗺️ แผนที่
-      </button>
-      <button type="button" id="mobileTabList" onclick="toggleSidebar(true)" class="px-2 py-1 rounded text-[11px] font-semibold text-blue-200 transition">
-        📋 รายการ
-      </button>
-    </div>
-
-    <!-- ปุ่มการทำงาน Header -->
+    <!-- ฝั่งขวา: ปุ่มเครื่องมือและปุ่มควบคุมแบบกระชับบนมือถือ -->
     <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
-      <!-- ปุ่มล็อก/ปลดล็อกข้อมูลสำคัญ (เบอร์โทร & งบ) -->
-      <button type="button" id="authLockBtn" onclick="toggleAuthLockAction()" title="ล็อก/ปลดล็อกข้อมูลสำคัญ (เบอร์โทรและงบประมาณ)" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40">
-        <i class="ph-bold ph-lock-key" id="authLockIcon"></i>
+      
+      <!-- ปุ่มสลับมุมมอง แผนที่ / รายการ (เฉพาะมือถือ) -->
+      <div class="flex md:hidden items-center bg-black/30 p-0.5 rounded-lg border border-white/10">
+        <button type="button" id="mobileTabMap" onclick="toggleSidebar(false)" title="แผนที่" class="px-1.5 py-1 rounded text-[10.5px] font-semibold text-white bg-white/20 transition">
+          🗺️
+        </button>
+        <button type="button" id="mobileTabList" onclick="toggleSidebar(true)" title="รายการ" class="px-1.5 py-1 rounded text-[10.5px] font-semibold text-blue-200 transition">
+          📋
+        </button>
+      </div>
+
+      <!-- ปุ่มล็อก/ปลดล็อกข้อมูลสำคัญ (เบอร์โทร, งบ และการตั้งค่า) -->
+      <button type="button" id="authLockBtn" onclick="toggleAuthLockAction()" title="ล็อก/ปลดล็อกข้อมูลสำคัญ (เบอร์โทร, งบประมาณ และการตั้งค่า)" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40">
+        <i class="ph-bold ph-lock-key text-xs sm:text-sm" id="authLockIcon"></i>
         <span id="authLockText" class="hidden sm:inline">ปลดล็อก</span>
       </button>
 
-      <!-- ปุ่มรีเฟรชข้อมูล -->
-      <button type="button" onclick="refreshCurrentData()" title="รีเฟรชข้อมูลสด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-700 text-white text-xs font-semibold flex items-center space-x-1 border border-blue-500/40 shadow-sm transition active:scale-95">
-        <i class="ph-bold ph-arrows-clockwise text-xs sm:text-sm" id="refreshIcon"></i>
-        <span class="hidden sm:inline">รีเฟรช</span>
+      <!-- ปุ่มเปิด/ปิด Badge บนหมุด -->
+      <button type="button" id="badgeToggleBtn" onclick="toggleBadgesVisibility()" title="เปิด/ปิดการแสดง Badge บนหมุด" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95">
+        <i class="ph-bold ph-tag text-xs sm:text-sm" id="badgeToggleIcon"></i>
+        <span id="badgeToggleText" class="hidden md:inline">ซ่อน Badge</span>
       </button>
 
-      <!-- ปุ่มเปิด/ปิด Badge บนหมุด -->
-      <button type="button" id="badgeToggleBtn" onclick="toggleBadgesVisibility()" title="เปิด/ปิดการแสดง Badge บนหมุด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold flex items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95">
-        <i class="ph-bold ph-tag text-xs sm:text-sm" id="badgeToggleIcon"></i>
-        <span id="badgeToggleText" class="hidden sm:inline">ซ่อน Badge</span>
+      <!-- ปุ่มรีเฟรชข้อมูล -->
+      <button type="button" onclick="refreshCurrentData()" title="รีเฟรชข้อมูลสด" class="p-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-blue-500/40 shadow-sm transition active:scale-95">
+        <i class="ph-bold ph-arrows-clockwise text-xs sm:text-sm" id="refreshIcon"></i>
+        <span class="hidden lg:inline">รีเฟรช</span>
       </button>
 
       <!-- ปุ่มรีเซ็ตตัวกรอง -->
-      <button type="button" onclick="resetActiveFilters()" title="รีเซ็ตตัวกรองทั้งหมด" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center space-x-1 border border-slate-600/50 shadow-sm transition active:scale-95">
+      <button type="button" onclick="resetActiveFilters()" title="รีเซ็ตตัวกรองทั้งหมด" class="hidden sm:flex p-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-[11px] sm:text-xs font-medium items-center space-x-1 border border-slate-600/50 shadow-sm transition active:scale-95">
         <i class="ph-bold ph-arrow-counter-clockwise text-xs sm:text-sm"></i>
         <span class="hidden md:inline">รีเซ็ต</span>
       </button>
 
-      <!-- ปุ่มตั้งค่า CSV -->
-      <button type="button" onclick="toggleModal('syncModal')" title="ตั้งค่าแหล่งข้อมูล Google Sheets" class="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-victor-accent hover:bg-sky-500 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95">
+      <!-- ปุ่มตั้งค่า CSV (มีการตรวจสอบความปลอดภัย ป้องกันข้อมูลรั่วไหล) -->
+      <button type="button" onclick="openSecureSettings()" title="ตั้งค่าแหล่งข้อมูล Google Sheets" class="p-1 sm:px-2 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-amber-400/30 shadow-sm transition active:scale-95">
         <i class="ph-bold ph-gear text-xs sm:text-sm"></i>
-        <span class="hidden sm:inline">ตั้งค่า</span>
+        <span class="hidden xl:inline">ตั้งค่า</span>
       </button>
     </div>
   </header>
@@ -206,9 +204,14 @@
           <i class="ph-bold ph-faders text-victor-blue text-base"></i>
           <span id="mobileSidebarTitle">ตัวกรองและการจัดเรียง</span>
         </span>
-        <button type="button" onclick="toggleSidebar(false)" class="w-7 h-7 rounded-lg bg-slate-200/80 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition">
-          <i class="ph-bold ph-x text-sm"></i>
-        </button>
+        <div class="flex items-center space-x-2">
+          <button type="button" onclick="resetActiveFilters()" class="text-[10px] text-slate-500 hover:text-slate-800 font-semibold px-2 py-0.5 bg-slate-200 rounded">
+            รีเซ็ต
+          </button>
+          <button type="button" onclick="toggleSidebar(false)" class="w-7 h-7 rounded-lg bg-slate-200/80 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition">
+            <i class="ph-bold ph-x text-sm"></i>
+          </button>
+        </div>
       </div>
 
       <!-- แผงค้นหาและตัวกรอง -->
@@ -354,7 +357,7 @@
       <div id="map"></div>
 
       <!-- ปุ่มลอยเปิดเมนูสำหรับมือถือ -->
-      <button type="button" id="mobileFloatingFilterBtn" onclick="toggleSidebar(true)" class="md:hidden absolute top-3 left-3 z-20 bg-victor-navy/95 hover:bg-victor-navy text-white px-2.5 py-1.5 rounded-xl shadow-xl flex items-center space-x-1.5 text-xs font-bold border border-white/20 active:scale-95 transition backdrop-blur-xs">
+      <button type="button" id="mobileFloatingFilterBtn" onclick="toggleSidebar(true)" class="md:hidden absolute top-2.5 left-2.5 z-20 bg-victor-navy/95 hover:bg-victor-navy text-white px-2.5 py-1.5 rounded-xl shadow-xl flex items-center space-x-1.5 text-xs font-bold border border-white/20 active:scale-95 transition backdrop-blur-xs">
         <i class="ph-bold ph-list-dashes text-sm text-amber-300"></i>
         <span>รายการ &amp; ตัวกรอง</span>
       </button>
@@ -702,7 +705,10 @@
 
       <div class="space-y-3 text-xs">
         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-          <label class="block font-semibold text-slate-700">1. ลิงก์ CSV: แท็บสื่อโฆษณาสนาม (Media Tracker)</label>
+          <div class="flex items-center justify-between">
+            <label class="block font-semibold text-slate-700">1. ลิงก์ CSV: แท็บสื่อโฆษณาสนาม (Media Tracker)</label>
+            <span class="text-[10px] text-emerald-700 font-bold">🔒 ได้รับอนุญาตแล้ว</span>
+          </div>
           <input
             type="text"
             id="csvUrlInput"
@@ -712,7 +718,10 @@
         </div>
 
         <div class="p-2.5 bg-amber-50/60 border border-amber-200 rounded-xl space-y-1">
-          <label class="block font-semibold text-amber-900">2. ลิงก์ CSV: แท็บงานแข่งขัน (Tournaments)</label>
+          <div class="flex items-center justify-between">
+            <label class="block font-semibold text-amber-900">2. ลิงก์ CSV: แท็บงานแข่งขัน (Tournaments)</label>
+            <span class="text-[10px] text-amber-800 font-bold">🔒 ได้รับอนุญาตแล้ว</span>
+          </div>
           <input
             type="text"
             id="tournamentCsvUrlInput"
@@ -721,9 +730,10 @@
           />
         </div>
 
-        <p class="text-[10.5px] text-slate-500">
-          💡 วิธีดึงลิงก์: ใน Google Sheets ไปที่ <strong>ไฟล์ &rarr; แชร์ &rarr; เผยแพร่ไปยังเว็บ &rarr; เลือกแท็บ &rarr; .csv</strong>
-        </p>
+        <div class="p-2 bg-slate-100 rounded-lg text-[10.5px] text-slate-600 space-y-0.5">
+          <p>💡 <strong>ความปลอดภัย:</strong> ลิงก์ CSV นี้ถูกซ่อนจากบุคคลภายนอกและต้องใช้รหัสผ่านเพื่อเข้าถึง</p>
+          <p class="text-slate-500">วิธีดึงลิงก์: ไฟล์ &rarr; แชร์ &rarr; เผยแพร่ไปยังเว็บ &rarr; เลือกแท็บ &rarr; .csv</p>
+        </div>
 
         <div class="flex gap-2 pt-1">
           <button type="button" onclick="saveSettings()" class="flex-1 py-2 bg-victor-navy hover:bg-blue-900 text-white text-xs font-semibold rounded-lg transition shadow-xs flex items-center justify-center space-x-1.5">
@@ -739,7 +749,6 @@
     </div>
   </div>
 
-  <!-- หน้าต่างกรอกรหัสผ่านเพื่อปลดล็อก (Passcode Modal) -->
   <div id="authModal" class="hidden fixed inset-0 bg-slate-900/75 backdrop-blur-xs z-[9999] flex items-center justify-center p-3">
     <div class="bg-white rounded-2xl max-w-xs w-full p-4 sm:p-5 shadow-2xl border border-slate-100 text-center space-y-3">
       <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-2xl shadow-inner">
@@ -747,7 +756,7 @@
       </div>
       <div>
         <h3 class="font-bold text-slate-900 text-sm sm:text-base">ยืนยันรหัสความปลอดภัย</h3>
-        <p class="text-[11px] text-slate-500 mt-0.5">กรอกรหัสเพื่อดูงบประมาณและเบอร์โทรศัพท์</p>
+        <p id="authModalDesc" class="text-[11px] text-slate-500 mt-0.5">กรอกรหัส PIN เพื่อดูงบประมาณ, เบอร์โทร และการตั้งค่า</p>
       </div>
       
       <form onsubmit="verifyPasscode(event)" class="space-y-3">
@@ -806,6 +815,7 @@
     // ระบบดูรูปเต็มจอ Lightbox
     let activeFullscreenImages = [];
     let fullscreenIndex = 0;
+    let pendingActionAfterAuth = null;
 
     // ตรวจสอบสนาม FZ FORZA
     function isForzaCourt(courtName) {
@@ -927,9 +937,9 @@
       const searchInput = document.getElementById('searchInput');
 
       if (mode === 'media') {
-        btnMedia.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 bg-victor-accent text-white shadow-xs";
-        btnTour.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center space-x-1 text-blue-200 hover:text-white";
-        modeBadge.className = "px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider truncate";
+        btnMedia.className = "px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center space-x-0.5 sm:space-x-1 bg-victor-accent text-white shadow-xs";
+        btnTour.className = "px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-semibold transition flex items-center space-x-0.5 sm:space-x-1 text-blue-200 hover:text-white";
+        modeBadge.className = "hidden sm:inline-block px-1.5 py-0.5 text-[8.5px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider truncate";
         modeBadge.innerText = "สื่อโฆษณา";
         mediaFilters.classList.remove('hidden');
         tourFilters.classList.add('hidden');
@@ -938,9 +948,9 @@
         renderMarkers();
         renderList();
       } else {
-        btnTour.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 bg-amber-500 text-white shadow-xs";
-        btnMedia.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center space-x-1 text-blue-200 hover:text-white";
-        modeBadge.className = "px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-amber-500/25 text-amber-300 border border-amber-400/40 tracking-wider truncate";
+        btnTour.className = "px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center space-x-0.5 sm:space-x-1 bg-amber-500 text-white shadow-xs";
+        btnMedia.className = "px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-semibold transition flex items-center space-x-0.5 sm:space-x-1 text-blue-200 hover:text-white";
+        modeBadge.className = "hidden sm:inline-block px-1.5 py-0.5 text-[8.5px] font-extrabold uppercase rounded-full bg-amber-500/25 text-amber-300 border border-amber-400/40 tracking-wider truncate";
         modeBadge.innerText = "งานแข่งขัน";
         tourFilters.classList.remove('hidden');
         mediaFilters.classList.add('hidden');
@@ -978,6 +988,19 @@
       }
     }
 
+    function openSecureSettings() {
+      if (!isUnlocked) {
+        pendingActionAfterAuth = () => {
+          toggleModal('syncModal');
+        };
+        const desc = document.getElementById('authModalDesc');
+        if (desc) desc.innerText = 'ลิงก์ฐานข้อมูล Google Sheets ถูกล็อกไว้ กรุณายืนยัน PIN เพื่อแก้ไข';
+        openAuthModal();
+      } else {
+        toggleModal('syncModal');
+      }
+    }
+
     function toggleAuthLockAction() {
       if (isUnlocked) {
         isUnlocked = false;
@@ -991,8 +1014,11 @@
           renderTournamentList();
           if (activeModalTournament) window.openTournamentDetail(activeModalTournament.id);
         }
-        showToast('🔒 ล็อกการแสดงผลข้อมูลสำคัญแล้ว');
+        showToast('🔒 ล็อกข้อมูลสำคัญและการตั้งค่าแล้ว');
       } else {
+        pendingActionAfterAuth = null;
+        const desc = document.getElementById('authModalDesc');
+        if (desc) desc.innerText = 'กรอกรหัส PIN เพื่อดูงบประมาณ, เบอร์โทร และการตั้งค่า';
         openAuthModal();
       }
     }
@@ -1011,6 +1037,9 @@
 
     function promptIfLocked() {
       if (!isUnlocked) {
+        pendingActionAfterAuth = null;
+        const desc = document.getElementById('authModalDesc');
+        if (desc) desc.innerText = 'กรอกรหัส PIN เพื่อดูงบประมาณและเบอร์โทรศัพท์';
         openAuthModal();
       }
     }
@@ -1024,6 +1053,7 @@
         isUnlocked = true;
         toggleModal('authModal');
         updateAuthButtonState();
+        
         if (currentSystemMode === 'media') {
           renderMarkers();
           renderList();
@@ -1033,7 +1063,14 @@
           renderTournamentList();
           if (activeModalTournament) window.openTournamentDetail(activeModalTournament.id);
         }
-        showToast('🔓 ปลดล็อกการแสดงผลงบประมาณและเบอร์โทรสำเร็จ!');
+
+        showToast('🔓 ปลดล็อกการแสดงผลข้อมูลสำเร็จ!');
+
+        if (typeof pendingActionAfterAuth === 'function') {
+          const action = pendingActionAfterAuth;
+          pendingActionAfterAuth = null;
+          action();
+        }
       } else {
         showToast('❌ รหัสผ่านไม่ถูกต้อง');
         input.value = '';
@@ -1048,12 +1085,12 @@
       if (!btn) return;
 
       if (isUnlocked) {
-        btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-emerald-400/40";
-        if (icon) icon.className = "ph-bold ph-lock-key-open";
+        btn.className = "px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-emerald-400/40";
+        if (icon) icon.className = "ph-bold ph-lock-key-open text-xs sm:text-sm";
         if (text) text.innerText = "ล็อก";
       } else {
-        btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40";
-        if (icon) icon.className = "ph-bold ph-lock-key";
+        btn.className = "px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40";
+        if (icon) icon.className = "ph-bold ph-lock-key text-xs sm:text-sm";
         if (text) text.innerText = "ปลดล็อก";
       }
     }
@@ -1077,11 +1114,11 @@
       if (!btn) return;
 
       if (isBadgesVisible) {
-        btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold flex items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95";
+        btn.className = "px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95";
         if (text) text.innerText = 'ซ่อน Badge';
         if (icon) icon.className = 'ph-bold ph-tag text-xs sm:text-sm';
       } else {
-        btn.className = "px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium flex items-center space-x-1 border border-slate-500/40 shadow-sm transition active:scale-95";
+        btn.className = "px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] sm:text-xs font-medium flex items-center space-x-1 border border-slate-500/40 shadow-sm transition active:scale-95";
         if (text) text.innerText = 'แสดง Badge';
         if (icon) icon.className = 'ph-bold ph-tag-chevron text-xs sm:text-sm opacity-70';
       }
