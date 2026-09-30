@@ -848,6 +848,20 @@
       return upper.includes('FZ FORZA') || upper.includes('(FZ FORZA)');
     }
 
+    // แยกชื่อสนามและลิงก์รูปหมุดในวงเล็บท้ายชื่อสนาม เช่น "ชื่อสนาม (https://...)"
+    function parseCourtNameAndPin(rawText) {
+      if (!rawText) return { name: '-', pinUrl: '' };
+      const str = String(rawText).trim();
+      const match = str.match(/^(.*?)\s*[\(\[\{](https?:\/\/[^\s\)\]\}]+)[\)\]\}]\s*$/);
+      if (match) {
+        return {
+          name: match[1].trim() || str,
+          pinUrl: normalizeImageUrl(match[2].trim())
+        };
+      }
+      return { name: str, pinUrl: '' };
+    }
+
     // ฟังก์ชันจัดการแยกจำนวนผู้เข้าร่วม (รองรับช่วง เช่น 300-400 และ 500+ คน)
     function parseParticipants(rawVal) {
       if (!rawVal) return { num: 0, text: '-' };
@@ -1304,13 +1318,18 @@
       return { line1: raw, line2: '' };
     }
 
-    function createMarkerIcon(status, period, courtName) {
+    function createMarkerIcon(status, period, courtName, customPinUrl) {
       const color = getStatusColor(status);
       const periodLabel = (period && period.trim() && period.trim() !== '-') ? period.trim() : '';
       const badgeStyle = getPeriodBadgeColor(periodLabel);
       const split = splitPeriodTwoLines(periodLabel);
       
-      const markerLogoUrl = isForzaCourt(courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL;
+      let markerLogoUrl = DEFAULT_PIN_URL;
+      if (customPinUrl) {
+        markerLogoUrl = customPinUrl;
+      } else if (isForzaCourt(courtName)) {
+        markerLogoUrl = FORZA_LOGO_URL;
+      }
 
       const badgeHtml = (isBadgesVisible && periodLabel) ? `
         <div style="position: absolute; top: -5px; right: -10px; background: ${badgeStyle.bg}; color: ${badgeStyle.text}; font-family: 'Prompt', sans-serif; padding: 1.5px 3.5px; border-radius: 5px; border: 1.5px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.4); text-align: center; line-height: 1.05; z-index: 25; pointer-events: none; min-width: 22px;">
@@ -1360,10 +1379,10 @@
         }
 
         const marker = L.marker([displayLat, displayLng], {
-          icon: createMarkerIcon(court.status, court.period, court.courtName)
+          icon: createMarkerIcon(court.status, court.period, court.courtName, court.customPinUrl)
         });
 
-        const courtBrandLogo = isForzaCourt(court.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL;
+        const courtBrandLogo = court.customPinUrl || (isForzaCourt(court.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL);
         const primaryImg = (court.images && court.images.length > 0)
           ? normalizeImageUrl(court.images[0])
           : courtBrandLogo;
@@ -1484,7 +1503,7 @@
 
         const cardImg = (v.images && v.images.length > 0)
           ? normalizeImageUrl(v.images[0])
-          : (isForzaCourt(v.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL);
+          : (v.customPinUrl || (isForzaCourt(v.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL));
 
         const sameNameCount = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === v.courtName.trim().toLowerCase()).length;
         const budgetFormatted = `฿${Number(v.budget || 0).toLocaleString()}`;
@@ -2430,7 +2449,7 @@
       const nextBtn = document.getElementById('modalNextBtn');
 
       imgEl.src = imgs[modalImageIndex];
-      imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = (isForzaCourt(activeModalCourt.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL); };
+      imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = (activeModalCourt.customPinUrl || (isForzaCourt(activeModalCourt.courtName) ? FORZA_LOGO_URL : DEFAULT_PIN_URL)); };
       counterEl.innerText = `${modalImageIndex + 1} / ${imgs.length}`;
 
       if (imgs.length <= 1) {
@@ -2707,11 +2726,25 @@
       const parsed = [];
       for (let i = 1; i < rows.length; i++) {
         const r = rows[i];
-        const name = String(r[nameIdx] || '').trim();
-        const lat = parseFloat(r[latIdx]);
-        const lng = parseFloat(r[lngIdx]);
+        const rawName = String(r[nameIdx] || '').trim();
+        if (!rawName) continue;
 
-        if (!name) continue;
+        const nameData = parseCourtNameAndPin(rawName);
+
+        let lat = parseFloat(r[latIdx]);
+        let lng = parseFloat(r[lngIdx]);
+        const mapsUrl = String(r[mapsIdx] || '').trim();
+
+        if ((isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) && mapsUrl) {
+          const mCoord = mapsUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) || 
+                         mapsUrl.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/) || 
+                         mapsUrl.match(/q=(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+                         mapsUrl.match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
+          if (mCoord) {
+            lat = parseFloat(mCoord[1]);
+            lng = parseFloat(mCoord[2]);
+          }
+        }
 
         let images = [];
         let folderUrl = '';
@@ -2731,11 +2764,12 @@
 
         parsed.push({
           id: `court-${i}`,
-          courtName: name,
+          courtName: nameData.name,
+          customPinUrl: nameData.pinUrl,
           contactName: String(r[contactIdx] || '').trim(),
           phone: String(r[phoneIdx] || '').trim(),
           sales: String(r[salesIdx] || '').trim(),
-          mapsUrl: String(r[mapsIdx] || '').trim(),
+          mapsUrl: mapsUrl,
           lat: (!isNaN(lat) && lat !== 0) ? lat : null,
           lng: (!isNaN(lng) && lng !== 0) ? lng : null,
           images: images,
@@ -2774,7 +2808,7 @@
       const playersIdx = getIdx(['ผู้เข้าร่วม', 'จำนวนคน', 'คน', 'participants', 'players'], 7);
       const shuttleIdx = getIdx(['ลูกแบด', 'ลูกที่ใช้', 'ลูกขนไก่', 'shuttlecock', 'shuttle'], 8);
       
-      // คอลัมน์ J (Index 9): ตรวจจับ Poster การแข่งขัน โดยเฉพาะเจาะจง
+      // คอลัมน์ J (Index 9): Poster การแข่งขัน
       let posterIdx = -1;
       if (headers.length > 9 && (headers[9].toLowerCase().includes('poster') || headers[9].toLowerCase().includes('โปสเตอร์') || headers[9].toLowerCase().includes('การแข่งขัน'))) {
         posterIdx = 9;
@@ -2786,11 +2820,7 @@
       const lngIdx = getIdx(['lng', 'longitude', 'ลองจิจูด', 'long'], 11);
       const mapsIdx = getIdx(['maps', 'link', 'แผนที่', 'พิกัด'], 12);
       const levelIdx = getIdx(['level', 'ระดับ', 'ระดับการแข่งขัน', 'เกรด', 'tier'], 13);
-      
-      // คอลัมน์ O (Index 14): เซลVICTORที่ดูแล
       const salesIdx = (headers.length > 14 && headers[14]) ? 14 : getIdx(['เซลvictorที่ดูแล', 'เซลvictor', 'เซลผู้ดูแล', 'เซล', 'ผู้ดูแล', 'sales'], 14);
-
-      // คอลัมน์จังหวัดสำหรับงานแข่ง (ถ้ามี)
       const provIdx = getIdx(['จังหวัด', 'province'], -1);
 
       const parsed = [];
@@ -2818,15 +2848,12 @@
         const rawLevel = String((r[levelIdx] !== undefined ? r[levelIdx] : r[13]) || 'ทั่วไป (1)').trim();
         const levelData = parseTournamentLevelAndSize(rawLevel);
 
-        // แยกชื่อลูกแบดและรูปลูกแบดในวงเล็บ
         const rawShuttle = String(r[shuttleIdx] || 'VICTOR MASTER NO.1').trim();
         const shuttleParsed = parseNameAndAvatar(rawShuttle);
 
-        // แยกชื่อองค์กร/ผู้จัด และรูปองค์กรในวงเล็บ
         const rawOrganizer = String(r[orgIdx] || 'VICTOR Club').trim();
         const orgParsed = parseNameAndAvatar(rawOrganizer);
 
-        // ตรวจดึงโปสเตอร์จากคอลัมน์ J อย่างแม่นยำ
         let rawPoster = '';
         if (posterIdx !== -1 && r[posterIdx]) {
           rawPoster = String(r[posterIdx]).trim();
@@ -2844,10 +2871,8 @@
           }
         }
 
-        // ประมวลผลจำนวนผู้เข้าร่วม (รองรับช่วง 300-400 และ 500+)
         const participantData = parseParticipants(r[playersIdx]);
 
-        // ตรวจจับจังหวัดจากคอลัมน์ หรือจากชื่อสถานที่
         const rawVenue = String(r[venueIdx] || 'สนามแบดมินตันมาตรฐาน').trim();
         let province = provIdx !== -1 ? String(r[provIdx] || '').trim() : '';
         if (!province) {
@@ -2861,6 +2886,9 @@
           if (!province) province = 'กรุงเทพมหานคร';
         }
 
+        const rawCount = String(r[courtsIdx] || '').trim();
+        const courtCount = rawCount ? (rawCount.includes('คอร์ท') || rawCount.includes('คอร์ด') ? rawCount : `${rawCount} คอร์ท`) : '-';
+
         parsed.push({
           id: `tour-${i}`,
           tournamentName: nameData.name,
@@ -2872,7 +2900,7 @@
           province: province,
           startDate: String(r[startIdx] || '').trim(),
           endDate: String(r[endIdx] || '').trim(),
-          courtCount: String(r[courtsIdx] || '-').trim(),
+          courtCount: courtCount,
           organizer: orgParsed.name,
           organizerPhoto: orgParsed.photo,
           phone: String(r[phoneIdx] || '').trim(),
