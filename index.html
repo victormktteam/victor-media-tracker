@@ -2804,20 +2804,37 @@
       updateCarousel();
     };
 
-    window.shareCourtById = function(courtId) {
-      const court = currentLocations.find(c => c.id === courtId);
-      if (!court) return;
-      const shareText = `🏸 สนาม: ${court.courtName} (${court.province})\n🎨 Artwork: ${court.artwork}\n📍 แผนที่: ${court.mapsUrl || 'Google Maps'}`;
-      if (navigator.clipboard) navigator.clipboard.writeText(shareText);
-      showToast('🔗 คัดลอกข้อมูลแชร์สนามแล้ว');
+    function copyToClipboard(text, successMsg = '📋 คัดลอกเรียบร้อยแล้ว!') {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(successMsg);
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    window.shareSocialFeedUrl = function() {
+      const shareUrl = `${window.location.origin}${window.location.pathname}?view=social&mode=${currentSystemMode}`;
+      copyToClipboard(shareUrl, '🔗 คัดลอกลิงก์โซเชียลฟีดเรียบร้อยแล้ว!');
     };
 
-    window.shareTournamentById = function(tourId) {
+    window.shareCourtById = function(courtId, viewType = null) {
+      const court = currentLocations.find(c => c.id === courtId);
+      if (!court) return;
+      const targetView = viewType || (currentDisplayView === 'social' ? 'social' : 'map');
+      const shareUrl = `${window.location.origin}${window.location.pathname}?view=${targetView}&mode=media&id=${encodeURIComponent(court.id)}`;
+      const shareText = `🏸 สนาม: ${court.courtName} (${court.province})\n🎨 Artwork: ${court.artwork}\n📱 ดูในโซเชียลฟีด: ${shareUrl}`;
+      copyToClipboard(shareUrl, '🔗 คัดลอกลิงก์แชร์ไปยังโซเชียลฟีดแล้ว!');
+    };
+
+    window.shareTournamentById = function(tourId, viewType = null) {
       const tour = currentTournaments.find(t => t.id === tourId);
       if (!tour) return;
-      const shareText = `🏆 การแข่งขัน: ${tour.tournamentName}\n📅 ${tour.startDate} - ${tour.endDate}\n🏸 สถานที่: ${tour.venueName}`;
-      if (navigator.clipboard) navigator.clipboard.writeText(shareText);
-      showToast('🔗 คัดลอกข้อมูลแชร์งานแข่งแล้ว');
+      const targetView = viewType || (currentDisplayView === 'social' ? 'social' : 'map');
+      const shareUrl = `${window.location.origin}${window.location.pathname}?view=${targetView}&mode=tournament&id=${encodeURIComponent(tour.id)}`;
+      const shareText = `🏆 การแข่งขัน: ${tour.tournamentName}\n📅 ${tour.startDate} - ${tour.endDate}\n🏸 สถานที่: ${tour.venueName}\n📱 ดูในโซเชียลฟีด: ${shareUrl}`;
+      copyToClipboard(shareUrl, '🔗 คัดลอกลิงก์แชร์งานแข่งไปยังโซเชียลฟีดแล้ว!');
     };
 
     function fallbackCopy(text) {
@@ -2828,6 +2845,47 @@
       document.execCommand('copy');
       document.body.removeChild(temp);
       showToast('📋 คัดลอกข้อความสำเร็จ');
+    }
+
+    function checkUrlParameters() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const targetView = params.get('view');
+        const targetMode = params.get('mode');
+        const targetId = params.get('id') || params.get('court') || params.get('tour');
+
+        if (targetMode === 'tournament' || targetMode === 'media') {
+          switchSystemMode(targetMode);
+        }
+
+        if (targetView === 'social') {
+          switchDisplayView('social');
+        }
+
+        if (targetId) {
+          setTimeout(() => {
+            if (targetView === 'social' || currentDisplayView === 'social') {
+              const cardEl = document.getElementById(`social-card-${targetId}`) || 
+                             document.querySelector(`[data-id="${targetId}"]`);
+              if (cardEl) {
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cardEl.classList.add('ring-4', 'ring-amber-400');
+                setTimeout(() => cardEl.classList.remove('ring-4', 'ring-amber-400'), 3500);
+              }
+            } else {
+              if (currentSystemMode === 'media') {
+                const found = currentLocations.find(c => c.id === targetId || (c.courtName && c.courtName.toLowerCase().includes(targetId.toLowerCase())));
+                if (found) window.openCourtDetail(found.id);
+              } else {
+                const found = currentTournaments.find(t => t.id === targetId || (t.tournamentName && t.tournamentName.toLowerCase().includes(targetId.toLowerCase())));
+                if (found) window.openTournamentDetail(found.id);
+              }
+            }
+          }, 900);
+        }
+      } catch (err) {
+        console.warn("URL param error:", err);
+      }
     }
 
     function initMap() {
@@ -2855,6 +2913,9 @@
         if (currentSystemMode === 'media') applyFilters();
         else applyTournamentFilters();
       });
+
+      // ตรวจสอบพารามิเตอร์ URL เพื่อเปิดเข้าสู่มุมมองโซเชียลหรือเจาะจงรายการ
+      checkUrlParameters();
     };
   </script>
 </body>
