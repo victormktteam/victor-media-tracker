@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <!-- แก้ปัญหา Google Drive บล็อกการแสดงผลรูปภาพบนเว็บไซต์ภายนอก -->
-  <meta name="referrer" content="no-referrer" />
   <title>VICTOR+ | Media &amp; Tournament Tracker</title>
 
   <!-- Favicon: Google Drive CDN Direct Link -->
@@ -29,7 +27,7 @@
             sans: ['Prompt', 'sans-serif'],
           },
           screens: {
-            'xs': '400px',
+            'xs': '380px',
           }
         }
       }
@@ -107,15 +105,15 @@
     }
     .leaflet-popup-content {
       margin: 0 !important;
-      width: 290px !important;
-      max-width: calc(100vw - 44px) !important;
+      width: 280px !important;
+      max-width: calc(100vw - 48px) !important;
       line-height: 1.35 !important;
-      max-height: 75vh;
+      max-height: 72vh;
       overflow-y: auto;
     }
     @media (min-width: 640px) {
       .leaflet-popup-content {
-        width: 330px !important;
+        width: 320px !important;
         max-height: 80vh;
       }
     }
@@ -124,105 +122,117 @@
 </head>
 <body class="bg-slate-100 flex flex-col h-full text-slate-800 antialiased select-none">
 
-  <header class="bg-gradient-to-r from-victor-navy via-victor-blue to-blue-950 text-white px-2 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between shadow-lg z-40 flex-shrink-0 border-b border-blue-800/50 gap-1.5">
+  <header class="bg-gradient-to-r from-victor-navy via-victor-blue to-blue-950 text-white px-2 sm:px-4 py-1.5 sm:py-2 flex flex-col gap-1.5 shadow-lg z-40 flex-shrink-0 border-b border-blue-800/50">
     
-    <!-- ฝั่งซ้าย: โลโก้, ชื่อ และสวิตช์โหมด -->
-    <div class="flex items-center space-x-1.5 sm:space-x-3 min-w-0 flex-shrink">
-      <div class="h-7 sm:h-8 md:h-9 px-1.5 bg-white rounded-lg sm:rounded-xl flex items-center justify-center shadow-md border border-amber-400/80 flex-shrink-0 overflow-hidden">
-        <img id="headerVictorLogo" src="https://lh3.googleusercontent.com/d/1635bFr8TC3_j7FCr5mHo3d3H3ZevC6q0" 
-             alt="VICTOR Logo" 
-             style="height: 100%; width: auto; max-width: 110px; object-fit: contain; display: block;"
-             onerror="this.onerror=null; this.src='https://lh3.googleusercontent.com/d/1MppkVebrR2E82ex-hlV85F7tmiFT7Dfh';" />
-      </div>
-
-      <div class="min-w-0 pr-0.5 hidden xs:block sm:block">
-        <div class="flex items-center space-x-1">
-          <h1 class="font-bold text-xs sm:text-base leading-tight tracking-wide text-white truncate">VICTOR+</h1>
-          <span id="activeModeBadge" class="hidden sm:inline-block px-1.5 py-0.5 text-[8.5px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider truncate">
-            สื่อโฆษณา
-          </span>
+    <!-- แถวบน: โลโก้ + สวิตช์โหมดหลัก + เครื่องมือด่วน -->
+    <div class="flex items-center justify-between gap-1.5">
+      <!-- ฝั่งซ้าย: โลโก้, ชื่อ และสวิตช์โหมด -->
+      <div class="flex items-center space-x-1.5 sm:space-x-2.5 min-w-0 flex-shrink">
+        <div class="h-7 sm:h-8 md:h-9 px-1.5 bg-white rounded-lg sm:rounded-xl flex items-center justify-center shadow-md border border-amber-400/80 flex-shrink-0 overflow-hidden">
+          <img id="headerVictorLogo" src="https://lh3.googleusercontent.com/d/1635bFr8TC3_j7FCr5mHo3d3H3ZevC6q0" 
+               referrerpolicy="no-referrer"
+               alt="VICTOR Logo" 
+               style="height: 100%; width: auto; max-width: 105px; object-fit: contain; display: block;"
+               onerror="this.onerror=null; this.src='https://lh3.googleusercontent.com/d/1MppkVebrR2E82ex-hlV85F7tmiFT7Dfh';" />
         </div>
-        <p class="text-[9px] sm:text-[10px] text-blue-200 hidden md:block truncate">Media &amp; Tournament Tracker</p>
+
+        <div class="min-w-0 pr-0.5 hidden sm:block">
+          <div class="flex items-center space-x-1">
+            <h1 class="font-bold text-xs sm:text-base leading-tight tracking-wide text-white truncate">VICTOR+</h1>
+            <span id="activeModeBadge" class="hidden md:inline-block px-1.5 py-0.5 text-[8.5px] font-extrabold uppercase rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 tracking-wider truncate">
+              สื่อโฆษณา
+            </span>
+          </div>
+          <p class="text-[9px] sm:text-[10px] text-blue-200 hidden lg:block truncate">Media &amp; Tournament Tracker</p>
+        </div>
+
+        <!-- สวิตช์สลับโหมด: สื่อสนาม vs งานแข่งขัน -->
+        <div class="flex items-center bg-black/35 p-0.5 rounded-lg sm:rounded-xl border border-white/15 shadow-inner flex-shrink-0">
+          <button type="button" id="tabModeMedia" onclick="switchSystemMode('media')" class="px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10.5px] sm:text-xs font-bold transition flex items-center space-x-1 bg-victor-accent text-white shadow-xs">
+            <span>🏸</span><span>สื่อสนาม</span>
+          </button>
+          <button type="button" id="tabModeTournament" onclick="switchSystemMode('tournament')" class="px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10.5px] sm:text-xs font-semibold transition flex items-center space-x-1 text-blue-200 hover:text-white">
+            <span>🏆</span><span>งานแข่ง</span>
+          </button>
+        </div>
+
+        <!-- สวิตช์สลับมุมมอง: แผนที่ vs โซเชียลฟีด (สำหรับจอใหญ่) -->
+        <div class="hidden md:flex items-center bg-black/40 p-0.5 rounded-xl border border-amber-400/30 shadow-inner">
+          <button type="button" id="btnViewMapDesktop" onclick="switchDisplayView('map')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 bg-amber-500 text-slate-950 shadow-xs">
+            <i class="ph-bold ph-map-trifold"></i>
+            <span>แผนที่</span>
+          </button>
+          <button type="button" id="btnViewSocialDesktop" onclick="switchDisplayView('social')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center space-x-1 text-amber-200 hover:text-white">
+            <i class="ph-bold ph-newspaper-clipping"></i>
+            <span>โซเชียลฟีด</span>
+          </button>
+        </div>
       </div>
 
-      <!-- สวิตช์สลับโหมด: สื่อสนาม vs งานแข่งขัน -->
-      <div class="flex items-center bg-black/35 p-0.5 rounded-lg sm:rounded-xl border border-white/15 shadow-inner">
-        <button type="button" id="tabModeMedia" onclick="switchSystemMode('media')" class="px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center space-x-0.5 sm:space-x-1 bg-victor-accent text-white shadow-xs">
-          <span>🏸</span><span class="hidden xs:inline">สื่อสนาม</span>
+      <!-- ฝั่งขวา: ปุ่มเครื่องมือและปุ่มควบคุม -->
+      <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
+        <!-- ค้นหาสนามใกล้ฉัน -->
+        <button type="button" onclick="findNearbyCourts()" title="ค้นหาสนามที่อยู่ใกล้พิกัดปัจจุบันของคุณ" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-sky-400/40 shadow-sm transition active:scale-95">
+          <i class="ph-bold ph-crosshair text-xs sm:text-sm"></i>
+          <span class="hidden lg:inline">ใกล้ฉัน</span>
         </button>
-        <button type="button" id="tabModeTournament" onclick="switchSystemMode('tournament')" class="px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-semibold transition flex items-center space-x-0.5 sm:space-x-1 text-blue-200 hover:text-white">
-          <span>🏆</span><span class="hidden xs:inline">งานแข่ง</span>
-        </button>
-      </div>
 
-      <!-- สวิตช์สลับมุมมอง: แผนที่ vs ฟีดโซเชียล -->
-      <div class="flex items-center bg-black/40 p-0.5 rounded-lg sm:rounded-xl border border-amber-400/30 shadow-inner ml-0.5">
-        <button type="button" id="btnViewMap" onclick="switchDisplayView('map')" title="มุมมองแผนที่ & รายการ" class="px-2 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center space-x-1 bg-amber-500 text-slate-950 shadow-xs">
-          <i class="ph-bold ph-map-trifold"></i>
-          <span class="hidden md:inline">แผนที่</span>
+        <!-- สรุปภาพรวมการตลาด -->
+        <button type="button" onclick="openAnalyticsDashboard()" title="ดูสรุปภาพรวมและข้อมูลเชิงลึกการตลาด" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-indigo-400/40 shadow-sm transition active:scale-95">
+          <i class="ph-bold ph-chart-donut text-xs sm:text-sm"></i>
+          <span class="hidden xl:inline">สรุปภาพรวม</span>
         </button>
-        <button type="button" id="btnViewSocial" onclick="switchDisplayView('social')" title="มุมมองฟีดโซเชียล ไทม์ไลน์" class="px-2 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-semibold transition flex items-center space-x-1 text-amber-200 hover:text-white">
-          <i class="ph-bold ph-newspaper-clipping"></i>
-          <span class="hidden md:inline">โซเชียลฟีด</span>
+
+        <!-- ส่งสรุปเข้า LINE -->
+        <button type="button" onclick="copyLineSummary()" title="คัดลอกข้อความสรุปสำหรับส่งเข้ากลุ่ม LINE" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-emerald-400/40 shadow-sm transition active:scale-95">
+          <i class="ph-bold ph-chat-circle-dots text-xs sm:text-sm"></i>
+          <span class="hidden xl:inline">ส่ง LINE</span>
+        </button>
+
+        <!-- ล็อก/ปลดล็อกข้อมูลสำคัญ -->
+        <button type="button" id="authLockBtn" onclick="toggleAuthLockAction()" title="ล็อก/ปลดล็อกข้อมูลสำคัญ" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40">
+          <i class="ph-bold ph-lock-key text-xs sm:text-sm" id="authLockIcon"></i>
+          <span id="authLockText" class="hidden sm:inline">ปลดล็อก</span>
+        </button>
+
+        <!-- ซ่อน/แสดง Badge -->
+        <button type="button" id="badgeToggleBtn" onclick="toggleBadgesVisibility()" title="เปิด/ปิดการแสดง Badge บนหมุด" class="hidden sm:flex px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[11px] sm:text-xs font-semibold items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95">
+          <i class="ph-bold ph-tag text-xs sm:text-sm" id="badgeToggleIcon"></i>
+          <span id="badgeToggleText" class="hidden lg:inline">ซ่อน Badge</span>
+        </button>
+
+        <!-- รีเฟรช -->
+        <button type="button" onclick="refreshCurrentData()" title="รีเฟรชข้อมูลสด" class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-blue-500/40 shadow-sm transition active:scale-95">
+          <i class="ph-bold ph-arrows-clockwise text-xs sm:text-sm" id="refreshIcon"></i>
+          <span class="hidden lg:inline">รีเฟรช</span>
+        </button>
+
+        <!-- ตั้งค่า Google Sheets -->
+        <button type="button" onclick="openSecureSettings()" title="ตั้งค่าแหล่งข้อมูล Google Sheets" class="p-1.5 sm:px-2 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-amber-400/30 shadow-sm transition active:scale-95">
+          <i class="ph-bold ph-gear text-xs sm:text-sm"></i>
+          <span class="hidden 2xl:inline">ตั้งค่า</span>
         </button>
       </div>
     </div>
 
-    <!-- ฝั่งขวา: ปุ่มเครื่องมือและปุ่มควบคุม -->
-    <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
-      
-      <!-- ปุ่มสลับมุมมอง แผนที่ / รายการ (มือถือ) -->
-      <div id="mobileTabGroup" class="flex md:hidden items-center bg-black/30 p-0.5 rounded-lg border border-white/10">
-        <button type="button" id="mobileTabMap" onclick="toggleSidebar(false)" title="แผนที่" class="px-1.5 py-1 rounded text-[10.5px] font-semibold text-white bg-white/20 transition">
-          🗺️
+    <!-- แถวล่างเฉพาะมือถือ (Mobile Quick Navigation Bar) ให้กดสลับมุมมองง่าย ไม่เบียดกัน -->
+    <div class="flex md:hidden items-center justify-between gap-1 pt-1 border-t border-white/10">
+      <div class="grid grid-cols-3 gap-1 flex-1 bg-black/30 p-0.5 rounded-lg border border-white/10">
+        <button type="button" id="mobileNavMap" onclick="switchMobileTab('map')" class="py-1 rounded-md text-[10.5px] font-bold flex items-center justify-center space-x-1 bg-amber-500 text-slate-950 shadow-xs transition">
+          <i class="ph-bold ph-map-trifold"></i><span>แผนที่</span>
         </button>
-        <button type="button" id="mobileTabList" onclick="toggleSidebar(true)" title="รายการ" class="px-1.5 py-1 rounded text-[10.5px] font-semibold text-blue-200 transition">
-          📋
+        <button type="button" id="mobileNavList" onclick="switchMobileTab('list')" class="py-1 rounded-md text-[10.5px] font-semibold flex items-center justify-center space-x-1 text-blue-100 hover:text-white transition">
+          <i class="ph-bold ph-list-bullets"></i><span>ตัวกรอง/รายการ</span>
+        </button>
+        <button type="button" id="mobileNavSocial" onclick="switchMobileTab('social')" class="py-1 rounded-md text-[10.5px] font-semibold flex items-center justify-center space-x-1 text-amber-200 hover:text-white transition">
+          <i class="ph-bold ph-newspaper-clipping"></i><span>โซเชียลฟีด</span>
         </button>
       </div>
-
-      <!-- ปุ่มฟีเจอร์ใหม่: ค้นหาสนามใกล้ฉัน (GPS Geolocation) -->
-      <button type="button" onclick="findNearbyCourts()" title="ค้นหาสนามที่อยู่ใกล้พิกัดปัจจุบันของคุณ" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-sky-400/40 shadow-sm transition active:scale-95">
-        <i class="ph-bold ph-crosshair text-xs sm:text-sm"></i>
-        <span class="hidden lg:inline">ใกล้ฉัน</span>
-      </button>
-
-      <!-- ปุ่มฟีเจอร์ใหม่: สรุปและรายงานการตลาด (Marketing Analytics) -->
-      <button type="button" onclick="openAnalyticsDashboard()" title="ดูสรุปภาพรวมและข้อมูลเชิงลึกการตลาด" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-indigo-400/40 shadow-sm transition active:scale-95">
-        <i class="ph-bold ph-chart-donut text-xs sm:text-sm"></i>
-        <span class="hidden xl:inline">สรุปภาพรวม</span>
-      </button>
-
-      <!-- ปุ่มฟีเจอร์ใหม่: คัดลอกสรุปส่งเข้า LINE -->
-      <button type="button" onclick="copyLineSummary()" title="คัดลอกข้อความสรุปสำหรับส่งเข้ากลุ่ม LINE" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-emerald-400/40 shadow-sm transition active:scale-95">
-        <i class="ph-bold ph-chat-circle-dots text-xs sm:text-sm"></i>
-        <span class="hidden xl:inline">ส่ง LINE</span>
-      </button>
-
-      <!-- ล็อก/ปลดล็อกข้อมูลสำคัญ -->
-      <button type="button" id="authLockBtn" onclick="toggleAuthLockAction()" title="ล็อก/ปลดล็อกข้อมูลสำคัญ" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40">
-        <i class="ph-bold ph-lock-key text-xs sm:text-sm" id="authLockIcon"></i>
-        <span id="authLockText" class="hidden sm:inline">ปลดล็อก</span>
-      </button>
-
-      <!-- ซ่อน/แสดง Badge -->
-      <button type="button" id="badgeToggleBtn" onclick="toggleBadgesVisibility()" title="เปิด/ปิดการแสดง Badge บนหมุด" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-amber-300/40 shadow-sm transition active:scale-95">
-        <i class="ph-bold ph-tag text-xs sm:text-sm" id="badgeToggleIcon"></i>
-        <span id="badgeToggleText" class="hidden lg:inline">ซ่อน Badge</span>
-      </button>
-
-      <!-- รีเฟรช -->
-      <button type="button" onclick="refreshCurrentData()" title="รีเฟรชข้อมูลสด" class="p-1 sm:px-2.5 sm:py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-blue-500/40 shadow-sm transition active:scale-95">
-        <i class="ph-bold ph-arrows-clockwise text-xs sm:text-sm" id="refreshIcon"></i>
-        <span class="hidden lg:inline">รีเฟรช</span>
-      </button>
-
-      <!-- ตั้งค่า Google Sheets -->
-      <button type="button" onclick="openSecureSettings()" title="ตั้งค่าแหล่งข้อมูล Google Sheets" class="p-1 sm:px-2 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-amber-400/30 shadow-sm transition active:scale-95">
-        <i class="ph-bold ph-gear text-xs sm:text-sm"></i>
-        <span class="hidden 2xl:inline">ตั้งค่า</span>
+      <button type="button" onclick="toggleBadgesVisibility()" class="px-2 py-1 rounded-lg bg-white/10 text-amber-300 text-[10px] font-semibold border border-white/15 flex items-center space-x-1 flex-shrink-0">
+        <i class="ph-bold ph-tag"></i><span>Badge</span>
       </button>
     </div>
+
   </header>
 
   <div class="flex flex-1 overflow-hidden relative">
@@ -230,19 +240,19 @@
     <!-- ฉากหลังสำหรับจอมือถือ -->
     <div id="sidebarBackdrop" onclick="toggleSidebar(false)" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30 md:hidden transition-opacity"></div>
 
-    <aside id="mainSidebar" class="fixed md:static top-0 bottom-0 left-0 -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out w-80 sm:w-88 md:w-92 bg-white border-r border-slate-200 flex flex-col h-full z-40 md:z-20 shadow-2xl md:shadow-none flex-shrink-0">
+    <aside id="mainSidebar" class="fixed md:static top-0 bottom-0 left-0 -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out w-[86vw] max-w-[340px] sm:w-88 md:w-92 bg-white border-r border-slate-200 flex flex-col h-full z-40 md:z-20 shadow-2xl md:shadow-none flex-shrink-0">
       
       <!-- หัวแถบสำหรับมือถือ -->
-      <div class="p-2.5 border-b border-slate-200 bg-slate-100 flex items-center justify-between md:hidden">
-        <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
-          <i class="ph-bold ph-faders text-victor-blue text-base"></i>
-          <span id="mobileSidebarTitle">ตัวกรองและการจัดเรียง</span>
+      <div class="p-2.5 border-b border-slate-200 bg-victor-navy text-white flex items-center justify-between md:hidden">
+        <span class="font-bold text-xs flex items-center gap-1.5">
+          <i class="ph-bold ph-faders text-amber-400 text-base"></i>
+          <span id="mobileSidebarTitle">ตัวกรอง &amp; รายการทั้งหมด</span>
         </span>
-        <div class="flex items-center space-x-2">
-          <button type="button" onclick="resetActiveFilters()" class="text-[10px] text-slate-500 hover:text-slate-800 font-semibold px-2 py-0.5 bg-slate-200 rounded">
-            รีเซ็ต
+        <div class="flex items-center space-x-1.5">
+          <button type="button" onclick="resetActiveFilters()" class="text-[10px] text-amber-300 hover:text-white font-semibold px-2 py-1 bg-white/10 rounded-lg border border-white/15">
+            รีเซ็ตตัวกรอง
           </button>
-          <button type="button" onclick="toggleSidebar(false)" class="w-7 h-7 rounded-lg bg-slate-200/80 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition">
+          <button type="button" onclick="toggleSidebar(false)" class="w-7 h-7 rounded-lg bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition">
             <i class="ph-bold ph-x text-sm"></i>
           </button>
         </div>
@@ -256,7 +266,7 @@
           <input
             type="text"
             id="searchInput"
-            placeholder="ค้นหาชื่อสนาม, เซล, อาร์ตเวิร์ก (Col R), รายละเอียด..."
+            placeholder="ค้นหาชื่อสนาม, เซล, Artwork, งานแข่ง..."
             class="w-full pl-8 pr-8 py-1.5 sm:py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-victor-accent/50 focus:border-victor-accent transition shadow-xs"
           />
           <button id="clearSearchBtn" type="button" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-slate-600" onclick="clearSearch()">
@@ -268,8 +278,8 @@
         <div id="mediaFiltersContainer" class="space-y-1.5">
           <div class="flex items-center justify-between gap-1">
             <select id="sortBy" onchange="applyFilters()" class="flex-1 p-1.5 bg-white border border-slate-300 rounded-lg font-medium text-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-victor-accent/40 shadow-xs">
-              <option value="date-desc">📅 ติดตั้ง: ใหม่ &rarr; เก่า (แม่นยำ)</option>
-              <option value="date-asc">📅 ติดตั้ง: เก่า &rarr; ใหม่</option>
+              <option value="date-desc">📅 ติดตั้ง: ใหม่ล่าสุด &rarr; เก่า</option>
+              <option value="date-asc">📅 ติดตั้ง: เก่า &rarr; ใหม่ล่าสุด</option>
               <option value="budget-desc">💰 งบประมาณ: สูง &rarr; ต่ำ</option>
               <option value="budget-asc">💰 งบประมาณ: ต่ำ &rarr; สูง</option>
               <option value="name-asc">🔤 ชื่อสนาม: ก - ฮ (A-Z)</option>
@@ -282,15 +292,15 @@
           <!-- Multi-Select Buttons Container: Artwork (Col R), เซล, จังหวัด, รอบสื่อ, ประเภทสื่อ -->
           <div class="grid grid-cols-2 gap-1.5 text-xs">
             
-            <!-- Multi-Select Artwork (คอลัมน์ R) -->
+            <!-- Multi-Select Artwork (คอลัมน์ R เฉพาะข้อมูลจริงในชีต) -->
             <div class="relative col-span-2">
               <button type="button" onclick="toggleMultiSelectMenu('menuArtwork')" id="btnFilterArtwork" class="w-full p-1.5 bg-amber-50/90 border border-amber-300 rounded-lg text-left text-xs font-semibold text-amber-900 flex items-center justify-between shadow-xs truncate">
-                <span class="truncate" id="labelFilterArtwork">🎨 Artwork (ทั้งหมด)</span>
+                <span class="truncate" id="labelFilterArtwork">🎨 Artwork คอลัมน์ R (ทั้งหมด)</span>
                 <i class="ph-bold ph-caret-down text-amber-600 text-[10px] ml-1"></i>
               </button>
               <div id="menuArtwork" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-2 space-y-1.5 max-h-56 overflow-y-auto custom-scrollbar">
                 <div class="flex items-center justify-between pb-1 border-b border-slate-100 text-[10px]">
-                  <span class="font-bold text-slate-700">เลือก Artwork (คอลัมน์ R)</span>
+                  <span class="font-bold text-slate-700">เลือก Artwork จากคอลัมน์ R</span>
                   <button type="button" onclick="clearMultiSelect('artwork')" class="text-rose-600 font-semibold hover:underline">ล้างค่า</button>
                 </div>
                 <div id="optionsArtwork" class="space-y-1 text-xs"></div>
@@ -342,10 +352,10 @@
               </div>
             </div>
 
-            <!-- Multi-Select ประเภทสื่อ (แก้ไขแล้ว: รองรับการเลือกหลายรายการ) -->
+            <!-- Multi-Select ประเภทสื่อ -->
             <div class="relative">
               <button type="button" onclick="toggleMultiSelectMenu('menuMediaType')" id="btnFilterMediaType" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-left text-xs font-medium text-slate-700 flex items-center justify-between shadow-xs truncate">
-                <span class="truncate" id="labelFilterMediaType">📺 ประเภทสื่อ (ทั้งหมด)</span>
+                <span class="truncate" id="labelFilterMediaType">📺 ประเภทสื่อ</span>
                 <i class="ph-bold ph-caret-down text-slate-400 text-[10px] ml-1"></i>
               </button>
               <div id="menuMediaType" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-2 space-y-1.5 max-h-56 overflow-y-auto custom-scrollbar">
@@ -433,10 +443,10 @@
       <div id="mapViewContainer" class="w-full h-full relative">
         <div id="map"></div>
 
-        <!-- ปุ่มลอยเปิดเมนูสำหรับมือถือ -->
-        <button type="button" id="mobileFloatingFilterBtn" onclick="toggleSidebar(true)" class="md:hidden absolute top-2.5 left-2.5 z-20 bg-victor-navy/95 hover:bg-victor-navy text-white px-2.5 py-1.5 rounded-xl shadow-xl flex items-center space-x-1.5 text-xs font-bold border border-white/20 active:scale-95 transition backdrop-blur-xs">
-          <i class="ph-bold ph-list-dashes text-sm text-amber-300"></i>
-          <span>รายการ &amp; ตัวกรอง</span>
+        <!-- ปุ่มลอยเปิดเมนูตัวกรองสำหรับมือถือ -->
+        <button type="button" id="mobileFloatingFilterBtn" onclick="toggleSidebar(true)" class="md:hidden absolute top-2.5 left-2.5 z-20 bg-victor-navy/95 hover:bg-victor-navy text-white px-3 py-1.5 rounded-xl shadow-xl flex items-center space-x-1.5 text-xs font-bold border border-white/20 active:scale-95 transition backdrop-blur-xs">
+          <i class="ph-bold ph-faders text-sm text-amber-300"></i>
+          <span>ค้นหา &amp; รายการ</span>
         </button>
 
         <!-- ป้ายคำอธิบายสถานะมุมขวาล่าง -->
@@ -463,46 +473,50 @@
       </div>
 
       <!-- 2) พื้นที่โหมดโซเชียลฟีด (Social Feed Timeline View) -->
-      <div id="socialFeedContainer" class="hidden w-full h-full overflow-y-auto custom-scrollbar p-3 sm:p-6 bg-slate-200/70">
-        <div class="max-w-2xl mx-auto space-y-4 pb-12">
+      <div id="socialFeedContainer" class="hidden w-full h-full overflow-y-auto custom-scrollbar p-2.5 sm:p-6 bg-slate-200/70">
+        <div class="max-w-2xl mx-auto space-y-3.5 sm:space-y-4 pb-16">
           
-          <div class="bg-gradient-to-r from-victor-navy to-blue-900 text-white p-3.5 sm:p-4 rounded-2xl shadow-md border border-blue-700/50 flex items-center justify-between gap-2 flex-wrap">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-amber-400 text-victor-navy flex items-center justify-center font-extrabold text-xl shadow-inner flex-shrink-0">
+          <div class="bg-gradient-to-r from-victor-navy to-blue-900 text-white p-3 sm:p-4 rounded-2xl shadow-md border border-blue-700/50 flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center space-x-2.5 sm:space-x-3">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-400 text-victor-navy flex items-center justify-center font-extrabold text-lg sm:text-xl shadow-inner flex-shrink-0">
                 <i class="ph-bold ph-newspaper-clipping"></i>
               </div>
               <div>
-                <h3 class="font-bold text-sm sm:text-base leading-tight">VICTOR+ โซเชียลฟีดไทม์ไลน์</h3>
-                <p class="text-[11px] text-blue-200">คลิกรายการฝั่งซ้ายเพื่อเลื่อนไปยังโพสต์ทันที • พร้อมแชร์ลิงก์ตรง</p>
+                <h3 class="font-bold text-xs sm:text-base leading-tight">VICTOR+ โซเชียลฟีดไทม์ไลน์</h3>
+                <p class="text-[10px] sm:text-[11px] text-blue-200">แตะรายการในแถบค้นหาเพื่อเลื่อนมายังโพสต์ทันที</p>
               </div>
             </div>
-            <div class="flex items-center space-x-2">
-              <span id="socialItemCountBadge" class="px-2.5 py-1 rounded-full bg-white/10 text-amber-300 font-bold text-xs border border-white/15">
+            <div class="flex items-center space-x-1.5 sm:space-x-2">
+              <button type="button" onclick="toggleSidebar(true)" class="md:hidden px-2.5 py-1 rounded-xl bg-white/15 hover:bg-white/25 text-amber-300 font-bold text-[11px] flex items-center space-x-1 border border-white/20">
+                <i class="ph-bold ph-magnifying-glass"></i>
+                <span>เลือก/กรอง</span>
+              </button>
+              <span id="socialItemCountBadge" class="px-2.5 py-1 rounded-full bg-white/10 text-amber-300 font-bold text-[11px] border border-white/15">
                 0 โพสต์
               </span>
-              <button type="button" onclick="shareSocialFeedUrl()" class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center space-x-1 shadow-sm transition active:scale-95 border border-emerald-400/40">
+              <button type="button" onclick="shareSocialFeedUrl()" class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] sm:text-xs flex items-center space-x-1 shadow-sm transition active:scale-95 border border-emerald-400/40">
                 <i class="ph-bold ph-share-network"></i>
                 <span>แชร์ฟีดนี้</span>
               </button>
             </div>
           </div>
 
-          <div id="socialCardsStream" class="space-y-4"></div>
+          <div id="socialCardsStream" class="space-y-3.5 sm:space-y-4"></div>
         </div>
       </div>
 
     </main>
   </div>
 
-  <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
+  <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-2.5 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90dvh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
       
       <div class="relative bg-victor-navy text-white p-3.5 sm:p-4 flex items-start justify-between">
         <div>
           <div class="flex items-center space-x-1.5 mb-1 flex-wrap gap-y-1">
             <span id="modalStatusBadge" class="text-[9.5px] font-bold px-2 py-0.5 rounded-full uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">-</span>
             <span id="modalPeriodBadge" class="text-[9.5px] font-bold px-2 py-0.5 rounded bg-white/10 text-blue-200">-</span>
-            <span id="modalArtworkBadge" class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-amber-400 text-victor-navy border border-amber-300 shadow-xs">🎨 -</span>
+            <span id="modalArtworkBadge" class="hidden text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-amber-400 text-victor-navy border border-amber-300 shadow-xs">🎨 -</span>
           </div>
           <h2 id="modalTitle" class="text-sm sm:text-base font-bold leading-tight text-white">-</h2>
           <p id="modalSubtitle" class="text-[11px] text-blue-200 mt-0.5">-</p>
@@ -527,30 +541,30 @@
 
         <!-- แกลเลอรีรูปถ่ายสนาม -->
         <div class="space-y-1.5">
-          <div class="relative w-full h-36 sm:h-48 md:h-56 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
-            <img id="modalCarouselImg" src="" alt="Court Photo" class="w-full h-full object-cover transition duration-300 cursor-pointer" onclick="openActiveCourtFullscreen()" />
+          <div class="relative w-full h-44 sm:h-52 md:h-56 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
+            <img id="modalCarouselImg" referrerpolicy="no-referrer" src="" alt="Court Photo" class="w-full h-full object-cover transition duration-300 cursor-pointer" onclick="openActiveCourtFullscreen()" />
             
-            <button id="modalPrevBtn" type="button" class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
+            <button id="modalPrevBtn" type="button" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
               <i class="ph-bold ph-caret-left text-base"></i>
             </button>
-            <button id="modalNextBtn" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
+            <button id="modalNextBtn" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition">
               <i class="ph-bold ph-caret-right text-base"></i>
             </button>
             
             <div id="modalCounter" class="absolute bottom-2 right-2 bg-black/75 text-white px-2 py-0.5 rounded-full text-[10px] font-mono font-medium">1 / 1</div>
-            <button type="button" onclick="openActiveCourtFullscreen()" class="absolute bottom-2 left-2 bg-black/75 hover:bg-black/90 text-white px-2 py-0.5 rounded-full text-[10px] font-medium flex items-center space-x-1 transition">
+            <button type="button" onclick="openActiveCourtFullscreen()" class="absolute bottom-2 left-2 bg-black/75 hover:bg-black/90 text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium flex items-center space-x-1 transition">
               <i class="ph-bold ph-arrows-out text-amber-300"></i><span>ดูเต็มจอ</span>
             </button>
           </div>
 
-          <div class="flex items-center justify-between pt-0.5">
+          <div class="flex items-center justify-between pt-0.5 flex-wrap gap-1">
             <span class="text-[10px] text-slate-500 font-medium">จัดการรูปถ่ายสนาม:</span>
             <div class="flex items-center space-x-1.5">
               <button type="button" onclick="downloadCurrentModalImg()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] rounded-lg font-semibold transition flex items-center space-x-1 border border-slate-200 active:scale-95">
                 <i class="ph-bold ph-download-simple"></i><span>ดาวน์โหลดรูปนี้</span>
               </button>
               <button type="button" onclick="downloadAllCourtImagesDirectly()" class="px-2.5 py-1 bg-victor-navy hover:bg-blue-900 text-white text-[11px] rounded-lg font-semibold transition flex items-center space-x-1 shadow-xs active:scale-95">
-                <i class="ph-bold ph-images"></i><span>ดาวน์โหลดทั้งหมด (แยกรูป)</span>
+                <i class="ph-bold ph-images"></i><span>ดาวน์โหลดทั้งหมด</span>
               </button>
             </div>
           </div>
@@ -581,7 +595,7 @@
 
           <!-- รูปโปรไฟล์เซล (คลิกเพื่อดูรูปใหญ่ได้) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
-            <img id="modalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'เซล VICTOR ผู้ดูแล - ' + document.getElementById('modalSales').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
+            <img id="modalSalesImg" referrerpolicy="no-referrer" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'เซล VICTOR ผู้ดูแล - ' + document.getElementById('modalSales').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
             <div class="min-w-0 flex-1">
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">เซล VICTOR ผู้ดูแล</p>
               <p id="modalSales" class="font-bold text-victor-blue text-xs sm:text-sm truncate">-</p>
@@ -597,7 +611,7 @@
 
           <!-- รูปโปรไฟล์ช่างติดตั้ง (คลิกเพื่อดูรูปใหญ่ได้) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
-            <img id="modalInstalledByImg" src="" alt="Installer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'ช่างผู้ติดตั้งสื่อ - ' + document.getElementById('modalInstalledBy').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
+            <img id="modalInstalledByImg" referrerpolicy="no-referrer" src="" alt="Installer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'ช่างผู้ติดตั้งสื่อ - ' + document.getElementById('modalInstalledBy').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
             <div class="min-w-0 flex-1">
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ช่างผู้ติดตั้งสื่อ</p>
               <p id="modalInstalledBy" class="font-bold text-slate-800 text-xs sm:text-sm truncate">-</p>
@@ -606,7 +620,7 @@
 
           <!-- รูปโปรไฟล์ผู้ออกแบบ (คลิกเพื่อดูรูปใหญ่ได้) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
-            <img id="modalDesignedByImg" src="" alt="Designer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'ผู้ออกแบบสื่อ - ' + document.getElementById('modalDesignedBy').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
+            <img id="modalDesignedByImg" referrerpolicy="no-referrer" src="" alt="Designer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'ผู้ออกแบบสื่อ - ' + document.getElementById('modalDesignedBy').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
             <div class="min-w-0 flex-1">
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ออกแบบสื่อ</p>
               <p id="modalDesignedBy" class="font-bold text-slate-800 text-xs sm:text-sm truncate">-</p>
@@ -644,8 +658,9 @@
     </div>
   </div>
 
-  <div id="tournamentModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
+  <!-- หน้าต่างรายละเอียดงานแข่งขัน (Tournament Modal) -->
+  <div id="tournamentModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-2.5 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90dvh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
       <div class="relative bg-gradient-to-r from-amber-600 via-amber-700 to-amber-900 text-white p-3.5 sm:p-4 flex items-start justify-between">
         <div>
           <div class="flex items-center space-x-1.5 mb-1 flex-wrap gap-y-1">
@@ -676,7 +691,7 @@
 
         <!-- Poster งานแข่งขัน (คอลัมน์ J) -->
         <div class="relative w-full h-48 sm:h-64 bg-slate-950 rounded-xl overflow-hidden shadow-inner group">
-          <img id="tourModalPosterImg" src="" alt="Tournament Poster" class="w-full h-full object-contain cursor-pointer transition hover:scale-[1.02]" onclick="openActiveTournamentFullscreen()" />
+          <img id="tourModalPosterImg" referrerpolicy="no-referrer" src="" alt="Tournament Poster" class="w-full h-full object-contain cursor-pointer transition hover:scale-[1.02]" onclick="openActiveTournamentFullscreen()" />
           <button type="button" onclick="openActiveTournamentFullscreen()" class="absolute bottom-2 left-2 bg-black/75 hover:bg-black/90 text-white px-2.5 py-1 rounded-full text-[10.5px] font-medium flex items-center space-x-1 transition shadow-md">
             <i class="ph-bold ph-arrows-out text-amber-300"></i><span>ดูโปสเตอร์เต็มจอ</span>
           </button>
@@ -701,7 +716,7 @@
             </div>
 
             <div class="sm:col-span-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start space-x-2.5">
-              <img id="tourModalOrganizerImg" src="" alt="Organizer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white mt-0.5 clickable-img" onclick="viewImageFullscreen(this.src, 'ผู้จัดการแข่งขัน - ' + document.getElementById('tourModalOrganizer').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
+              <img id="tourModalOrganizerImg" referrerpolicy="no-referrer" src="" alt="Organizer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white mt-0.5 clickable-img" onclick="viewImageFullscreen(this.src, 'ผู้จัดการแข่งขัน - ' + document.getElementById('tourModalOrganizer').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
               <div class="min-w-0 flex-1">
                 <p class="font-semibold text-slate-500 uppercase text-[9.5px]">องค์กร / ผู้จัดการแข่งขัน</p>
                 <p id="tourModalOrganizer" class="font-bold text-victor-navy text-xs sm:text-sm mt-0.5 truncate">-</p>
@@ -710,7 +725,7 @@
             </div>
 
             <div class="sm:col-span-2 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/90 flex items-center space-x-2.5">
-              <img id="tourModalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'เซล VICTOR ผู้ดูแล - ' + document.getElementById('tourModalSales').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
+              <img id="tourModalSalesImg" referrerpolicy="no-referrer" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'เซล VICTOR ผู้ดูแล - ' + document.getElementById('tourModalSales').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
               <div class="min-w-0 flex-1">
                 <p class="font-semibold text-amber-900 uppercase text-[9.5px] flex items-center gap-1">
                   <i class="ph-bold ph-user-circle text-amber-700"></i>
@@ -737,17 +752,20 @@
           </div>
 
           <!-- ฝั่งขวา: Showcase หลอดลูกแบดทรงตั้ง 51x286 (คลิกเพื่อดูรูปใหญ่ได้) -->
-          <div class="w-full sm:w-36 md:w-40 flex-shrink-0 bg-gradient-to-b from-amber-50 to-amber-100/80 rounded-xl border border-amber-200/90 p-2.5 flex flex-col items-center justify-between text-center shadow-xs">
-            <div class="w-full">
+          <div class="w-full sm:w-36 md:w-40 flex-shrink-0 bg-gradient-to-b from-amber-50 to-amber-100/80 rounded-xl border border-amber-200/90 p-2.5 flex sm:flex-col items-center justify-between text-center shadow-xs gap-3 sm:gap-0">
+            <div class="text-left sm:text-center flex-1 sm:w-full">
               <span class="text-[9px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded-full inline-block mb-1 border border-amber-300">Official Shuttlecock</span>
               <p id="tourModalShuttleRightTitle" class="font-bold text-amber-950 text-xs truncate">-</p>
+              <div class="mt-2 sm:hidden text-[10px] text-amber-800 font-semibold flex items-center gap-1">
+                <i class="ph-bold ph-magnifying-glass-plus"></i><span>แตะที่หลอดลูกแบดเพื่อดูภาพขยาย</span>
+              </div>
             </div>
             
-            <div class="my-2 flex-1 flex items-center justify-center min-h-[160px] w-full py-1">
-              <img id="tourModalShuttleImg" src="" alt="Shuttlecock Tube" class="h-44 sm:h-52 w-auto max-w-full object-contain drop-shadow-md clickable-img" onclick="viewImageFullscreen(this.src, 'หลอดลูกแบดทางการ - ' + document.getElementById('tourModalShuttleRightTitle').innerText)" title="คลิกเพื่อดูภาพขนาดใหญ่" />
+            <div class="my-1 sm:my-2 flex items-center justify-center sm:min-h-[160px] py-1">
+              <img id="tourModalShuttleImg" referrerpolicy="no-referrer" src="" alt="Shuttlecock Tube" class="h-32 sm:h-52 w-auto max-w-full object-contain drop-shadow-md clickable-img" onclick="viewImageFullscreen(this.src, 'หลอดลูกแบดทางการ - ' + document.getElementById('tourModalShuttleRightTitle').innerText)" title="คลิกเพื่อดูภาพขนาดใหญ่" />
             </div>
 
-            <div class="w-full pt-1.5 border-t border-amber-200 text-[9.5px] text-amber-800 font-semibold flex items-center justify-center gap-1">
+            <div class="hidden sm:flex w-full pt-1.5 border-t border-amber-200 text-[9.5px] text-amber-800 font-semibold items-center justify-center gap-1">
               <i class="ph-bold ph-magnifying-glass-plus text-xs"></i>
               <span>คลิกดูรูปใหญ่</span>
             </div>
@@ -758,8 +776,8 @@
     </div>
   </div>
 
-  <div id="analyticsModal" class="hidden fixed inset-0 bg-slate-900/75 backdrop-blur-xs z-[9999] flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
+  <div id="analyticsModal" class="hidden fixed inset-0 bg-slate-900/75 backdrop-blur-xs z-[9999] flex items-center justify-center p-2.5 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90dvh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
       <div class="bg-gradient-to-r from-victor-navy to-indigo-950 text-white p-4 flex items-center justify-between">
         <div class="flex items-center space-x-2.5">
           <div class="w-8 h-8 rounded-lg bg-indigo-500/30 flex items-center justify-center text-amber-300 text-lg border border-indigo-400/30">
@@ -774,7 +792,6 @@
       </div>
 
       <div class="p-4 sm:p-5 space-y-4 text-xs">
-        <!-- การ์ดตัวเลขสรุป 4 มิติ -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
           <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-xl">
             <span class="text-[10px] text-blue-700 font-semibold">สนามติดตั้งสื่อ</span>
@@ -794,7 +811,6 @@
           </div>
         </div>
 
-        <!-- รายงานแยกตาม Artwork (คอลัมน์ R) -->
         <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-2">
           <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
             <i class="ph-bold ph-paint-brush text-amber-600"></i>
@@ -803,7 +819,6 @@
           <div id="analyticsArtworkList" class="space-y-1.5"></div>
         </div>
 
-        <!-- รายงานแยกตามเซลผู้ดูแล -->
         <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-2">
           <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
             <i class="ph-bold ph-users-three text-victor-blue"></i>
@@ -822,6 +837,7 @@
     </div>
   </div>
 
+  <!-- Fullscreen Image Lightbox -->
   <div id="fullscreenModal" class="hidden fixed inset-0 bg-black/95 z-[99999] flex flex-col select-none backdrop-blur-md">
     <div class="flex items-center justify-between px-3 sm:px-5 py-3 bg-black/60 text-white z-20 border-b border-white/10 flex-shrink-0">
       <div class="flex items-center space-x-2 min-w-0 pr-2">
@@ -842,13 +858,13 @@
       <button id="fullscreenPrevBtn" type="button" onclick="event.stopPropagation(); prevFullscreenImg();" class="absolute left-2.5 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex items-center justify-center transition border border-white/25 z-20 shadow-2xl" title="รูปก่อนหน้า">
         <i class="ph-bold ph-caret-left text-xl sm:text-2xl"></i>
       </button>
-      <img id="fullscreenImg" src="" alt="Fullscreen Photo" class="max-w-full max-h-[82vh] object-contain rounded-lg shadow-2xl transition duration-200 select-none cursor-default" onclick="event.stopPropagation()" />
+      <img id="fullscreenImg" referrerpolicy="no-referrer" src="" alt="Fullscreen Photo" class="max-w-full max-h-[82vh] object-contain rounded-lg shadow-2xl transition duration-200 select-none cursor-default" onclick="event.stopPropagation()" />
       <button id="fullscreenNextBtn" type="button" onclick="event.stopPropagation(); nextFullscreenImg();" class="absolute right-2.5 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex items-center justify-center transition border border-white/25 z-20 shadow-2xl" title="รูปถัดไป">
         <i class="ph-bold ph-caret-right text-xl sm:text-2xl"></i>
       </button>
     </div>
     <div class="px-4 py-2 bg-black/60 text-center text-[10.5px] sm:text-xs text-slate-400 border-t border-white/10 flex-shrink-0">
-      <span>กดลูกศร ◀ ▶ เพื่อเปลี่ยนรูป • ปัดซ้าย/ขวาบนมือถือ • กด Esc หรือแตะพื้นที่ว่างเพื่อปิด</span>
+      <span>กดลูกศร ◀ ▶ เพื่อเปลี่ยนรูป • ปัดซ้าย/ขวาบนมือถือ • แตะพื้นที่ว่างเพื่อปิด</span>
     </div>
   </div>
 
@@ -865,19 +881,22 @@
       <div class="space-y-3 text-xs">
         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="flex items-center justify-between">
-            <label class="block font-semibold text-slate-700">1. ลิงก์ CSV: แท็บสื่อโฆษณาสนาม (Media Tracker - gid=0)</label>
+            <label class="block font-semibold text-slate-700">1. ลิงก์ CSV: แท็บสื่อโฆษณาสนาม (gid=0)</label>
             <span class="text-[10px] text-emerald-700 font-bold">🔒 ได้รับอนุญาตแล้ว</span>
           </div>
           <input type="text" id="csvUrlInput" placeholder="วางลิงก์ CSV แท็บสื่อ..." class="w-full text-xs p-2 bg-white border border-slate-300 rounded-lg text-slate-700 font-mono focus:ring-1 focus:ring-victor-accent focus:outline-none" />
         </div>
         <div class="p-2.5 bg-amber-50/60 border border-amber-200 rounded-xl space-y-1">
           <div class="flex items-center justify-between">
-            <label class="block font-semibold text-amber-900">2. ลิงก์ CSV: แท็บงานแข่งขัน (Tournaments - gid=1317801346)</label>
+            <label class="block font-semibold text-amber-900">2. ลิงก์ CSV: แท็บงานแข่งขัน (gid=1317801346)</label>
             <span class="text-[10px] text-amber-800 font-bold">🔒 ได้รับอนุญาตแล้ว</span>
           </div>
           <input type="text" id="tournamentCsvUrlInput" placeholder="วางลิงก์ CSV แท็บงานแข่ง (gid=...)" class="w-full text-xs p-2 bg-white border border-amber-300 rounded-lg text-slate-700 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none" />
         </div>
         <div class="flex gap-2 pt-1">
+          <button type="button" onclick="resetCsvUrlsToDefault()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">
+            คืนค่าเริ่มต้น
+          </button>
           <button type="button" onclick="saveSettings()" class="flex-1 py-2 bg-victor-navy hover:bg-blue-900 text-white text-xs font-semibold rounded-lg transition shadow-xs flex items-center justify-center space-x-1.5">
             <i class="ph-bold ph-floppy-disk text-base"></i><span>บันทึกการตั้งค่า</span>
           </button>
@@ -910,7 +929,6 @@
   </div>
 
   <script>
-    // ฐานข้อมูล Google Sheets เผยแพร่เว็บที่ผู้ใช้กำหนด
     const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=0&single=true&output=csv";
     const DEFAULT_TOURNAMENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=1317801346&single=true&output=csv";
     
@@ -937,9 +955,7 @@
 
     let activeFullscreenImages = [];
     let fullscreenIndex = 0;
-    let pendingActionAfterAuth = null;
 
-    // สถานะ Multi-Select Filters (รวม 'mediaType' ตามความต้องการ)
     let selectedFilters = {
       artwork: new Set(),
       sales: new Set(),
@@ -949,8 +965,8 @@
     };
 
     /**
-     * ระบบแปลงวันที่ภาษาไทยและสากลอย่างแม่นยำ (แก้ปัญหาการเรียง วันที่ใหม่ -> เก่า เพี้ยน)
-     * รองรับ: พ.ศ. (2566-2569), ค.ศ., เดือนไทยย่อ/เต็ม (ต.ค., ตุลาคม), รูปแบบ DD/MM/YYYY, และ Quarter (2026Q1Q2)
+     * แปลงวันที่ภาษาไทยและสากลอย่างแม่นยำ
+     * รองรับ พ.ศ. 4 หลัก (2567-2575), พ.ศ. 2 หลัก (67-75 -> 2024-2032), DD/MM/YYYY, และเดือนไทย
      */
     function parseFlexibleDate(dateStr) {
       if (!dateStr) return 0;
@@ -986,8 +1002,8 @@
               } else if (num > 1900 && num <= 2100) {
                 year = num;
               } else if (num < 100 && num >= 50) {
-                year = 1957 + num; // เช่น 67 -> 2024
-              } else if (num <= 31 && !p.includes(mName)) {
+                year = 1957 + num; // เช่น 69 -> 2026
+              } else if (num >= 1 && num <= 31 && !p.includes(mName)) {
                 day = num;
               }
             }
@@ -996,7 +1012,7 @@
         }
       }
 
-      const dmyMatch = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
+      const dmyMatch = str.match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
       if (dmyMatch) {
         let day = parseInt(dmyMatch[1], 10);
         let month = parseInt(dmyMatch[2], 10);
@@ -1004,7 +1020,7 @@
 
         if (year > 2400) year -= 543;
         else if (year < 100) {
-          if (year >= 60 && year <= 99) year += 1957;
+          if (year >= 50 && year <= 99) year += 1957; // พ.ศ. ย่อ เช่น 69 -> 2026
           else year += 2000;
         }
 
@@ -1017,7 +1033,7 @@
         }
       }
 
-      const ymdMatch = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/);
+      const ymdMatch = str.match(/(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/);
       if (ymdMatch) {
         let year = parseInt(ymdMatch[1], 10);
         let month = parseInt(ymdMatch[2], 10);
@@ -1227,6 +1243,9 @@
       if (currentDisplayView !== 'social') {
         switchDisplayView('social');
       }
+      if (window.innerWidth < 768) {
+        toggleSidebar(false);
+      }
       setTimeout(() => {
         const cardEl = document.getElementById(`social-card-${itemId}`);
         if (cardEl) {
@@ -1236,35 +1255,61 @@
             cardEl.classList.remove('ring-4', 'ring-amber-400', 'shadow-2xl');
           }, 2600);
         }
-      }, 120);
+      }, 140);
     };
 
+    function updateMobileNavHighlight(activeTab) {
+      const btnMap = document.getElementById('mobileNavMap');
+      const btnList = document.getElementById('mobileNavList');
+      const btnSocial = document.getElementById('mobileNavSocial');
+      if (!btnMap || !btnList || !btnSocial) return;
+
+      const baseClass = "py-1 rounded-md text-[10.5px] font-semibold flex items-center justify-center space-x-1 text-blue-100 hover:text-white transition";
+      const activeClass = "py-1 rounded-md text-[10.5px] font-bold flex items-center justify-center space-x-1 bg-amber-500 text-slate-950 shadow-xs transition";
+
+      btnMap.className = activeTab === 'map' ? activeClass : baseClass;
+      btnList.className = activeTab === 'list' ? activeClass : baseClass;
+      btnSocial.className = activeTab === 'social' ? activeClass : baseClass;
+    }
+
+    function switchMobileTab(tab) {
+      if (tab === 'map') {
+        toggleSidebar(false);
+        switchDisplayView('map');
+        updateMobileNavHighlight('map');
+      } else if (tab === 'list') {
+        toggleSidebar(true);
+        updateMobileNavHighlight('list');
+      } else if (tab === 'social') {
+        toggleSidebar(false);
+        switchDisplayView('social');
+        updateMobileNavHighlight('social');
+      }
+    }
+
     function switchDisplayView(view) {
-      if (currentDisplayView === view) return;
       currentDisplayView = view;
 
-      const btnMap = document.getElementById('btnViewMap');
-      const btnSocial = document.getElementById('btnViewSocial');
+      const btnMapD = document.getElementById('btnViewMapDesktop');
+      const btnSocialD = document.getElementById('btnViewSocialDesktop');
       const mapContainer = document.getElementById('mapViewContainer');
       const socialContainer = document.getElementById('socialFeedContainer');
-      const mobileTabGroup = document.getElementById('mobileTabGroup');
 
       if (view === 'map') {
-        btnMap.className = "px-2 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center space-x-1 bg-amber-500 text-slate-950 shadow-xs";
-        btnSocial.className = "px-2 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-semibold transition flex items-center space-x-1 text-amber-200 hover:text-white";
+        if (btnMapD) btnMapD.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 bg-amber-500 text-slate-950 shadow-xs";
+        if (btnSocialD) btnSocialD.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center space-x-1 text-amber-200 hover:text-white";
         mapContainer.classList.remove('hidden');
         socialContainer.classList.add('hidden');
-        if (mobileTabGroup) mobileTabGroup.classList.remove('hidden');
+        updateMobileNavHighlight('map');
         setTimeout(() => { if (map) map.invalidateSize(); }, 200);
       } else {
-        btnSocial.className = "px-2 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center space-x-1 bg-amber-500 text-slate-950 shadow-xs";
-        btnMap.className = "px-2 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-semibold transition flex items-center space-x-1 text-amber-200 hover:text-white";
+        if (btnSocialD) btnSocialD.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 bg-amber-500 text-slate-950 shadow-xs";
+        if (btnMapD) btnMapD.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center space-x-1 text-amber-200 hover:text-white";
         socialContainer.classList.remove('hidden');
         mapContainer.classList.add('hidden');
-        if (mobileTabGroup) mobileTabGroup.classList.add('hidden');
+        updateMobileNavHighlight('social');
         renderSocialFeed();
       }
-      showToast(view === 'map' ? '🗺️ เปลี่ยนเป็นมุมมองแผนที่ & รายการ' : '📱 เปลี่ยนเป็นมุมมองโซเชียลฟีด ไทม์ไลน์');
     }
 
     function toggleMultiSelectMenu(menuId) {
@@ -1309,11 +1354,11 @@
       const perCount = selectedFilters.period.size;
       const mediaCount = selectedFilters.mediaType.size;
 
-      document.getElementById('labelFilterArtwork').innerText = artCount > 0 ? `🎨 Artwork (${artCount})` : '🎨 Artwork (ทั้งหมด)';
+      document.getElementById('labelFilterArtwork').innerText = artCount > 0 ? `🎨 Artwork (${artCount})` : '🎨 Artwork คอลัมน์ R (ทั้งหมด)';
       document.getElementById('labelFilterSales').innerText = salesCount > 0 ? `👤 เซล (${salesCount})` : '👤 เซลทั้งหมด';
       document.getElementById('labelFilterProvince').innerText = provCount > 0 ? `📍 จังหวัด (${provCount})` : '📍 ทุกจังหวัด';
       document.getElementById('labelFilterPeriod').innerText = perCount > 0 ? `📅 รอบสื่อ (${perCount})` : '📅 ทุกรอบสื่อ';
-      document.getElementById('labelFilterMediaType').innerText = mediaCount > 0 ? `📺 สื่อ (${mediaCount})` : '📺 ประเภทสื่อ (ทั้งหมด)';
+      document.getElementById('labelFilterMediaType').innerText = mediaCount > 0 ? `📺 สื่อ (${mediaCount})` : '📺 ประเภทสื่อ';
 
       ['artwork', 'sales', 'province', 'period', 'mediaType'].forEach(type => {
         const container = document.getElementById(`options${type.charAt(0).toUpperCase() + type.slice(1)}`);
@@ -1338,7 +1383,7 @@
         }
       }
 
-      const headers = rows[headerIdx = headerRowIdx].map(h => String(h || '').trim());
+      const headers = rows[headerRowIdx].map(h => String(h || '').trim());
 
       const getIdx = (keywords, defaultIdx) => {
         const found = headers.findIndex(h => keywords.some(k => h.toLowerCase().includes(k.toLowerCase())));
@@ -1381,7 +1426,6 @@
         let folderUrl = '';
         const rawImgs = String(r[imgIdx] !== undefined ? r[imgIdx] : (r[7] || '')).trim();
         if (rawImgs) {
-          // สกัดทุกลิงก์ URL แม้จะคั่นด้วยลูกน้ำ, เว้นวรรค หรือขึ้นบรรทัดใหม่
           const urlMatches = rawImgs.match(/https?:\/\/[^\s,;"'\)\]\}>]+/gi) || [];
           if (urlMatches.length > 0) {
             urlMatches.forEach(part => {
@@ -1405,14 +1449,14 @@
         const rawCount = String(r[courtCountIdx] || '').trim();
         const courtCount = rawCount ? (rawCount.includes('คอร์ท') || rawCount.includes('คอร์ด') ? rawCount : `${rawCount} คอร์ท`) : '-';
 
-        // ดึง Artwork โดยตรวจจับทั้งคอลัมน์ Index 17 (คอลัมน์ R) และคำค้น
+        // ดึงค่าจริงจากคอลัมน์ R (Index 17) เท่านั้น ไม่เติมค่าจำลอง 'NCS MAX / ทั่วไป'
         let rawArtwork = '';
-        if (artworkIdx !== -1 && r[artworkIdx]) {
+        if (artworkIdx !== -1 && r[artworkIdx] !== undefined) {
           rawArtwork = String(r[artworkIdx]).trim();
-        } else if (r.length > 17 && r[17]) {
+        } else if (r.length > 17 && r[17] !== undefined) {
           rawArtwork = String(r[17]).trim();
         }
-        if (!rawArtwork) rawArtwork = 'NCS MAX / ทั่วไป';
+        if (rawArtwork === '-') rawArtwork = '';
 
         const rawNotes = (notesIdx !== -1 && r[notesIdx]) ? String(r[notesIdx]).trim() : '';
 
@@ -1561,7 +1605,11 @@
       const statuses = new Set();
 
       currentLocations.forEach(c => {
-        if (c.artwork) artworkSet.add(c.artwork.trim());
+        if (c.artwork && c.artwork.trim()) {
+          c.artwork.split(',').forEach(a => {
+            if (a.trim()) artworkSet.add(a.trim());
+          });
+        }
         if (c.sales) salesSet.add(parseNameAndAvatar(c.sales).name);
         if (c.province) provSet.add(c.province.trim());
         if (c.period) periodSet.add(c.period.trim());
@@ -1577,13 +1625,18 @@
       renderMultiSelectOptions('optionsPeriod', periodSet, 'period');
       renderMultiSelectOptions('optionsMediaType', mediaTypes, 'mediaType');
 
-      populateSelect('filterStatus', statuses);
+      populateSelect('filterStatus', statuses, 'ทุกสถานะติดตั้ง');
     }
 
     function renderMultiSelectOptions(elementId, set, type) {
       const container = document.getElementById(elementId);
       if (!container) return;
       container.innerHTML = '';
+
+      if (set.size === 0) {
+        container.innerHTML = '<p class="text-[10px] text-slate-400 py-1 text-center">ยังไม่มีข้อมูลในคอลัมน์นี้</p>';
+        return;
+      }
 
       Array.from(set).sort((a, b) => a.localeCompare(b, 'th')).forEach(val => {
         const isChecked = selectedFilters[type].has(val);
@@ -1597,11 +1650,11 @@
       });
     }
 
-    function populateSelect(id, set) {
+    function populateSelect(id, set, defaultLabel = 'ทั้งหมด') {
       const el = document.getElementById(id);
       if (!el) return;
       const currentVal = el.value;
-      el.innerHTML = '<option value="">ทั้งหมด</option>';
+      el.innerHTML = `<option value="">${defaultLabel}</option>`;
       Array.from(set).sort((a, b) => a.localeCompare(b, 'th')).forEach(val => {
         const opt = document.createElement('option');
         opt.value = val;
@@ -1624,11 +1677,11 @@
         if (t.province) provinces.add(t.province.trim());
       });
 
-      populateSelect('filterTourSales', sales);
-      populateSelect('filterTourShuttle', shuttles);
-      populateSelect('filterTourOrganizer', organizers);
-      populateSelect('filterTourLevel', levels);
-      populateSelect('filterTourProvince', provinces);
+      populateSelect('filterTourSales', sales, 'เซลทั้งหมด');
+      populateSelect('filterTourShuttle', shuttles, 'ลูกแบดทั้งหมด');
+      populateSelect('filterTourOrganizer', organizers, 'ผู้จัดทั้งหมด');
+      populateSelect('filterTourLevel', levels, 'ทุกระดับ (Level)');
+      populateSelect('filterTourProvince', provinces, 'ทุกจังหวัด');
     }
 
     function applyFilters() {
@@ -1647,12 +1700,11 @@
         const searchable = `${c.courtName} ${c.contactName} ${salesParsed} ${installerParsed} ${designerParsed} ${c.province} ${c.artwork} ${c.notes}`.toLowerCase();
         const matchSearch = !q || searchable.includes(q);
 
-        const matchArtwork = selectedFilters.artwork.size === 0 || selectedFilters.artwork.has(c.artwork);
+        const matchArtwork = selectedFilters.artwork.size === 0 || 
+          Array.from(selectedFilters.artwork).some(a => c.artwork && c.artwork.includes(a));
         const matchSales = selectedFilters.sales.size === 0 || selectedFilters.sales.has(salesParsed);
         const matchProvince = selectedFilters.province.size === 0 || selectedFilters.province.has(c.province);
         const matchPeriod = selectedFilters.period.size === 0 || selectedFilters.period.has(c.period);
-        
-        // กรองแบบ Multi-select สำหรับประเภทสื่อ
         const matchMediaType = selectedFilters.mediaType.size === 0 || 
           Array.from(selectedFilters.mediaType).some(t => c.mediaType && c.mediaType.includes(t));
 
@@ -1661,7 +1713,6 @@
         return matchSearch && matchArtwork && matchSales && matchProvince && matchPeriod && matchMediaType && matchStatus;
       });
 
-      // จัดเรียงลำดับใหม่ไปเก่าอย่างถูกต้อง 100%
       filteredLocations.sort((a, b) => {
         if (sortBy === 'date-desc') {
           const dateA = parseFlexibleDate(a.installDate);
@@ -1689,15 +1740,42 @@
         return 0;
       });
 
-      renderMarkers();
-      renderList();
-      if (currentDisplayView === 'social') renderSocialFeed();
+      if (currentSystemMode === 'media') {
+        renderMarkers();
+        renderList();
+        if (currentDisplayView === 'social') renderSocialFeed();
+      }
     }
 
     function applyTournamentFilters() {
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      const statusFilter = document.getElementById('filterTourStatus').value;
-      const salesFilter = document.getElementById('filterTourSales').value;
+      const statusFilter = document.getElementById('filterTourStatus') ? document.getElementById('filterTourStatus').value : '';
+      const levelFilter = document.getElementById('filterTourLevel') ? document.getElementById('filterTourLevel').value : '';
+      const provinceFilter = document.getElementById('filterTourProvince') ? document.getElementById('filterTourProvince').value : '';
+      const salesFilter = document.getElementById('filterTourSales') ? document.getElementById('filterTourSales').value : '';
+      const shuttleFilter = document.getElementById('filterTourShuttle') ? document.getElementById('filterTourShuttle').value : '';
+      const organizerFilter = document.getElementById('filterTourOrganizer') ? document.getElementById('filterTourOrganizer').value : '';
+      const sortBy = document.getElementById('sortTournamentBy') ? document.getElementById('sortTournamentBy').value : 'date-asc';
+
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) clearBtn.classList.toggle('hidden', q.length === 0);
+
+      filteredTournaments = currentTournaments.filter(t => {
+        const salesParsed = parseNameAndAvatar(t.sales).name;
+        const searchable = `${t.tournamentName} ${t.venueName} ${t.province || ''} ${t.organizer} ${salesParsed} ${t.shuttlecock} ${t.levelName || ''} ${t.startDate} ${t.endDate}`.toLowerCase();
+        const timingStatus = getTournamentTimingStatus(t.startDate, t.endDate).code;
+
+        const matchSearch = !q || searchable.includes(q);
+        const matchStatus = !statusFilter || timingStatus === statusFilter;
+        const matchSales = !salesFilter || salesParsed === salesFilter;
+        const matchShuttle = !shuttleFilter || t.shuttlecock === shuttleFilter;
+        const matchOrganizer = !organizerFilter || t.organizer === organizerFilter;
+        const matchLevel = !levelFilter || t.levelName === levelFilter;
+        const matchProvince = !provinceFilter || t.province === provinceFilter;
+
+        return matchSearch && matchStatus && matchSales && matchShuttle && matchOrganizer && matchLevel && matchProvince;
+      });
+
       const nowMidnight = new Date().setHours(0, 0, 0, 0);
 
       filteredTournaments.sort((a, b) => {
@@ -1711,20 +1789,17 @@
           if (!startA) return 1;
           if (!startB) return -1;
 
-          // ตรวจสอบว่างานแข่งกำลังจัดหรือกำลังจะมาถึง (ยังไม่จบ)
-          const isUpcomingOrOngoingA = (endA + 86400000 - 1) >= nowMidnight;
-          const isUpcomingOrOngoingB = (endB + 86400000 - 1) >= nowMidnight;
+          const isActiveOrUpcomingA = (endA + 86400000 - 1) >= nowMidnight;
+          const isActiveOrUpcomingB = (endB + 86400000 - 1) >= nowMidnight;
 
-          // ให้รายการที่กำลังแข่งหรือกำลังจะมาถึง (เช่น 17/10/69) ขึ้นก่อนรายการที่จบไปแล้วเสมอ
-          if (isUpcomingOrOngoingA && !isUpcomingOrOngoingB) return -1;
-          if (!isUpcomingOrOngoingA && isUpcomingOrOngoingB) return 1;
+          // ให้งานที่กำลังแข่งหรือกำลังจะมาถึง (เช่น 17/10/69) ขึ้นด้านบนสุดเสมอ
+          if (isActiveOrUpcomingA && !isActiveOrUpcomingB) return -1;
+          if (!isActiveOrUpcomingA && isActiveOrUpcomingB) return 1;
 
-          // หากกำลังจะมาถึงทั้งคู่ เรียงจากวันที่ใกล้ถึงที่สุดก่อน
-          if (isUpcomingOrOngoingA && isUpcomingOrOngoingB) {
+          if (isActiveOrUpcomingA && isActiveOrUpcomingB) {
             return startA - startB;
           }
 
-          // หากแข่งจบไปแล้วทั้งคู่ เรียงจากงานที่เพิ่งจบไปล่าสุดก่อน
           return startB - startA;
         } else if (sortBy === 'date-desc') {
           const dateA = parseFlexibleDate(a.startDate);
@@ -1741,9 +1816,11 @@
         return 0;
       });
 
-      renderTournamentMarkers();
-      renderTournamentList();
-      if (currentDisplayView === 'social') renderSocialFeed();
+      if (currentSystemMode === 'tournament') {
+        renderTournamentMarkers();
+        renderTournamentList();
+        if (currentDisplayView === 'social') renderSocialFeed();
+      }
     }
 
     function renderSocialFeed() {
@@ -1773,15 +1850,15 @@
           card.dataset.id = item.id;
           card.className = "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-lg";
           card.innerHTML = `
-            <div class="p-3.5 sm:p-4 flex items-center justify-between border-b border-slate-100 bg-slate-50/50">
-              <div class="flex items-center space-x-3 min-w-0">
-                <img src="${salesInfo.photo}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs bg-white flex-shrink-0 clickable-img" onclick="event.stopPropagation(); viewImageFullscreen(this.src, 'เซล VICTOR - ${salesInfo.name}')" title="คลิกดูรูปโปรไฟล์ใหญ่" onerror="handleImageError(this, '${salesInfo.photo}', '${DEFAULT_PIN_URL}')" />
+            <div class="p-3 sm:p-4 flex items-center justify-between border-b border-slate-100 bg-slate-50/50 gap-2">
+              <div class="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+                <img referrerpolicy="no-referrer" src="${salesInfo.photo}" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white shadow-xs bg-white flex-shrink-0 clickable-img" onclick="event.stopPropagation(); viewImageFullscreen(this.src, 'เซล VICTOR - ${salesInfo.name}')" title="คลิกดูรูปโปรไฟล์ใหญ่" onerror="handleImageError(this, '${salesInfo.photo}', '${DEFAULT_PIN_URL}')" />
                 <div class="min-w-0">
                   <div class="flex items-center space-x-1.5 flex-wrap">
                     <h4 class="font-bold text-slate-900 text-xs sm:text-sm truncate">${item.courtName}</h4>
                     <span style="background: ${badgeColor.bg}; color: ${badgeColor.text};" class="text-[8.5px] font-extrabold px-2 py-0.2 rounded-full uppercase shadow-xs">${item.period}</span>
                   </div>
-                  <p class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                  <p class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5 flex-wrap">
                     <i class="ph-bold ph-map-pin text-rose-500"></i>
                     <span>${item.province}</span> • <span>เซล: <strong>${salesInfo.name}</strong></span>
                     ${item.distanceKm && item.distanceKm < 9999 ? `• <span class="text-sky-700 font-bold">ห่าง ~${item.distanceKm} กม.</span>` : ''}
@@ -1793,20 +1870,22 @@
               </span>
             </div>
 
-            <div class="relative w-full h-56 sm:h-72 bg-slate-950 overflow-hidden cursor-pointer group" onclick="openFullscreenViewer('${item.id}', 0)">
-              <img src="${primaryImg}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="handleImageError(this, '${primaryImg}', '${courtFallbackLogo}')" />
+            <div class="relative w-full h-52 sm:h-72 bg-slate-950 overflow-hidden cursor-pointer group" onclick="openFullscreenViewer('${item.id}', 0)">
+              <img referrerpolicy="no-referrer" src="${primaryImg}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="handleImageError(this, '${primaryImg}', '${courtFallbackLogo}')" />
               <div class="absolute bottom-2 left-2 bg-black/70 text-white px-2.5 py-1 rounded-full text-[10px] font-medium flex items-center space-x-1">
                 <i class="ph-bold ph-arrows-out text-amber-300"></i><span>ดูรูปเต็มจอ</span>
               </div>
               ${item.images && item.images.length > 1 ? `<span class="absolute bottom-2 right-2 bg-black/75 text-white px-2 py-0.5 rounded-full text-[10px] font-mono">${item.images.length} รูปภาพ</span>` : ''}
             </div>
 
-            <div class="p-3.5 sm:p-4 space-y-2.5 text-xs">
+            <div class="p-3 sm:p-4 space-y-2.5 text-xs">
               <div class="flex items-center justify-between flex-wrap gap-2">
                 <div class="flex items-center space-x-1.5 flex-wrap gap-1">
-                  <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-victor-navy font-extrabold text-[10.5px] shadow-xs flex items-center gap-1">
-                    <i class="ph-bold ph-paint-brush"></i><span>Artwork: ${item.artwork}</span>
-                  </span>
+                  ${item.artwork ? `
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-victor-navy font-extrabold text-[10.5px] shadow-xs flex items-center gap-1">
+                      <i class="ph-bold ph-paint-brush"></i><span>Artwork: ${item.artwork}</span>
+                    </span>
+                  ` : ''}
                   <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px] border border-slate-200">
                     🏸 ${item.courtCount}
                   </span>
@@ -1830,7 +1909,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center justify-between pt-1 border-t border-slate-100 gap-2">
+              <div class="flex items-center justify-between pt-1 border-t border-slate-100 gap-2 flex-wrap">
                 <button type="button" onclick="openCourtDetail('${item.id}')" class="px-3 py-1.5 rounded-lg bg-victor-navy hover:bg-blue-900 text-white font-semibold text-xs transition flex items-center space-x-1 shadow-xs">
                   <i class="ph-bold ph-info"></i><span>รายละเอียดสเปก</span>
                 </button>
@@ -1872,28 +1951,28 @@
           card.dataset.id = t.id;
           card.className = "bg-white rounded-2xl shadow-md border border-amber-200 overflow-hidden transition-all duration-300 hover:shadow-lg";
           card.innerHTML = `
-            <div class="p-3.5 sm:p-4 flex items-center justify-between border-b border-amber-100 bg-amber-50/40">
-              <div class="flex items-center space-x-3 min-w-0">
-                <img src="${t.organizerPhoto || DEFAULT_PIN_URL}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs bg-white flex-shrink-0 clickable-img" onclick="event.stopPropagation(); viewImageFullscreen(this.src, 'ผู้จัดการแข่งขัน - ${t.organizer}')" title="คลิกดูรูปใหญ่" onerror="handleImageError(this, '${t.organizerPhoto}', '${DEFAULT_PIN_URL}')" />
+            <div class="p-3 sm:p-4 flex items-center justify-between border-b border-amber-100 bg-amber-50/40 gap-2">
+              <div class="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+                <img referrerpolicy="no-referrer" src="${t.organizerPhoto || DEFAULT_PIN_URL}" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white shadow-xs bg-white flex-shrink-0 clickable-img" onclick="event.stopPropagation(); viewImageFullscreen(this.src, 'ผู้จัดการแข่งขัน - ${t.organizer}')" title="คลิกดูรูปใหญ่" onerror="handleImageError(this, '${t.organizerPhoto}', '${DEFAULT_PIN_URL}')" />
                 <div class="min-w-0">
                   <div class="flex items-center space-x-1.5 flex-wrap">
                     <h4 class="font-bold text-slate-900 text-xs sm:text-sm truncate">${t.tournamentName}</h4>
                     ${t.levelName ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[8.5px] font-bold px-1.5 rounded">${t.levelName}</span>` : ''}
                   </div>
-                  <p class="text-[10px] text-slate-500 mt-0.5">ผู้จัด: <strong>${t.organizer}</strong></p>
+                  <p class="text-[10px] text-slate-500 mt-0.5 truncate">ผู้จัด: <strong>${t.organizer}</strong></p>
                 </div>
               </div>
-              <span style="background: ${statusInfo.bg}; color: ${statusInfo.textCol};" class="text-[9px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs">
+              <span style="background: ${statusInfo.bg}; color: ${statusInfo.textCol};" class="text-[9px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs flex-shrink-0">
                 ${statusInfo.text}
               </span>
             </div>
 
-            <div class="relative w-full h-64 sm:h-80 bg-slate-950 overflow-hidden cursor-pointer group" onclick="openFullscreenViewer('${t.id}', 0)">
-              <img src="${posterImg}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500" onerror="handleImageError(this, '${t.posterUrl}', '${DEFAULT_PIN_URL}')" />
+            <div class="relative w-full h-60 sm:h-80 bg-slate-950 overflow-hidden cursor-pointer group" onclick="openFullscreenViewer('${t.id}', 0)">
+              <img referrerpolicy="no-referrer" src="${posterImg}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500" onerror="handleImageError(this, '${t.posterUrl}', '${DEFAULT_PIN_URL}')" />
             </div>
 
-            <div class="p-3.5 sm:p-4 space-y-2.5 text-xs">
-              <div class="flex items-center justify-between text-xs">
+            <div class="p-3 sm:p-4 space-y-2.5 text-xs">
+              <div class="flex items-center justify-between text-xs flex-wrap gap-1">
                 <span class="font-semibold text-amber-800 flex items-center gap-1">
                   <i class="ph-bold ph-calendar"></i><span>${t.startDate} - ${t.endDate}</span>
                 </span>
@@ -1906,7 +1985,7 @@
                 ${t.notes ? `<p class="mt-1 text-slate-600 border-t border-amber-200/60 pt-1">${t.notes}</p>` : ''}
               </div>
 
-              <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+              <div class="flex items-center justify-between pt-1 border-t border-slate-100 flex-wrap gap-2">
                 <button type="button" onclick="openTournamentDetail('${t.id}')" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition shadow-xs">
                   รายละเอียดงานแข่ง
                 </button>
@@ -1945,7 +2024,14 @@
       modalPeriodEl.style.color = pColor.text;
 
       const artBadge = document.getElementById('modalArtworkBadge');
-      if (artBadge) artBadge.innerText = `🎨 Artwork: ${v.artwork || 'NCS MAX / ทั่วไป'}`;
+      if (artBadge) {
+        if (v.artwork) {
+          artBadge.innerText = `🎨 Artwork: ${v.artwork}`;
+          artBadge.classList.remove('hidden');
+        } else {
+          artBadge.classList.add('hidden');
+        }
+      }
 
       const notesEl = document.getElementById('modalNotesContent');
       if (notesEl) notesEl.innerText = v.notes ? v.notes : 'ไม่มีบันทึกเพิ่มเติมสำหรับสนามนี้';
@@ -2191,13 +2277,15 @@
         const popupContent = `
           <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
             <div class="relative w-full h-24 sm:h-28 bg-slate-950 rounded-xl overflow-hidden group cursor-pointer" onclick="openFullscreenViewer('${court.id}', 0)">
-              <img src="${primaryImg}" alt="${court.courtName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="handleImageError(this, '${primaryImg}', '${courtBrandLogo}')" />
+              <img referrerpolicy="no-referrer" src="${primaryImg}" alt="${court.courtName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="handleImageError(this, '${primaryImg}', '${courtBrandLogo}')" />
               <div class="absolute bottom-1.5 left-1.5 bg-black/75 text-white px-2 py-0.5 rounded-full text-[9.5px] flex items-center space-x-1 font-medium">
                 <i class="ph-bold ph-arrows-out text-amber-300"></i><span>ดูเต็มจอ</span>
               </div>
-              <span class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full text-[8.5px] font-extrabold bg-amber-400 text-victor-navy shadow-xs">
-                ${court.artwork || 'Artwork'}
-              </span>
+              ${court.artwork ? `
+                <span class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full text-[8.5px] font-extrabold bg-amber-400 text-victor-navy shadow-xs">
+                  ${court.artwork}
+                </span>
+              ` : ''}
             </div>
 
             <div>
@@ -2267,10 +2355,8 @@
 
         card.className = "bg-white p-2 rounded-xl border border-slate-200 hover:border-victor-accent hover:shadow-md cursor-pointer transition flex items-center space-x-2";
         card.onclick = () => {
-          // หากอยู่ในมุมมองโซเชียลฟีด ให้เลื่อนไปยังโพสต์ของการ์ดนั้นทันที
           if (currentDisplayView === 'social') {
             window.scrollToSocialItem(v.id);
-            if (window.innerWidth < 768) toggleSidebar(false);
             return;
           }
           if (hasCoords && map) {
@@ -2280,7 +2366,10 @@
                 layer.openPopup();
               }
             });
-            if (window.innerWidth < 768) toggleSidebar(false);
+            if (window.innerWidth < 768) {
+              toggleSidebar(false);
+              updateMobileNavHighlight('map');
+            }
           } else showToast('⚠️ สถานที่นี้ยังไม่ได้ระบุพิกัด GPS');
         };
 
@@ -2290,7 +2379,7 @@
 
         card.innerHTML = `
           <div class="relative flex-shrink-0" onclick="event.stopPropagation(); viewImageFullscreen('${cardImg}', '${v.courtName}')">
-            <img src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200 clickable-img" onerror="handleImageError(this, '${cardImg}', '${courtBrandLogo}')" title="คลิกดูภาพขยาย" />
+            <img referrerpolicy="no-referrer" src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200 clickable-img" onerror="handleImageError(this, '${cardImg}', '${courtBrandLogo}')" title="คลิกดูภาพขยาย" />
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-start justify-between">
@@ -2302,7 +2391,7 @@
               ${v.distanceKm && v.distanceKm < 9999 ? `• <span class="text-sky-700 font-bold">~${v.distanceKm} กม.</span>` : ''}
             </p>
             <div class="flex items-center justify-between mt-0.5 text-[10px]">
-              <span class="text-amber-800 font-bold bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200 truncate max-w-[120px]">${v.artwork}</span>
+              ${v.artwork ? `<span class="text-amber-800 font-bold bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200 truncate max-w-[120px]">${v.artwork}</span>` : `<span class="text-slate-400 truncate max-w-[120px]">${v.courtCount !== '-' ? v.courtCount : v.mediaType}</span>`}
               <span onclick="event.stopPropagation(); promptIfLocked()" class="${budgetClass}">${budgetFormatted}</span>
             </div>
           </div>
@@ -2347,7 +2436,7 @@
         const popupContent = `
           <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
             <div class="relative w-full h-28 bg-slate-950 rounded-xl overflow-hidden group cursor-pointer" onclick="openFullscreenViewer('${tour.id}', 0)">
-              <img src="${posterImg}" alt="${tour.tournamentName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="handleImageError(this, '${tour.posterUrl}', '${DEFAULT_PIN_URL}')" />
+              <img referrerpolicy="no-referrer" src="${posterImg}" alt="${tour.tournamentName}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="handleImageError(this, '${tour.posterUrl}', '${DEFAULT_PIN_URL}')" />
               <span style="background: ${statusInfo.bg}; color: ${statusInfo.textCol};" class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold shadow-sm">
                 ${statusInfo.text}
               </span>
@@ -2401,16 +2490,17 @@
 
         card.className = "bg-white p-2.5 rounded-xl border border-amber-200 hover:border-amber-500 hover:shadow-md cursor-pointer transition flex items-center space-x-2.5";
         card.onclick = () => {
-          // หากอยู่ในมุมมองโซเชียลฟีด ให้เลื่อนไปยังโพสต์ของงานแข่งนั้นทันที
           if (currentDisplayView === 'social') {
             window.scrollToSocialItem(tour.id);
-            if (window.innerWidth < 768) toggleSidebar(false);
             return;
           }
           if (tour.lat && tour.lng && map) {
             map.flyTo([tour.lat, tour.lng], 16, { duration: 1.2 });
             window.openTournamentDetail(tour.id);
-            if (window.innerWidth < 768) toggleSidebar(false);
+            if (window.innerWidth < 768) {
+              toggleSidebar(false);
+              updateMobileNavHighlight('map');
+            }
           } else {
             window.openTournamentDetail(tour.id);
           }
@@ -2418,7 +2508,7 @@
 
         card.innerHTML = `
           <div class="relative flex-shrink-0" onclick="event.stopPropagation(); viewImageFullscreen('${posterImg}', 'โปสเตอร์: ${tour.tournamentName}')">
-            <img src="${posterImg}" class="w-12 h-16 rounded-lg object-cover bg-slate-900 border border-amber-300 shadow-xs clickable-img" onerror="handleImageError(this, '${tour.posterUrl}', '${DEFAULT_PIN_URL}')" title="คลิกดูโปสเตอร์ใหญ่" />
+            <img referrerpolicy="no-referrer" src="${posterImg}" class="w-12 h-16 rounded-lg object-cover bg-slate-900 border border-amber-300 shadow-xs clickable-img" onerror="handleImageError(this, '${tour.posterUrl}', '${DEFAULT_PIN_URL}')" title="คลิกดูโปสเตอร์ใหญ่" />
             <span style="background: ${statusInfo.bg}; color: ${statusInfo.textCol};" class="absolute -top-1 -left-1 text-[8px] font-extrabold px-1 rounded-full border border-white">
               ${statusInfo.text.replace(/^[🟢🔵⚪]\s*/, '')}
             </span>
@@ -2445,7 +2535,7 @@
       if (icon) icon.classList.add('animate-spin');
 
       const savedCsvUrl = localStorage.getItem('victor_csv_url');
-      const csvUrl = (savedCsvUrl && savedCsvUrl.trim().length > 15) ? savedCsvUrl.trim() : DEFAULT_CSV_URL;
+      const csvUrl = (savedCsvUrl && savedCsvUrl.includes('docs.google.com/spreadsheets')) ? savedCsvUrl.trim() : DEFAULT_CSV_URL;
 
       Papa.parse(csvUrl, {
         download: true,
@@ -2457,7 +2547,6 @@
             currentLocations = parse2DArrayData(results.data);
             rebuildDropdowns();
             applyFilters();
-            showToast(`🏸 โหลดสื่อสนามสำเร็จ (${currentLocations.length} แห่ง)`);
           } else {
             showToast('⚠️ ไม่พบข้อมูลสนามใน Google Sheets');
           }
@@ -2474,7 +2563,7 @@
       if (icon) icon.classList.add('animate-spin');
 
       const savedTourUrl = localStorage.getItem('victor_tournament_csv_url');
-      const tourCsvUrl = (savedTourUrl && savedTourUrl.trim().length > 15) ? savedTourUrl.trim() : DEFAULT_TOURNAMENT_CSV_URL;
+      const tourCsvUrl = (savedTourUrl && savedTourUrl.includes('docs.google.com/spreadsheets')) ? savedTourUrl.trim() : DEFAULT_TOURNAMENT_CSV_URL;
 
       Papa.parse(tourCsvUrl, {
         download: true,
@@ -2486,7 +2575,6 @@
             currentTournaments = parseTournamentData(results.data);
             rebuildTournamentDropdowns();
             applyTournamentFilters();
-            showToast(`🏆 โหลดข้อมูลงานแข่งสำเร็จ (${currentTournaments.length} งาน)`);
           } else {
             showToast('⚠️ ไม่พบข้อมูลในแท็บงานแข่ง');
           }
@@ -2543,7 +2631,7 @@
         html: `
           <div style="position: relative; width: 38px; height: 38px;">
             <div style="background-color: white; border: 3.5px solid ${color}; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 4px 14px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px;">
-              <img src="${markerLogoUrl}" style="width: 100% !important; height: 100% !important; object-fit: cover; border-radius: 50%;" alt="Pin" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+              <img referrerpolicy="no-referrer" src="${markerLogoUrl}" style="width: 100% !important; height: 100% !important; object-fit: cover; border-radius: 50%;" alt="Pin" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
             </div>
             ${badgeHtml}
           </div>
@@ -2591,7 +2679,7 @@
           html: `
             <div style="position: relative; width: 48px; height: 42px; display: flex; align-items: center; justify-content: center;">
               <div style="background: rgba(15, 23, 42, 0.95); border: 2.5px solid #f59e0b; border-radius: 10px; width: 48px; height: 38px; box-shadow: 0 4px 14px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; padding: 2px; overflow: hidden; box-sizing: border-box;">
-                <img src="${logoSrc}" style="width: 100% !important; height: 100% !important; object-fit: contain; border-radius: 4px;" alt="Logo" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+                <img referrerpolicy="no-referrer" src="${logoSrc}" style="width: 100% !important; height: 100% !important; object-fit: contain; border-radius: 4px;" alt="Logo" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
               </div>
               ${levelBadgeHtml}
               ${statusBadgeHtml}
@@ -2608,7 +2696,7 @@
         html: `
           <div style="position: relative; width: 42px; height: 42px;">
             <div style="background: white; border: 3px solid #f59e0b; width: 42px; height: 42px; border-radius: 50%; box-shadow: 0 4px 14px rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2.5px;">
-              <img src="${logoSrc}" style="width: 100% !important; height: 100% !important; object-fit: cover; border-radius: 50%;" alt="Logo" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+              <img referrerpolicy="no-referrer" src="${logoSrc}" style="width: 100% !important; height: 100% !important; object-fit: cover; border-radius: 50%;" alt="Logo" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
             </div>
             ${statusBadgeHtml}
           </div>
@@ -2654,7 +2742,7 @@
           if (!sortSelect.querySelector('option[value="distance-asc"]')) {
             const opt = document.createElement('option');
             opt.value = 'distance-asc';
-            opt.innerText = '📍 ระยะทาง: ใกล้สุด &rarr; ไกลสุด';
+            opt.innerText = '📍 ระยะทาง: ใกล้สุด → ไกลสุด';
             sortSelect.prepend(opt);
           }
           sortSelect.value = 'distance-asc';
@@ -2698,33 +2786,40 @@
       document.getElementById('statTotalTours').innerText = totalTours;
       document.getElementById('statTotalPlayers').innerText = `${totalPlayers.toLocaleString()} คน`;
 
-      // สรุปยอดตาม Artwork (คอลัมน์ R)
       const artworkCounts = {};
       currentLocations.forEach(c => {
-        const art = c.artwork || 'ทั่วไป';
-        artworkCounts[art] = (artworkCounts[art] || 0) + 1;
+        if (c.artwork && c.artwork.trim()) {
+          c.artwork.split(',').forEach(a => {
+            const cleanArt = a.trim();
+            if (cleanArt) artworkCounts[cleanArt] = (artworkCounts[cleanArt] || 0) + 1;
+          });
+        }
       });
 
       const artListEl = document.getElementById('analyticsArtworkList');
       artListEl.innerHTML = '';
-      Object.entries(artworkCounts).sort((a,b) => b[1] - a[1]).forEach(([art, count]) => {
-        const percent = Math.round((count / (totalCourts || 1)) * 100);
-        const item = document.createElement('div');
-        item.className = "flex items-center justify-between text-[11px] p-1.5 bg-white rounded-lg border border-slate-200/80";
-        item.innerHTML = `
-          <div class="flex items-center space-x-2 truncate">
-            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-            <span class="font-bold text-slate-800 truncate">${art}</span>
-          </div>
-          <div class="flex items-center space-x-2 flex-shrink-0">
-            <span class="font-semibold text-victor-navy">${count} แห่ง</span>
-            <span class="text-[10px] text-slate-400 font-mono">(${percent}%)</span>
-          </div>
-        `;
-        artListEl.appendChild(item);
-      });
+      const artEntries = Object.entries(artworkCounts).sort((a,b) => b[1] - a[1]);
+      if (artEntries.length === 0) {
+        artListEl.innerHTML = '<p class="text-slate-400 text-[11px]">ยังไม่มีการระบุข้อมูลในคอลัมน์ R</p>';
+      } else {
+        artEntries.forEach(([art, count]) => {
+          const percent = Math.round((count / (totalCourts || 1)) * 100);
+          const item = document.createElement('div');
+          item.className = "flex items-center justify-between text-[11px] p-1.5 bg-white rounded-lg border border-slate-200/80";
+          item.innerHTML = `
+            <div class="flex items-center space-x-2 truncate">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span class="font-bold text-slate-800 truncate">${art}</span>
+            </div>
+            <div class="flex items-center space-x-2 flex-shrink-0">
+              <span class="font-semibold text-victor-navy">${count} แห่ง</span>
+              <span class="text-[10px] text-slate-400 font-mono">(${percent}%)</span>
+            </div>
+          `;
+          artListEl.appendChild(item);
+        });
+      }
 
-      // สรุปยอดตามเซล
       const salesCounts = {};
       currentLocations.forEach(c => {
         const sName = parseNameAndAvatar(c.sales).name;
@@ -2754,14 +2849,20 @@
         text += `━━━━━━━━━━━━━━━━━━\n`;
         text += `📍 จำนวนสนามที่แสดง: ${filteredLocations.length} แห่ง\n`;
         if (isUnlocked) text += `💰 งบประมาณรวม: ฿${totalBudget.toLocaleString()}\n`;
-        text += `🎨 สถิติแยกตาม Artwork (คอลัมน์ R):\n`;
         const artCounts = {};
         filteredLocations.forEach(c => {
-          const art = c.artwork || 'ทั่วไป';
-          artCounts[art] = (artCounts[art] || 0) + 1;
+          if (c.artwork && c.artwork.trim()) {
+            c.artwork.split(',').forEach(a => {
+              const cleanArt = a.trim();
+              if (cleanArt) artCounts[cleanArt] = (artCounts[cleanArt] || 0) + 1;
+            });
+          }
         });
-        for (const [art, count] of Object.entries(artCounts)) {
-          text += `  • ${art}: ${count} แห่ง\n`;
+        if (Object.keys(artCounts).length > 0) {
+          text += `🎨 สถิติแยกตาม Artwork (คอลัมน์ R):\n`;
+          for (const [art, count] of Object.entries(artCounts)) {
+            text += `  • ${art}: ${count} แห่ง\n`;
+          }
         }
         text += `━━━━━━━━━━━━━━━━━━\n`;
         text += `🌐 ระบบติดตามสื่อ VICTOR+: ${window.location.origin + window.location.pathname}`;
@@ -2784,13 +2885,7 @@
         text += `🌐 รายละเอียดงานแข่ง: ${window.location.origin + window.location.pathname}`;
       }
 
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-          showToast('📋 คัดลอกรายงานสำหรับส่ง LINE เรียบร้อยแล้ว!');
-        }).catch(() => fallbackCopy(text));
-      } else {
-        fallbackCopy(text);
-      }
+      copyToClipboard(text, '📋 คัดลอกรายงานสำหรับส่ง LINE เรียบร้อยแล้ว!');
     }
 
     function switchSystemMode(mode) {
@@ -2803,21 +2898,23 @@
       const tourFilters = document.getElementById('tournamentFiltersContainer');
 
       if (mode === 'media') {
-        btnMedia.className = "px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center space-x-0.5 sm:space-x-1 bg-victor-accent text-white shadow-xs";
-        btnTour.className = "px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-semibold transition flex items-center space-x-0.5 sm:space-x-1 text-blue-200 hover:text-white";
-        modeBadge.innerText = "สื่อโฆษณา";
+        btnMedia.className = "px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10.5px] sm:text-xs font-bold transition flex items-center space-x-1 bg-victor-accent text-white shadow-xs";
+        btnTour.className = "px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10.5px] sm:text-xs font-semibold transition flex items-center space-x-1 text-blue-200 hover:text-white";
+        if (modeBadge) modeBadge.innerText = "สื่อโฆษณา";
         mediaFilters.classList.remove('hidden');
         tourFilters.classList.add('hidden');
-        renderMarkers();
-        renderList();
+        applyFilters();
       } else {
-        btnTour.className = "px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center space-x-0.5 sm:space-x-1 bg-amber-500 text-white shadow-xs";
-        btnMedia.className = "px-1.5 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-semibold transition flex items-center space-x-0.5 sm:space-x-1 text-blue-200 hover:text-white";
-        modeBadge.innerText = "งานแข่งขัน";
+        btnTour.className = "px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10.5px] sm:text-xs font-bold transition flex items-center space-x-1 bg-amber-500 text-white shadow-xs";
+        btnMedia.className = "px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10.5px] sm:text-xs font-semibold transition flex items-center space-x-1 text-blue-200 hover:text-white";
+        if (modeBadge) modeBadge.innerText = "งานแข่งขัน";
         tourFilters.classList.remove('hidden');
         mediaFilters.classList.add('hidden');
-        if (currentTournaments.length === 0) loadTournamentsFromSheets();
-        else applyTournamentFilters();
+        if (currentTournaments.length === 0) {
+          loadTournamentsFromSheets();
+        } else {
+          applyTournamentFilters();
+        }
       }
       if (currentDisplayView === 'social') renderSocialFeed();
     }
@@ -2829,15 +2926,17 @@
       if (text) text.innerText = isBadgesVisible ? 'ซ่อน Badge' : 'แสดง Badge';
       if (currentSystemMode === 'media') renderMarkers();
       else renderTournamentMarkers();
+      showToast(isBadgesVisible ? '🏷️ แสดง Badge บนหมุดแล้ว' : '🙈 ซ่อน Badge บนหมุดแล้ว');
     }
 
     function toggleAuthLockAction() {
       if (isUnlocked) {
         isUnlocked = false;
-        document.getElementById('authLockBtn').className = "px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40";
+        document.getElementById('authLockBtn').className = "px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40";
         document.getElementById('authLockIcon').className = "ph-bold ph-lock-key text-xs sm:text-sm";
         document.getElementById('authLockText').innerText = "ปลดล็อก";
-        applyFilters();
+        if (currentSystemMode === 'media') applyFilters();
+        else applyTournamentFilters();
       } else {
         toggleModal('authModal');
       }
@@ -2849,10 +2948,11 @@
       if (input.value === SECRET_PIN) {
         isUnlocked = true;
         toggleModal('authModal');
-        document.getElementById('authLockBtn').className = "px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-emerald-400/40";
+        document.getElementById('authLockBtn').className = "px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-emerald-400/40";
         document.getElementById('authLockIcon').className = "ph-bold ph-lock-key-open text-xs sm:text-sm";
         document.getElementById('authLockText').innerText = "ล็อก";
-        applyFilters();
+        if (currentSystemMode === 'media') applyFilters();
+        else applyTournamentFilters();
         showToast('🔓 ปลดล็อกสำเร็จ');
       } else {
         showToast('❌ PIN ไม่ถูกต้อง');
@@ -2888,31 +2988,61 @@
       if (shouldOpen) {
         sidebar.classList.remove('-translate-x-full');
         backdrop.classList.remove('hidden');
+        updateMobileNavHighlight('list');
       } else {
         sidebar.classList.add('-translate-x-full');
         backdrop.classList.add('hidden');
+        updateMobileNavHighlight(currentDisplayView === 'social' ? 'social' : 'map');
       }
     }
 
     function clearSearch() {
       document.getElementById('searchInput').value = '';
-      applyFilters();
+      if (currentSystemMode === 'media') applyFilters();
+      else applyTournamentFilters();
     }
 
     function resetActiveFilters() {
       document.getElementById('searchInput').value = '';
-      selectedFilters.artwork.clear();
-      selectedFilters.sales.clear();
-      selectedFilters.province.clear();
-      selectedFilters.period.clear();
-      selectedFilters.mediaType.clear();
-      updateMultiSelectLabels();
-      applyFilters();
+      if (currentSystemMode === 'media') {
+        selectedFilters.artwork.clear();
+        selectedFilters.sales.clear();
+        selectedFilters.province.clear();
+        selectedFilters.period.clear();
+        selectedFilters.mediaType.clear();
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('sortBy').value = 'date-desc';
+        updateMultiSelectLabels();
+        applyFilters();
+      } else {
+        document.getElementById('filterTourStatus').value = '';
+        document.getElementById('filterTourLevel').value = '';
+        document.getElementById('filterTourProvince').value = '';
+        document.getElementById('filterTourSales').value = '';
+        document.getElementById('filterTourShuttle').value = '';
+        document.getElementById('filterTourOrganizer').value = '';
+        document.getElementById('sortTournamentBy').value = 'date-asc';
+        applyTournamentFilters();
+      }
+      showToast('🔄 รีเซ็ตตัวกรองทั้งหมดแล้ว');
     }
 
     function openSecureSettings() {
-      if (!isUnlocked) toggleModal('authModal');
-      else toggleModal('syncModal');
+      if (!isUnlocked) {
+        toggleModal('authModal');
+      } else {
+        document.getElementById('csvUrlInput').value = localStorage.getItem('victor_csv_url') || DEFAULT_CSV_URL;
+        document.getElementById('tournamentCsvUrlInput').value = localStorage.getItem('victor_tournament_csv_url') || DEFAULT_TOURNAMENT_CSV_URL;
+        toggleModal('syncModal');
+      }
+    }
+
+    function resetCsvUrlsToDefault() {
+      localStorage.removeItem('victor_csv_url');
+      localStorage.removeItem('victor_tournament_csv_url');
+      document.getElementById('csvUrlInput').value = DEFAULT_CSV_URL;
+      document.getElementById('tournamentCsvUrlInput').value = DEFAULT_TOURNAMENT_CSV_URL;
+      showToast('✅ คืนค่าลิงก์เริ่มต้นแล้ว');
     }
 
     function saveSettings() {
@@ -2927,6 +3057,7 @@
     function refreshCurrentData() {
       loadDataFromSheets();
       loadTournamentsFromSheets();
+      showToast('🔄 กำลังอัปเดตข้อมูลล่าสุด...');
     }
 
     function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
@@ -3085,13 +3216,21 @@
     };
 
     function copyToClipboard(text, successMsg = '📋 คัดลอกเรียบร้อยแล้ว!') {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-          showToast(successMsg);
-        }).catch(() => fallbackCopy(text));
-      } else {
-        fallbackCopy(text);
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (err) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => showToast(successMsg));
+        }
       }
+      document.body.removeChild(temp);
     }
 
     window.shareSocialFeedUrl = function() {
@@ -3104,8 +3243,7 @@
       if (!court) return;
       const targetView = viewType || (currentDisplayView === 'social' ? 'social' : 'map');
       const shareUrl = `${window.location.origin}${window.location.pathname}?view=${targetView}&mode=media&id=${encodeURIComponent(court.id)}`;
-      const shareText = `🏸 สนาม: ${court.courtName} (${court.province})\n🎨 Artwork: ${court.artwork}\n📱 ดูในโซเชียลฟีด: ${shareUrl}`;
-      copyToClipboard(shareUrl, '🔗 คัดลอกลิงก์แชร์ไปยังโซเชียลฟีดแล้ว!');
+      copyToClipboard(shareUrl, '🔗 คัดลอกลิงก์แชร์สนามเรียบร้อยแล้ว!');
     };
 
     window.shareTournamentById = function(tourId, viewType = null) {
@@ -3113,19 +3251,8 @@
       if (!tour) return;
       const targetView = viewType || (currentDisplayView === 'social' ? 'social' : 'map');
       const shareUrl = `${window.location.origin}${window.location.pathname}?view=${targetView}&mode=tournament&id=${encodeURIComponent(tour.id)}`;
-      const shareText = `🏆 การแข่งขัน: ${tour.tournamentName}\n📅 ${tour.startDate} - ${tour.endDate}\n🏸 สถานที่: ${tour.venueName}\n📱 ดูในโซเชียลฟีด: ${shareUrl}`;
-      copyToClipboard(shareUrl, '🔗 คัดลอกลิงก์แชร์งานแข่งไปยังโซเชียลฟีดแล้ว!');
+      copyToClipboard(shareUrl, '🔗 คัดลอกลิงก์แชร์งานแข่งเรียบร้อยแล้ว!');
     };
-
-    function fallbackCopy(text) {
-      const temp = document.createElement('textarea');
-      temp.value = text;
-      document.body.appendChild(temp);
-      temp.select();
-      document.execCommand('copy');
-      document.body.removeChild(temp);
-      showToast('📋 คัดลอกข้อความสำเร็จ');
-    }
 
     function checkUrlParameters() {
       try {
@@ -3145,13 +3272,7 @@
         if (targetId) {
           setTimeout(() => {
             if (targetView === 'social' || currentDisplayView === 'social') {
-              const cardEl = document.getElementById(`social-card-${targetId}`) || 
-                             document.querySelector(`[data-id="${targetId}"]`);
-              if (cardEl) {
-                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                cardEl.classList.add('ring-4', 'ring-amber-400');
-                setTimeout(() => cardEl.classList.remove('ring-4', 'ring-amber-400'), 3500);
-              }
+              window.scrollToSocialItem(targetId);
             } else {
               if (currentSystemMode === 'media') {
                 const found = currentLocations.find(c => c.id === targetId || (c.courtName && c.courtName.toLowerCase().includes(targetId.toLowerCase())));
@@ -3171,7 +3292,7 @@
     function initMap() {
       map = L.map('map', { zoomControl: false }).setView([13.7563, 100.5018], 10);
       
-      // ใช้ OpenStreetMap Tile Layer มาตรฐาน แก้ปัญหา "API KEY REQUIRED" 100%
+      // ใช้ OpenStreetMap มาตรฐาน (เมื่อไม่มี meta no-referrer จะไม่ติด 403 Access blocked)
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19,
@@ -3185,7 +3306,7 @@
     window.onload = function() {
       initMap();
       
-      // โหลดทั้งสื่อสนามและงานแข่งขันพร้อมกันตั้งแต่เริ่มต้น
+      // โหลดข้อมูลสดทั้งสองแท็บพร้อมกันตั้งแต่เริ่มต้น
       loadDataFromSheets();
       loadTournamentsFromSheets();
 
@@ -3194,7 +3315,10 @@
         else applyTournamentFilters();
       });
 
-      // ตรวจสอบพารามิเตอร์ URL เพื่อเปิดเข้าสู่มุมมองโซเชียลหรือเจาะจงรายการ
+      window.addEventListener('resize', () => {
+        if (map) map.invalidateSize();
+      });
+
       checkUrlParameters();
     };
   </script>
