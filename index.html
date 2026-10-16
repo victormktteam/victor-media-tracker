@@ -87,6 +87,15 @@
       filter: blur(3.5px);
     }
     
+    .clickable-img {
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .clickable-img:hover {
+      transform: scale(1.04);
+      filter: brightness(1.05);
+    }
+
     .leaflet-popup-content-wrapper {
       padding: 0 !important;
       border-radius: 0.85rem !important;
@@ -160,7 +169,7 @@
     <!-- ฝั่งขวา: ปุ่มเครื่องมือและปุ่มควบคุม -->
     <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
       
-      <!-- ปุ่มสลับมุมมอง แผนที่ / รายการ (เฉพาะมือถือในโหมดแผนที่) -->
+      <!-- ปุ่มสลับมุมมอง แผนที่ / รายการ (มือถือ) -->
       <div id="mobileTabGroup" class="flex md:hidden items-center bg-black/30 p-0.5 rounded-lg border border-white/10">
         <button type="button" id="mobileTabMap" onclick="toggleSidebar(false)" title="แผนที่" class="px-1.5 py-1 rounded text-[10.5px] font-semibold text-white bg-white/20 transition">
           🗺️
@@ -169,6 +178,24 @@
           📋
         </button>
       </div>
+
+      <!-- ปุ่มฟีเจอร์ใหม่: ค้นหาสนามใกล้ฉัน (GPS Geolocation) -->
+      <button type="button" onclick="findNearbyCourts()" title="ค้นหาสนามที่อยู่ใกล้พิกัดปัจจุบันของคุณ" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-sky-400/40 shadow-sm transition active:scale-95">
+        <i class="ph-bold ph-crosshair text-xs sm:text-sm"></i>
+        <span class="hidden lg:inline">ใกล้ฉัน</span>
+      </button>
+
+      <!-- ปุ่มฟีเจอร์ใหม่: สรุปและรายงานการตลาด (Marketing Analytics) -->
+      <button type="button" onclick="openAnalyticsDashboard()" title="ดูสรุปภาพรวมและข้อมูลเชิงลึกการตลาด" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-indigo-400/40 shadow-sm transition active:scale-95">
+        <i class="ph-bold ph-chart-donut text-xs sm:text-sm"></i>
+        <span class="hidden xl:inline">สรุปภาพรวม</span>
+      </button>
+
+      <!-- ปุ่มฟีเจอร์ใหม่: คัดลอกสรุปส่งเข้า LINE -->
+      <button type="button" onclick="copyLineSummary()" title="คัดลอกข้อความสรุปสำหรับส่งเข้ากลุ่ม LINE" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-emerald-400/40 shadow-sm transition active:scale-95">
+        <i class="ph-bold ph-chat-circle-dots text-xs sm:text-sm"></i>
+        <span class="hidden xl:inline">ส่ง LINE</span>
+      </button>
 
       <!-- ล็อก/ปลดล็อกข้อมูลสำคัญ -->
       <button type="button" id="authLockBtn" onclick="toggleAuthLockAction()" title="ล็อก/ปลดล็อกข้อมูลสำคัญ" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] sm:text-xs font-semibold flex items-center space-x-1 shadow-sm transition active:scale-95 border border-rose-400/40">
@@ -191,7 +218,7 @@
       <!-- ตั้งค่า Google Sheets -->
       <button type="button" onclick="openSecureSettings()" title="ตั้งค่าแหล่งข้อมูล Google Sheets" class="p-1 sm:px-2 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-[11px] sm:text-xs font-semibold flex items-center space-x-1 border border-amber-400/30 shadow-sm transition active:scale-95">
         <i class="ph-bold ph-gear text-xs sm:text-sm"></i>
-        <span class="hidden xl:inline">ตั้งค่า</span>
+        <span class="hidden 2xl:inline">ตั้งค่า</span>
       </button>
     </div>
   </header>
@@ -201,7 +228,6 @@
     <!-- ฉากหลังสำหรับจอมือถือ -->
     <div id="sidebarBackdrop" onclick="toggleSidebar(false)" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30 md:hidden transition-opacity"></div>
 
-    <!-- แถบด้านข้าง (Sidebar) -->
     <aside id="mainSidebar" class="fixed md:static top-0 bottom-0 left-0 -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out w-80 sm:w-88 md:w-92 bg-white border-r border-slate-200 flex flex-col h-full z-40 md:z-20 shadow-2xl md:shadow-none flex-shrink-0">
       
       <!-- หัวแถบสำหรับมือถือ -->
@@ -228,7 +254,7 @@
           <input
             type="text"
             id="searchInput"
-            placeholder="ค้นหาชื่อสนาม, เซล, อาร์ตเวิร์ก, รายละเอียด..."
+            placeholder="ค้นหาชื่อสนาม, เซล, อาร์ตเวิร์ก (Col R), รายละเอียด..."
             class="w-full pl-8 pr-8 py-1.5 sm:py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-victor-accent/50 focus:border-victor-accent transition shadow-xs"
           />
           <button id="clearSearchBtn" type="button" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-slate-600" onclick="clearSearch()">
@@ -236,11 +262,11 @@
           </button>
         </div>
 
-        <!-- 1) ชุดตัวกรองสำหรับโหมด: สื่อโฆษณาสนาม (Media Mode) พร้อม Multi-Select Dropdowns -->
+        <!-- 1) ชุดตัวกรองสำหรับโหมด: สื่อโฆษณาสนาม (Media Mode) -->
         <div id="mediaFiltersContainer" class="space-y-1.5">
           <div class="flex items-center justify-between gap-1">
             <select id="sortBy" onchange="applyFilters()" class="flex-1 p-1.5 bg-white border border-slate-300 rounded-lg font-medium text-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-victor-accent/40 shadow-xs">
-              <option value="date-desc">📅 ติดตั้ง: ใหม่ &rarr; เก่า</option>
+              <option value="date-desc">📅 ติดตั้ง: ใหม่ &rarr; เก่า (แม่นยำ)</option>
               <option value="date-asc">📅 ติดตั้ง: เก่า &rarr; ใหม่</option>
               <option value="budget-desc">💰 งบประมาณ: สูง &rarr; ต่ำ</option>
               <option value="budget-asc">💰 งบประมาณ: ต่ำ &rarr; สูง</option>
@@ -251,17 +277,18 @@
             </button>
           </div>
 
-          <!-- Multi-Select Buttons Container -->
+          <!-- Multi-Select Buttons Container: Artwork (Col R), เซล, จังหวัด, รอบสื่อ, ประเภทสื่อ -->
           <div class="grid grid-cols-2 gap-1.5 text-xs">
-            <!-- Multi-Select Artwork (ไฮไลท์เด่น) -->
-            <div class="relative">
-              <button type="button" onclick="toggleMultiSelectMenu('menuArtwork')" id="btnFilterArtwork" class="w-full p-1.5 bg-amber-50/80 border border-amber-300/80 rounded-lg text-left text-xs font-semibold text-amber-900 flex items-center justify-between shadow-xs truncate">
+            
+            <!-- Multi-Select Artwork (คอลัมน์ R) -->
+            <div class="relative col-span-2">
+              <button type="button" onclick="toggleMultiSelectMenu('menuArtwork')" id="btnFilterArtwork" class="w-full p-1.5 bg-amber-50/90 border border-amber-300 rounded-lg text-left text-xs font-semibold text-amber-900 flex items-center justify-between shadow-xs truncate">
                 <span class="truncate" id="labelFilterArtwork">🎨 Artwork (ทั้งหมด)</span>
                 <i class="ph-bold ph-caret-down text-amber-600 text-[10px] ml-1"></i>
               </button>
               <div id="menuArtwork" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-2 space-y-1.5 max-h-56 overflow-y-auto custom-scrollbar">
                 <div class="flex items-center justify-between pb-1 border-b border-slate-100 text-[10px]">
-                  <span class="font-bold text-slate-700">เลือก Artwork</span>
+                  <span class="font-bold text-slate-700">เลือก Artwork (คอลัมน์ R)</span>
                   <button type="button" onclick="clearMultiSelect('artwork')" class="text-rose-600 font-semibold hover:underline">ล้างค่า</button>
                 </div>
                 <div id="optionsArtwork" class="space-y-1 text-xs"></div>
@@ -312,13 +339,26 @@
                 <div id="optionsPeriod" class="space-y-1 text-xs"></div>
               </div>
             </div>
+
+            <!-- Multi-Select ประเภทสื่อ (แก้ไขแล้ว: รองรับการเลือกหลายรายการ) -->
+            <div class="relative">
+              <button type="button" onclick="toggleMultiSelectMenu('menuMediaType')" id="btnFilterMediaType" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-left text-xs font-medium text-slate-700 flex items-center justify-between shadow-xs truncate">
+                <span class="truncate" id="labelFilterMediaType">📺 ประเภทสื่อ (ทั้งหมด)</span>
+                <i class="ph-bold ph-caret-down text-slate-400 text-[10px] ml-1"></i>
+              </button>
+              <div id="menuMediaType" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-2 space-y-1.5 max-h-56 overflow-y-auto custom-scrollbar">
+                <div class="flex items-center justify-between pb-1 border-b border-slate-100 text-[10px]">
+                  <span class="font-bold text-slate-700">เลือกประเภทสื่อ</span>
+                  <button type="button" onclick="clearMultiSelect('mediaType')" class="text-rose-600 font-semibold hover:underline">ล้างค่า</button>
+                </div>
+                <div id="optionsMediaType" class="space-y-1 text-xs"></div>
+              </div>
+            </div>
+
           </div>
 
-          <!-- สถานะและประเภทสื่อ -->
-          <div class="grid grid-cols-2 gap-1.5 text-xs">
-            <select id="filterMediaType" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
-              <option value="">ทุกประเภทสื่อ</option>
-            </select>
+          <!-- สถานะการติดตั้ง -->
+          <div class="pt-0.5">
             <select id="filterStatus" onchange="applyFilters()" class="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-victor-accent truncate">
               <option value="">ทุกสถานะติดตั้ง</option>
             </select>
@@ -376,15 +416,15 @@
 
       </div>
 
+      <!-- รายการการ์ดด้านข้าง (Sidebar Cards List) -->
       <div id="courtList" class="flex-1 overflow-y-auto custom-scrollbar p-2 sm:p-2.5 space-y-1.5 sm:space-y-2">
         <div id="courtLoadingState" class="text-center py-10 text-slate-400 text-xs">
           <div class="w-6 h-6 border-2 border-victor-accent border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          กำลังโหลดข้อมูลสดจาก Google Sheets...
+          กำลังโหลดข้อมูลสดทั้งสื่อสนามและงานแข่งขัน...
         </div>
       </div>
     </aside>
 
-    <!-- พื้นที่แสดงผลหลัก (สลับระหว่าง แผนที่ กับ โซเชียลฟีด) -->
     <main class="flex-1 h-full relative overflow-hidden bg-slate-100 flex flex-col">
       
       <!-- 1) พื้นที่แผนที่ Leaflet (Map View) -->
@@ -424,7 +464,6 @@
       <div id="socialFeedContainer" class="hidden w-full h-full overflow-y-auto custom-scrollbar p-3 sm:p-6 bg-slate-200/70">
         <div class="max-w-2xl mx-auto space-y-4 pb-12">
           
-          <!-- แถบหัว Social Feed -->
           <div class="bg-gradient-to-r from-victor-navy to-blue-900 text-white p-3.5 sm:p-4 rounded-2xl shadow-md border border-blue-700/50 flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <div class="w-10 h-10 rounded-xl bg-amber-400 text-victor-navy flex items-center justify-center font-extrabold text-xl shadow-inner">
@@ -432,7 +471,7 @@
               </div>
               <div>
                 <h3 class="font-bold text-sm sm:text-base leading-tight">VICTOR+ โซเชียลฟีดไทม์ไลน์</h3>
-                <p class="text-[11px] text-blue-200">เรียงตามวันที่อัปเดตล่าสุด พร้อมรายละเอียดและข้อมูลสเปกสนาม</p>
+                <p class="text-[11px] text-blue-200">เรียงตามวันที่อัปเดตล่าสุด พร้อมรายละเอียด Artwork และข้อมูลสเปกสนาม</p>
               </div>
             </div>
             <span id="socialItemCountBadge" class="px-2.5 py-1 rounded-full bg-white/10 text-amber-300 font-bold text-xs border border-white/15">
@@ -440,18 +479,13 @@
             </span>
           </div>
 
-          <!-- กล่องใส่ฟีดการ์ดโซเชียล -->
-          <div id="socialCardsStream" class="space-y-4">
-            <!-- Feed cards will be inserted here dynamically -->
-          </div>
-
+          <div id="socialCardsStream" class="space-y-4"></div>
         </div>
       </div>
 
     </main>
   </div>
 
-  <!-- Modal สื่อสนาม -->
   <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
       
@@ -523,6 +557,7 @@
           <p id="modalNotesContent" class="text-xs text-slate-700 leading-relaxed whitespace-pre-line">-</p>
         </div>
 
+        <!-- ข้อมูลสเปกสนาม พร้อมรูปโปรไฟล์แบบคลิกดูภาพใหญ่ได้ทุกรูป -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ติดต่อ</p>
@@ -536,8 +571,9 @@
             <p class="text-[10px] text-slate-400 mt-0.5">รวมภาษีและค่าติดตั้ง</p>
           </div>
 
+          <!-- รูปโปรไฟล์เซล (คลิกเพื่อดูรูปใหญ่ได้) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
-            <img id="modalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
+            <img id="modalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'เซล VICTOR ผู้ดูแล - ' + document.getElementById('modalSales').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
             <div class="min-w-0 flex-1">
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">เซล VICTOR ผู้ดูแล</p>
               <p id="modalSales" class="font-bold text-victor-blue text-xs sm:text-sm truncate">-</p>
@@ -551,16 +587,18 @@
             <p id="modalDate" class="text-slate-500 mt-1 text-[10.5px]">ติดตั้ง: -</p>
           </div>
 
+          <!-- รูปโปรไฟล์ช่างติดตั้ง (คลิกเพื่อดูรูปใหญ่ได้) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
-            <img id="modalInstalledByImg" src="" alt="Installer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
+            <img id="modalInstalledByImg" src="" alt="Installer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'ช่างผู้ติดตั้งสื่อ - ' + document.getElementById('modalInstalledBy').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
             <div class="min-w-0 flex-1">
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ช่างผู้ติดตั้งสื่อ</p>
               <p id="modalInstalledBy" class="font-bold text-slate-800 text-xs sm:text-sm truncate">-</p>
             </div>
           </div>
 
+          <!-- รูปโปรไฟล์ผู้ออกแบบ (คลิกเพื่อดูรูปใหญ่ได้) -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center space-x-2.5">
-            <img id="modalDesignedByImg" src="" alt="Designer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
+            <img id="modalDesignedByImg" src="" alt="Designer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'ผู้ออกแบบสื่อ - ' + document.getElementById('modalDesignedBy').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
             <div class="min-w-0 flex-1">
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">ผู้ออกแบบสื่อ</p>
               <p id="modalDesignedBy" class="font-bold text-slate-800 text-xs sm:text-sm truncate">-</p>
@@ -598,7 +636,6 @@
     </div>
   </div>
 
-  <!-- Modal งานแข่งขัน (พร้อม Showcase ลูกแบดฝั่งขวา 51x286) -->
   <div id="tournamentModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
       <div class="relative bg-gradient-to-r from-amber-600 via-amber-700 to-amber-900 text-white p-3.5 sm:p-4 flex items-start justify-between">
@@ -618,7 +655,6 @@
       </div>
 
       <div class="p-3.5 sm:p-4 space-y-3">
-        <!-- สลับงานแข่งกรณีจัดที่สนามเดียวกัน -->
         <div id="tourModalMultiVenueBox" class="hidden p-2 rounded-xl bg-amber-50 border border-amber-200 space-y-1.5">
           <div class="flex items-center justify-between text-[11px] font-bold text-amber-900">
             <span class="flex items-center gap-1">
@@ -641,10 +677,8 @@
           </button>
         </div>
 
-        <!-- แบ่งสัดส่วนข้อมูล (ซ้าย) กับ Showcase ลูกแบด (ขวา) -->
         <div class="flex flex-col sm:flex-row gap-2.5 items-stretch">
           
-          <!-- ฝั่งซ้าย: ข้อมูลงานแข่ง -->
           <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
               <p class="font-semibold text-slate-500 uppercase text-[9.5px]">สนามที่ใช้จัดแข่งขัน</p>
@@ -659,7 +693,7 @@
             </div>
 
             <div class="sm:col-span-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start space-x-2.5">
-              <img id="tourModalOrganizerImg" src="" alt="Organizer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white mt-0.5" />
+              <img id="tourModalOrganizerImg" src="" alt="Organizer" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white mt-0.5 clickable-img" onclick="viewImageFullscreen(this.src, 'ผู้จัดการแข่งขัน - ' + document.getElementById('tourModalOrganizer').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
               <div class="min-w-0 flex-1">
                 <p class="font-semibold text-slate-500 uppercase text-[9.5px]">องค์กร / ผู้จัดการแข่งขัน</p>
                 <p id="tourModalOrganizer" class="font-bold text-victor-navy text-xs sm:text-sm mt-0.5 truncate">-</p>
@@ -668,7 +702,7 @@
             </div>
 
             <div class="sm:col-span-2 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/90 flex items-center space-x-2.5">
-              <img id="tourModalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white" />
+              <img id="tourModalSalesImg" src="" alt="Sales" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs flex-shrink-0 bg-white clickable-img" onclick="viewImageFullscreen(this.src, 'เซล VICTOR ผู้ดูแล - ' + document.getElementById('tourModalSales').innerText)" title="คลิกเพื่อดูรูปใหญ่" />
               <div class="min-w-0 flex-1">
                 <p class="font-semibold text-amber-900 uppercase text-[9.5px] flex items-center gap-1">
                   <i class="ph-bold ph-user-circle text-amber-700"></i>
@@ -694,7 +728,7 @@
             </div>
           </div>
 
-          <!-- ฝั่งขวา: Showcase หลอดลูกแบดทรงตั้ง 51x286 -->
+          <!-- ฝั่งขวา: Showcase หลอดลูกแบดทรงตั้ง 51x286 (คลิกเพื่อดูรูปใหญ่ได้) -->
           <div class="w-full sm:w-36 md:w-40 flex-shrink-0 bg-gradient-to-b from-amber-50 to-amber-100/80 rounded-xl border border-amber-200/90 p-2.5 flex flex-col items-center justify-between text-center shadow-xs">
             <div class="w-full">
               <span class="text-[9px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded-full inline-block mb-1 border border-amber-300">Official Shuttlecock</span>
@@ -702,11 +736,12 @@
             </div>
             
             <div class="my-2 flex-1 flex items-center justify-center min-h-[160px] w-full py-1">
-              <img id="tourModalShuttleImg" src="" alt="Shuttlecock Tube" class="h-44 sm:h-52 w-auto max-w-full object-contain drop-shadow-md hover:scale-105 transition duration-200" />
+              <img id="tourModalShuttleImg" src="" alt="Shuttlecock Tube" class="h-44 sm:h-52 w-auto max-w-full object-contain drop-shadow-md clickable-img" onclick="viewImageFullscreen(this.src, 'หลอดลูกแบดทางการ - ' + document.getElementById('tourModalShuttleRightTitle').innerText)" title="คลิกเพื่อดูภาพขนาดใหญ่" />
             </div>
 
-            <div class="w-full pt-1.5 border-t border-amber-200 text-[9.5px] text-amber-800 font-semibold">
-              ลูกแบดทางการ
+            <div class="w-full pt-1.5 border-t border-amber-200 text-[9.5px] text-amber-800 font-semibold flex items-center justify-center gap-1">
+              <i class="ph-bold ph-magnifying-glass-plus text-xs"></i>
+              <span>คลิกดูรูปใหญ่</span>
             </div>
           </div>
 
@@ -715,7 +750,70 @@
     </div>
   </div>
 
-  <!-- Modal ดูรูปเต็มจอ (Lightbox) -->
+  <div id="analyticsModal" class="hidden fixed inset-0 bg-slate-900/75 backdrop-blur-xs z-[9999] flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 flex flex-col">
+      <div class="bg-gradient-to-r from-victor-navy to-indigo-950 text-white p-4 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/30 flex items-center justify-center text-amber-300 text-lg border border-indigo-400/30">
+            <i class="ph-bold ph-chart-donut"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base">ศูนย์วิเคราะห์ภาพรวมการตลาด VICTOR+</h3>
+            <p class="text-[11px] text-indigo-200">สถิติ Artwork (คอลัมน์ R), เซล และปฏิทินงานแข่ง</p>
+          </div>
+        </div>
+        <button type="button" onclick="toggleModal('analyticsModal')" class="text-white/70 hover:text-white"><i class="ph-bold ph-x text-lg"></i></button>
+      </div>
+
+      <div class="p-4 sm:p-5 space-y-4 text-xs">
+        <!-- การ์ดตัวเลขสรุป 4 มิติ -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+          <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-xl">
+            <span class="text-[10px] text-blue-700 font-semibold">สนามติดตั้งสื่อ</span>
+            <p id="statTotalCourts" class="text-lg font-bold text-victor-navy mt-0.5">0</p>
+          </div>
+          <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl">
+            <span class="text-[10px] text-emerald-700 font-semibold">งบประมาณรวม</span>
+            <p id="statTotalBudget" onclick="promptIfLocked()" class="text-lg font-bold text-emerald-800 mt-0.5 cursor-pointer sensitive-blur">฿0</p>
+          </div>
+          <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl">
+            <span class="text-[10px] text-amber-700 font-semibold">รายการแข่งทั้งหมด</span>
+            <p id="statTotalTours" class="text-lg font-bold text-amber-900 mt-0.5">0</p>
+          </div>
+          <div class="p-2.5 bg-purple-50 border border-purple-200 rounded-xl">
+            <span class="text-[10px] text-purple-700 font-semibold">ยอดนักกีฬารวม</span>
+            <p id="statTotalPlayers" class="text-lg font-bold text-purple-900 mt-0.5">0</p>
+          </div>
+        </div>
+
+        <!-- รายงานแยกตาม Artwork (คอลัมน์ R) -->
+        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-2">
+          <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+            <i class="ph-bold ph-paint-brush text-amber-600"></i>
+            <span>สัดส่วนสนามแยกตาม Artwork (คอลัมน์ R)</span>
+          </h4>
+          <div id="analyticsArtworkList" class="space-y-1.5"></div>
+        </div>
+
+        <!-- รายงานแยกตามเซลผู้ดูแล -->
+        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-2">
+          <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+            <i class="ph-bold ph-users-three text-victor-blue"></i>
+            <span>จำนวนสนามที่ดูแลแยกตามเซล</span>
+          </h4>
+          <div id="analyticsSalesList" class="space-y-1.5"></div>
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="copyLineSummary(); toggleModal('analyticsModal');" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center space-x-1.5 shadow-sm transition">
+            <i class="ph-bold ph-chat-circle-dots text-base"></i>
+            <span>คัดลอกรายงานส่งเข้า LINE</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="fullscreenModal" class="hidden fixed inset-0 bg-black/95 z-[99999] flex flex-col select-none backdrop-blur-md">
     <div class="flex items-center justify-between px-3 sm:px-5 py-3 bg-black/60 text-white z-20 border-b border-white/10 flex-shrink-0">
       <div class="flex items-center space-x-2 min-w-0 pr-2">
@@ -746,7 +844,7 @@
     </div>
   </div>
 
-  <!-- Modal ตั้งค่าแหล่งข้อมูล Google Sheets (ป้องกันด้วย PIN) -->
+  <!-- Modal ตั้งค่าแหล่งข้อมูล Google Sheets -->
   <div id="syncModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl border border-slate-100 space-y-3.5">
       <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
@@ -759,14 +857,14 @@
       <div class="space-y-3 text-xs">
         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
           <div class="flex items-center justify-between">
-            <label class="block font-semibold text-slate-700">1. ลิงก์ CSV: แท็บสื่อโฆษณาสนาม (Media Tracker)</label>
+            <label class="block font-semibold text-slate-700">1. ลิงก์ CSV: แท็บสื่อโฆษณาสนาม (Media Tracker - gid=0)</label>
             <span class="text-[10px] text-emerald-700 font-bold">🔒 ได้รับอนุญาตแล้ว</span>
           </div>
           <input type="text" id="csvUrlInput" placeholder="วางลิงก์ CSV แท็บสื่อ..." class="w-full text-xs p-2 bg-white border border-slate-300 rounded-lg text-slate-700 font-mono focus:ring-1 focus:ring-victor-accent focus:outline-none" />
         </div>
         <div class="p-2.5 bg-amber-50/60 border border-amber-200 rounded-xl space-y-1">
           <div class="flex items-center justify-between">
-            <label class="block font-semibold text-amber-900">2. ลิงก์ CSV: แท็บงานแข่งขัน (Tournaments)</label>
+            <label class="block font-semibold text-amber-900">2. ลิงก์ CSV: แท็บงานแข่งขัน (Tournaments - gid=1317801346)</label>
             <span class="text-[10px] text-amber-800 font-bold">🔒 ได้รับอนุญาตแล้ว</span>
           </div>
           <input type="text" id="tournamentCsvUrlInput" placeholder="วางลิงก์ CSV แท็บงานแข่ง (gid=...)" class="w-full text-xs p-2 bg-white border border-amber-300 rounded-lg text-slate-700 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none" />
@@ -804,7 +902,8 @@
   </div>
 
   <script>
-    const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?output=csv";
+    // ฐานข้อมูล Google Sheets เผยแพร่เว็บที่ผู้ใช้กำหนด
+    const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=0&single=true&output=csv";
     const DEFAULT_TOURNAMENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQj2VNSiSww4KS4VttHPmCILzfKYZczGs-RIekLEwOIAHyskIo6wVbRpcWZOJ42LJZAnwHKc5W_LbWD/pub?gid=1317801346&single=true&output=csv";
     
     const DEFAULT_PIN_URL = "https://lh3.googleusercontent.com/d/1MppkVebrR2E82ex-hlV85F7tmiFT7Dfh";
@@ -832,17 +931,105 @@
     let fullscreenIndex = 0;
     let pendingActionAfterAuth = null;
 
-    // สถานะ Multi-Select Filters
+    // สถานะ Multi-Select Filters (รวม 'mediaType' ตามความต้องการ)
     let selectedFilters = {
       artwork: new Set(),
       sales: new Set(),
       province: new Set(),
-      period: new Set()
+      period: new Set(),
+      mediaType: new Set()
     };
 
-    // ระบบแก้พิกัดเพี้ยนอัจฉริยะ (Smart Coordinate Normalizer & Decoupler)
+    /**
+     * ระบบแปลงวันที่ภาษาไทยและสากลอย่างแม่นยำ (แก้ปัญหาการเรียง วันที่ใหม่ -> เก่า เพี้ยน)
+     * รองรับ: พ.ศ. (2566-2569), ค.ศ., เดือนไทยย่อ/เต็ม (ต.ค., ตุลาคม), รูปแบบ DD/MM/YYYY, และ Quarter (2026Q1Q2)
+     */
+    function parseFlexibleDate(dateStr) {
+      if (!dateStr) return 0;
+      if (dateStr instanceof Date) return dateStr.getTime();
+      
+      let str = dateStr.toString().trim();
+      if (!str || str === '-' || str === 'ไม่มี') return 0;
+
+      const thaiMonths = {
+        'ม.ค.': 1, 'มกราคม': 1, 'มกรา': 1,
+        'ก.พ.': 2, 'กุมภาพันธ์': 2, 'กุมภา': 2,
+        'มี.ค.': 3, 'มีนาคม': 3, 'มีนา': 3,
+        'เม.ย.': 4, 'เมษายน': 4, 'เมษา': 4,
+        'พ.ค.': 5, 'พฤษภาคม': 5, 'พฤษภา': 5,
+        'มิ.ย.': 6, 'มิถุนายน': 6, 'มิถุนา': 6,
+        'ก.ค.': 7, 'กรกฎาคม': 7, 'กรกฎา': 7,
+        'ส.ค.': 8, 'สิงหาคม': 8, 'สิงหา': 8,
+        'ก.ย.': 9, 'กันยายน': 9, 'กันยา': 9,
+        'ต.ค.': 10, 'ตุลาคม': 10, 'ตุลา': 10,
+        'พ.ย.': 11, 'พฤศจิกายน': 11, 'พฤศจิกา': 11,
+        'ธ.ค.': 12, 'ธันวาคม': 12, 'ธันวา': 12
+      };
+
+      for (const [mName, mNum] of Object.entries(thaiMonths)) {
+        if (str.includes(mName)) {
+          const parts = str.split(/[\s,/-]+/);
+          let day = 1, year = 2026;
+          for (const p of parts) {
+            const num = parseInt(p, 10);
+            if (!isNaN(num)) {
+              if (num > 2400) {
+                year = num - 543;
+              } else if (num > 1900 && num <= 2100) {
+                year = num;
+              } else if (num < 100 && num >= 50) {
+                year = 1957 + num; // เช่น 67 -> 2024
+              } else if (num <= 31 && !p.includes(mName)) {
+                day = num;
+              }
+            }
+          }
+          return new Date(year, mNum - 1, day).getTime();
+        }
+      }
+
+      const dmyMatch = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
+      if (dmyMatch) {
+        let day = parseInt(dmyMatch[1], 10);
+        let month = parseInt(dmyMatch[2], 10);
+        let year = parseInt(dmyMatch[3], 10);
+
+        if (year > 2400) year -= 543;
+        else if (year < 100) {
+          if (year >= 60 && year <= 99) year += 1957;
+          else year += 2000;
+        }
+
+        if (month > 12 && day <= 12) {
+          const temp = day; day = month; month = temp;
+        }
+
+        if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+          return new Date(year, month - 1, day).getTime();
+        }
+      }
+
+      const ymdMatch = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/);
+      if (ymdMatch) {
+        let year = parseInt(ymdMatch[1], 10);
+        let month = parseInt(ymdMatch[2], 10);
+        let day = parseInt(ymdMatch[3], 10);
+        if (year > 2400) year -= 543;
+        return new Date(year, month - 1, day).getTime();
+      }
+
+      const periodMatch = str.match(/(\d{4})[_\-\s]*Q([1-4])/i);
+      if (periodMatch) {
+        const y = parseInt(periodMatch[1], 10);
+        const q = parseInt(periodMatch[2], 10);
+        return new Date(y, (q - 1) * 3, 1).getTime();
+      }
+
+      const parsed = Date.parse(str);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+
     function sanitizeCoordinates(rawLat, rawLng, mapsUrl = '') {
-      // 1. ถ้ามี Google Maps Link ให้ตรวจสอบหา Exact Location Coordinate (!3d, !4d) ก่อนเสมอ
       if (mapsUrl) {
         const mPlace = mapsUrl.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
         if (mPlace) {
@@ -862,7 +1049,6 @@
         }
       }
 
-      // 2. ตรวจสอบกรณีสตริงตัวเลขถูกเชื่อมติดกันผิดปกติ เช่น 7.304698432101.4208349
       let strLat = String(rawLat || '').trim();
       let strLng = String(rawLng || '').trim();
 
@@ -878,14 +1064,12 @@
       if (isNaN(lat)) lat = 0;
       if (isNaN(lng)) lng = 0;
 
-      // ตรวจสอบการสลับแกน Lat / Lng ในประเทศไทย
       if (lat > 80 && lat < 120 && lng > 0 && lng < 30) {
         let temp = lat;
         lat = lng;
         lng = temp;
       }
 
-      // ตรวจสอบจาก Maps URL กรณีทั่วไป (@lat,lng)
       if ((lat === 0 || lng === 0) && mapsUrl) {
         const mCoord = mapsUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) || 
                        mapsUrl.match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
@@ -996,6 +1180,28 @@
       return { name: str, photo: DEFAULT_PIN_URL };
     }
 
+    window.viewImageFullscreen = function(imgSrc, title = 'รูปภาพ') {
+      if (!imgSrc) return;
+      const cleanUrl = normalizeImageUrl(imgSrc);
+      activeFullscreenImages = [cleanUrl];
+      fullscreenIndex = 0;
+      
+      const titleEl = document.getElementById('fullscreenTitle');
+      const imgEl = document.getElementById('fullscreenImg');
+      const counterEl = document.getElementById('fullscreenCounter');
+      const prevBtn = document.getElementById('fullscreenPrevBtn');
+      const nextBtn = document.getElementById('fullscreenNextBtn');
+      
+      if (titleEl) titleEl.innerText = title;
+      if (imgEl) imgEl.src = cleanUrl;
+      if (counterEl) counterEl.innerText = '1 / 1';
+      if (prevBtn) prevBtn.classList.add('hidden');
+      if (nextBtn) nextBtn.classList.add('hidden');
+      
+      const modal = document.getElementById('fullscreenModal');
+      if (modal) modal.classList.remove('hidden');
+    };
+
     function switchDisplayView(view) {
       if (currentDisplayView === view) return;
       currentDisplayView = view;
@@ -1025,7 +1231,7 @@
     }
 
     function toggleMultiSelectMenu(menuId) {
-      const allMenus = ['menuArtwork', 'menuSales', 'menuProvince', 'menuPeriod'];
+      const allMenus = ['menuArtwork', 'menuSales', 'menuProvince', 'menuPeriod', 'menuMediaType'];
       allMenus.forEach(id => {
         const el = document.getElementById(id);
         if (el && id !== menuId) el.classList.add('hidden');
@@ -1034,10 +1240,9 @@
       if (target) target.classList.toggle('hidden');
     }
 
-    // ปิดเมนูเมื่อคลิกนอกพื้นที่
     document.addEventListener('click', (e) => {
       if (!e.target.closest('#mediaFiltersContainer')) {
-        ['menuArtwork', 'menuSales', 'menuProvince', 'menuPeriod'].forEach(id => {
+        ['menuArtwork', 'menuSales', 'menuProvince', 'menuPeriod', 'menuMediaType'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.classList.add('hidden');
         });
@@ -1065,14 +1270,15 @@
       const salesCount = selectedFilters.sales.size;
       const provCount = selectedFilters.province.size;
       const perCount = selectedFilters.period.size;
+      const mediaCount = selectedFilters.mediaType.size;
 
       document.getElementById('labelFilterArtwork').innerText = artCount > 0 ? `🎨 Artwork (${artCount})` : '🎨 Artwork (ทั้งหมด)';
       document.getElementById('labelFilterSales').innerText = salesCount > 0 ? `👤 เซล (${salesCount})` : '👤 เซลทั้งหมด';
       document.getElementById('labelFilterProvince').innerText = provCount > 0 ? `📍 จังหวัด (${provCount})` : '📍 ทุกจังหวัด';
       document.getElementById('labelFilterPeriod').innerText = perCount > 0 ? `📅 รอบสื่อ (${perCount})` : '📅 ทุกรอบสื่อ';
+      document.getElementById('labelFilterMediaType').innerText = mediaCount > 0 ? `📺 สื่อ (${mediaCount})` : '📺 ประเภทสื่อ (ทั้งหมด)';
 
-      // อัปเดตสถานะ checkbox ใน DOM
-      ['artwork', 'sales', 'province', 'period'].forEach(type => {
+      ['artwork', 'sales', 'province', 'period', 'mediaType'].forEach(type => {
         const container = document.getElementById(`options${type.charAt(0).toUpperCase() + type.slice(1)}`);
         if (container) {
           const boxes = container.querySelectorAll('input[type="checkbox"]');
@@ -1085,7 +1291,17 @@
 
     function parse2DArrayData(rows) {
       if (!rows || rows.length < 2) return [];
-      const headers = rows[0].map(h => String(h || '').trim());
+
+      let headerRowIdx = 0;
+      for (let r = 0; r < Math.min(5, rows.length); r++) {
+        const rowStr = rows[r].join(' ').toLowerCase();
+        if (rowStr.includes('ชื่อสนาม') || rowStr.includes('สนาม') || rowStr.includes('ชื่อร้าน')) {
+          headerRowIdx = r;
+          break;
+        }
+      }
+
+      const headers = rows[headerIdx = headerRowIdx].map(h => String(h || '').trim());
 
       const getIdx = (keywords, defaultIdx) => {
         const found = headers.findIndex(h => keywords.some(k => h.toLowerCase().includes(k.toLowerCase())));
@@ -1110,22 +1326,18 @@
       const designIdx = getIdx(['ออกแบบโดย', 'กราฟิก'], 15);
       const courtCountIdx = getIdx(['จำนวนคอร์ท', 'คอร์ด'], 16);
       
-      // คอลัมน์ Artwork / แบบสื่อ
-      const artworkIdx = getIdx(['artwork', 'art work', 'แบบสื่อ', 'อาร์ตเวิร์ก', 'ลายสื่อ', 'ชื่องานพิมพ์'], 17);
-      
-      // คอลัมน์ รายละเอียดเพิ่มเติม / บันทึก (Notes)
-      const notesIdx = getIdx(['รายละเอียดเพิ่มเติม', 'รายละเอียด', 'บันทึก', 'notes', 'detail', 'หมายเหตุ', 'ข้อความ'], 18);
+      // คอลัมน์ Artwork ใน Google Sheets อยู่ที่ คอลัมน์ R (Index 17)
+      let artworkIdx = getIdx(['artwork', 'art work', 'แบบสื่อ', 'อาร์ตเวิร์ก', 'ลายสื่อ', 'ชื่องานพิมพ์'], 17);
+      const notesIdx = getIdx(['รายละเอียดเพิ่มเติม', 'รายละเอียด', 'บันทึก', 'notes', 'detail', 'หมายเหตุ'], 18);
 
       const parsed = [];
-      for (let i = 1; i < rows.length; i++) {
+      for (let i = headerRowIdx + 1; i < rows.length; i++) {
         const r = rows[i];
         const rawName = String(r[nameIdx] || '').trim();
         if (!rawName) continue;
 
         const nameData = parseCourtNameAndPin(rawName);
         const mapsUrl = String(r[mapsIdx] || '').trim();
-
-        // ใช้อัลกอริทึมซ่อมพิกัดอัจฉริยะ (แก้ปัญหา Supersports หาดใหญ่ และเลขต่อติดกัน)
         const coords = sanitizeCoordinates(r[latIdx], r[lngIdx], mapsUrl);
 
         let images = [];
@@ -1144,7 +1356,15 @@
         const rawCount = String(r[courtCountIdx] || '').trim();
         const courtCount = rawCount ? (rawCount.includes('คอร์ท') || rawCount.includes('คอร์ด') ? rawCount : `${rawCount} คอร์ท`) : '-';
 
-        const rawArtwork = (artworkIdx !== -1 && r[artworkIdx]) ? String(r[artworkIdx]).trim() : '';
+        // ดึง Artwork โดยตรวจจับทั้งคอลัมน์ Index 17 (คอลัมน์ R) และคำค้น
+        let rawArtwork = '';
+        if (artworkIdx !== -1 && r[artworkIdx]) {
+          rawArtwork = String(r[artworkIdx]).trim();
+        } else if (r.length > 17 && r[17]) {
+          rawArtwork = String(r[17]).trim();
+        }
+        if (!rawArtwork) rawArtwork = 'NCS MAX / ทั่วไป';
+
         const rawNotes = (notesIdx !== -1 && r[notesIdx]) ? String(r[notesIdx]).trim() : '';
 
         parsed.push({
@@ -1168,8 +1388,9 @@
           installedBy: String(r[installIdx] || '-').trim(),
           designedBy: String(r[designIdx] || '-').trim(),
           courtCount: courtCount,
-          artwork: rawArtwork || 'NCS MAX / ทั่วไป',
-          notes: rawNotes || ''
+          artwork: rawArtwork,
+          notes: rawNotes || '',
+          distanceKm: 999999
         });
       }
       return parsed;
@@ -1177,21 +1398,31 @@
 
     function parseTournamentData(rows) {
       if (!rows || rows.length < 2) return [];
-      const headers = rows[0].map(h => String(h || '').trim());
+
+      let headerIdx = 0;
+      for (let r = 0; r < Math.min(5, rows.length); r++) {
+        const rowText = rows[r].map(c => String(c || '').toLowerCase()).join(' ');
+        if (rowText.includes('รายการ') || rowText.includes('สนาม') || rowText.includes('เริ่ม') || rowText.includes('tournament')) {
+          headerIdx = r;
+          break;
+        }
+      }
+
+      const headers = rows[headerIdx].map(h => String(h || '').trim());
       const getIdx = (keywords, defaultIdx) => {
         const found = headers.findIndex(h => keywords.some(k => h.toLowerCase().includes(k.toLowerCase())));
         return found !== -1 ? found : defaultIdx;
       };
 
-      const nameIdx = getIdx(['ชื่อรายการ', 'รายการแข่ง', 'ชื่องาน'], 0);
-      const venueIdx = getIdx(['ชื่อสนาม', 'สถานที่'], 1);
-      const startIdx = getIdx(['เริ่มแข่ง', 'วันที่เริ่ม', 'เริ่ม'], 2);
-      const endIdx = getIdx(['แข่งเสร็จ', 'วันที่เสร็จ', 'สิ้นสุด'], 3);
+      const nameIdx = getIdx(['ชื่อรายการ', 'รายการแข่ง', 'ชื่องาน', 'ชื่อการแข่งขัน', 'tournament'], 0);
+      const venueIdx = getIdx(['ชื่อสนาม', 'สถานที่', 'สนามที่จัด', 'venue'], 1);
+      const startIdx = getIdx(['เริ่มแข่ง', 'วันที่เริ่ม', 'เริ่ม', 'start date', 'start'], 2);
+      const endIdx = getIdx(['แข่งเสร็จ', 'วันที่เสร็จ', 'สิ้นสุด', 'ถึงวันที่', 'end date', 'end'], 3);
       const courtsIdx = getIdx(['จำนวนสนาม', 'คอร์ท', 'คอร์ด'], 4);
-      const orgIdx = getIdx(['องค์กร', 'หน่วยงาน', 'ผู้จัด'], 5);
-      const phoneIdx = getIdx(['เบอร์โทร', 'โทร'], 6);
-      const playersIdx = getIdx(['ผู้เข้าร่วม', 'คน'], 7);
-      const shuttleIdx = getIdx(['ลูกแบด', 'ลูกขนไก่'], 8);
+      const orgIdx = getIdx(['องค์กร', 'หน่วยงาน', 'ผู้จัด', 'organizer'], 5);
+      const phoneIdx = getIdx(['เบอร์โทร', 'โทร', 'phone', 'tel', 'ติดต่อ'], 6);
+      const playersIdx = getIdx(['ผู้เข้าร่วม', 'คน', 'นักกีฬา', 'participants'], 7);
+      const shuttleIdx = getIdx(['ลูกแบด', 'ลูกขนไก่', 'shuttlecock', 'shuttle'], 8);
       
       let posterIdx = -1;
       if (headers.length > 9 && (headers[9].toLowerCase().includes('poster') || headers[9].toLowerCase().includes('โปสเตอร์'))) {
@@ -1201,15 +1432,15 @@
       }
 
       const latIdx = getIdx(['lat', 'ละติจูด'], 10);
-      const lngIdx = getIdx(['lng', 'ลองจิจูด'], 11);
-      const mapsIdx = getIdx(['maps', 'พิกัด'], 12);
-      const levelIdx = getIdx(['level', 'ระดับ'], 13);
-      const salesIdx = (headers.length > 14 && headers[14]) ? 14 : getIdx(['เซลvictor', 'เซล', 'ผู้ดูแล'], 14);
-      const provIdx = getIdx(['จังหวัด'], -1);
+      const lngIdx = getIdx(['lng', 'ลองจิจูด', 'long'], 11);
+      const mapsIdx = getIdx(['maps', 'พิกัด', 'link', 'แผนที่'], 12);
+      const levelIdx = getIdx(['level', 'ระดับ', 'tier'], 13);
+      const salesIdx = (headers.length > 14 && headers[14]) ? 14 : getIdx(['เซลvictor', 'เซล', 'ผู้ดูแล', 'sales'], 14);
+      const provIdx = getIdx(['จังหวัด', 'province'], -1);
       const notesIdx = getIdx(['รายละเอียด', 'หมายเหตุ', 'notes'], -1);
 
       const parsed = [];
-      for (let i = 1; i < rows.length; i++) {
+      for (let i = headerIdx + 1; i < rows.length; i++) {
         const r = rows[i];
         const rawName = String(r[nameIdx] || '').trim();
         if (!rawName) continue;
@@ -1230,7 +1461,14 @@
 
         const participantData = parseParticipants(r[playersIdx]);
         const rawVenue = String(r[venueIdx] || 'สนามแบดมินตัน').trim();
-        let province = provIdx !== -1 ? String(r[provIdx] || '').trim() : 'กรุงเทพมหานคร';
+        let province = provIdx !== -1 ? String(r[provIdx] || '').trim() : '';
+        if (!province) {
+          const commonProvs = ['กรุงเทพมหานคร', 'เชียงใหม่', 'ภูเก็ต', 'ชลบุรี', 'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'ขอนแก่น', 'สงขลา', 'นครราชสีมา'];
+          for (const p of commonProvs) {
+            if (rawVenue.includes(p) || mapsUrl.includes(p)) { province = p; break; }
+          }
+          if (!province) province = 'กรุงเทพมหานคร';
+        }
 
         const rawCount = String(r[courtsIdx] || '').trim();
         const courtCount = rawCount ? (rawCount.includes('คอร์ท') || rawCount.includes('คอร์ด') ? rawCount : `${rawCount} คอร์ท`) : '-';
@@ -1288,8 +1526,8 @@
       renderMultiSelectOptions('optionsSales', salesSet, 'sales');
       renderMultiSelectOptions('optionsProvince', provSet, 'province');
       renderMultiSelectOptions('optionsPeriod', periodSet, 'period');
+      renderMultiSelectOptions('optionsMediaType', mediaTypes, 'mediaType');
 
-      populateSelect('filterMediaType', mediaTypes);
       populateSelect('filterStatus', statuses);
     }
 
@@ -1346,7 +1584,6 @@
 
     function applyFilters() {
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      const mediaType = document.getElementById('filterMediaType').value;
       const status = document.getElementById('filterStatus').value;
       const sortBy = document.getElementById('sortBy').value;
 
@@ -1361,26 +1598,38 @@
         const searchable = `${c.courtName} ${c.contactName} ${salesParsed} ${installerParsed} ${designerParsed} ${c.province} ${c.artwork} ${c.notes}`.toLowerCase();
         const matchSearch = !q || searchable.includes(q);
 
-        // ตรวจสอบตัวกรอง Multi-Select
         const matchArtwork = selectedFilters.artwork.size === 0 || selectedFilters.artwork.has(c.artwork);
         const matchSales = selectedFilters.sales.size === 0 || selectedFilters.sales.has(salesParsed);
         const matchProvince = selectedFilters.province.size === 0 || selectedFilters.province.has(c.province);
         const matchPeriod = selectedFilters.period.size === 0 || selectedFilters.period.has(c.period);
+        
+        // กรองแบบ Multi-select สำหรับประเภทสื่อ
+        const matchMediaType = selectedFilters.mediaType.size === 0 || 
+          Array.from(selectedFilters.mediaType).some(t => c.mediaType && c.mediaType.includes(t));
 
-        const matchMediaType = !mediaType || (c.mediaType && c.mediaType.includes(mediaType));
         const matchStatus = !status || c.status === status;
 
         return matchSearch && matchArtwork && matchSales && matchProvince && matchPeriod && matchMediaType && matchStatus;
       });
 
+      // จัดเรียงลำดับใหม่ไปเก่าอย่างถูกต้อง 100%
       filteredLocations.sort((a, b) => {
-        if (sortBy === 'date-desc' || sortBy === 'date-asc') {
+        if (sortBy === 'date-desc') {
           const dateA = parseFlexibleDate(a.installDate);
           const dateB = parseFlexibleDate(b.installDate);
           if (!dateA && !dateB) return 0;
           if (!dateA) return 1;
           if (!dateB) return -1;
-          return sortBy === 'date-desc' ? (dateB - dateA) : (dateA - dateB);
+          return dateB - dateA;
+        } else if (sortBy === 'date-asc') {
+          const dateA = parseFlexibleDate(a.installDate);
+          const dateB = parseFlexibleDate(b.installDate);
+          if (!dateA && !dateB) return 0;
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+          return dateA - dateB;
+        } else if (sortBy === 'distance-asc') {
+          return (a.distanceKm || 999999) - (b.distanceKm || 999999);
         } else if (sortBy === 'budget-desc') {
           return (b.budget || 0) - (a.budget || 0);
         } else if (sortBy === 'budget-asc') {
@@ -1426,10 +1675,20 @@
       });
 
       filteredTournaments.sort((a, b) => {
-        if (sortBy === 'date-asc' || sortBy === 'date-desc') {
-          const dateA = parseFlexibleDate(t.startDate);
-          const dateB = parseFlexibleDate(t.startDate);
-          return sortBy === 'date-asc' ? (dateA - dateB) : (dateB - dateA);
+        if (sortBy === 'date-asc') {
+          const dateA = parseFlexibleDate(a.startDate);
+          const dateB = parseFlexibleDate(b.startDate);
+          if (!dateA && !dateB) return 0;
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+          return dateA - dateB;
+        } else if (sortBy === 'date-desc') {
+          const dateA = parseFlexibleDate(a.startDate);
+          const dateB = parseFlexibleDate(b.startDate);
+          if (!dateA && !dateB) return 0;
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+          return dateB - dateA;
         } else if (sortBy === 'players-desc') {
           return (Number(b.participants) || 0) - (Number(a.participants) || 0);
         } else if (sortBy === 'name-asc') {
@@ -1457,7 +1716,7 @@
           return;
         }
 
-        filteredLocations.forEach((item, index) => {
+        filteredLocations.forEach((item) => {
           const salesInfo = parseNameAndAvatar(item.sales);
           const badgeColor = getPeriodBadgeColor(item.period);
           const primaryImg = (item.images && item.images.length > 0) ? normalizeImageUrl(item.images[0]) : (item.customPinUrl || DEFAULT_PIN_URL);
@@ -1467,10 +1726,9 @@
           const card = document.createElement('article');
           card.className = "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden transition hover:shadow-lg";
           card.innerHTML = `
-            <!-- Header โพสต์โซเชียล -->
             <div class="p-3.5 sm:p-4 flex items-center justify-between border-b border-slate-100 bg-slate-50/50">
               <div class="flex items-center space-x-3 min-w-0">
-                <img src="${salesInfo.photo}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs bg-white flex-shrink-0" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+                <img src="${salesInfo.photo}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs bg-white flex-shrink-0 clickable-img" onclick="event.stopPropagation(); viewImageFullscreen(this.src, 'เซล VICTOR - ${salesInfo.name}')" title="คลิกดูรูปโปรไฟล์ใหญ่" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
                 <div class="min-w-0">
                   <div class="flex items-center space-x-1.5 flex-wrap">
                     <h4 class="font-bold text-slate-900 text-xs sm:text-sm truncate">${item.courtName}</h4>
@@ -1479,6 +1737,7 @@
                   <p class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
                     <i class="ph-bold ph-map-pin text-rose-500"></i>
                     <span>${item.province}</span> • <span>เซล: <strong>${salesInfo.name}</strong></span>
+                    ${item.distanceKm && item.distanceKm < 9999 ? `• <span class="text-sky-700 font-bold">ห่าง ~${item.distanceKm} กม.</span>` : ''}
                   </p>
                 </div>
               </div>
@@ -1487,7 +1746,6 @@
               </span>
             </div>
 
-            <!-- รูปภาพแกลเลอรีขนาดใหญ่ -->
             <div class="relative w-full h-56 sm:h-72 bg-slate-950 overflow-hidden cursor-pointer group" onclick="openFullscreenViewer('${item.id}', 0)">
               <img src="${primaryImg}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
               <div class="absolute bottom-2 left-2 bg-black/70 text-white px-2.5 py-1 rounded-full text-[10px] font-medium flex items-center space-x-1">
@@ -1496,12 +1754,11 @@
               ${item.images && item.images.length > 1 ? `<span class="absolute bottom-2 right-2 bg-black/75 text-white px-2 py-0.5 rounded-full text-[10px] font-mono">${item.images.length} รูปภาพ</span>` : ''}
             </div>
 
-            <!-- ส่วนข้อมูลและ Artwork Tag -->
             <div class="p-3.5 sm:p-4 space-y-2.5 text-xs">
               <div class="flex items-center justify-between flex-wrap gap-2">
-                <div class="flex items-center space-x-1.5">
-                  <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-victor-navy font-extrabold text-[10px] shadow-xs flex items-center gap-1">
-                    <i class="ph-bold ph-paint-brush"></i><span>${item.artwork}</span>
+                <div class="flex items-center space-x-1.5 flex-wrap gap-1">
+                  <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-victor-navy font-extrabold text-[10.5px] shadow-xs flex items-center gap-1">
+                    <i class="ph-bold ph-paint-brush"></i><span>Artwork: ${item.artwork}</span>
                   </span>
                   <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px] border border-slate-200">
                     🏸 ${item.courtCount}
@@ -1513,7 +1770,6 @@
                 </div>
               </div>
 
-              <!-- รายละเอียดและบันทึกเพิ่มเติม (จากคอลัมน์ Google Sheet) -->
               <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs leading-relaxed">
                 <p class="font-bold text-[10px] text-slate-500 uppercase flex items-center gap-1 mb-1">
                   <i class="ph-bold ph-notebook text-amber-600"></i>
@@ -1527,7 +1783,6 @@
                 </div>
               </div>
 
-              <!-- ปุ่มกระทำ (Action Bar) -->
               <div class="flex items-center justify-between pt-1 border-t border-slate-100 gap-2">
                 <button type="button" onclick="openCourtDetail('${item.id}')" class="px-3 py-1.5 rounded-lg bg-victor-navy hover:bg-blue-900 text-white font-semibold text-xs transition flex items-center space-x-1 shadow-xs">
                   <i class="ph-bold ph-info"></i><span>รายละเอียดสเปก</span>
@@ -1553,7 +1808,6 @@
         });
 
       } else {
-        // Social Feed สำหรับงานแข่งขัน
         countBadge.innerText = `${filteredTournaments.length} โพสต์งานแข่ง`;
 
         if (filteredTournaments.length === 0) {
@@ -1571,7 +1825,7 @@
           card.innerHTML = `
             <div class="p-3.5 sm:p-4 flex items-center justify-between border-b border-amber-100 bg-amber-50/40">
               <div class="flex items-center space-x-3 min-w-0">
-                <img src="${t.organizerPhoto || DEFAULT_PIN_URL}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs bg-white flex-shrink-0" />
+                <img src="${t.organizerPhoto || DEFAULT_PIN_URL}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs bg-white flex-shrink-0 clickable-img" onclick="event.stopPropagation(); viewImageFullscreen(this.src, 'ผู้จัดการแข่งขัน - ${t.organizer}')" title="คลิกดูรูปใหญ่" />
                 <div class="min-w-0">
                   <div class="flex items-center space-x-1.5 flex-wrap">
                     <h4 class="font-bold text-slate-900 text-xs sm:text-sm truncate">${t.tournamentName}</h4>
@@ -1641,11 +1895,9 @@
       modalPeriodEl.style.backgroundColor = pColor.bg;
       modalPeriodEl.style.color = pColor.text;
 
-      // ป้าย Artwork ใน Modal
       const artBadge = document.getElementById('modalArtworkBadge');
-      if (artBadge) artBadge.innerText = `🎨 ${v.artwork || 'NCS MAX / ทั่วไป'}`;
+      if (artBadge) artBadge.innerText = `🎨 Artwork: ${v.artwork || 'NCS MAX / ทั่วไป'}`;
 
-      // กล่องบันทึกและรายละเอียดเพิ่มเติม
       const notesEl = document.getElementById('modalNotesContent');
       if (notesEl) notesEl.innerText = v.notes ? v.notes : 'ไม่มีบันทึกเพิ่มเติมสำหรับสนามนี้';
 
@@ -1659,7 +1911,6 @@
         } else folderBtn.classList.add('hidden');
       }
 
-      // ระบบสลับรอบสื่อสนามเดียวกัน
       const sameNameRecords = currentLocations.filter(c => c.courtName && c.courtName.trim().toLowerCase() === v.courtName.trim().toLowerCase());
       const multiBox = document.getElementById('modalMultiRoundBox');
       const roundButtons = document.getElementById('modalRoundButtons');
@@ -1789,6 +2040,7 @@
               </div>
               <p class="text-[10px] text-slate-500 mt-0.5 truncate">
                 เซล: <strong class="text-slate-700">${parseNameAndAvatar(court.sales).name}</strong> | ${court.province || '-'}
+                ${court.distanceKm && court.distanceKm < 9999 ? ` • <span class="text-sky-700 font-bold">~${court.distanceKm} กม.</span>` : ''}
               </p>
             </div>
 
@@ -1863,8 +2115,8 @@
         const budgetClass = isUnlocked ? 'font-bold text-emerald-700' : 'font-bold text-emerald-700 sensitive-blur';
 
         card.innerHTML = `
-          <div class="relative flex-shrink-0">
-            <img src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" />
+          <div class="relative flex-shrink-0" onclick="event.stopPropagation(); viewImageFullscreen('${cardImg}', '${v.courtName}')">
+            <img src="${cardImg}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover bg-slate-100 border border-slate-200 clickable-img" onerror="this.onerror=null; this.src='${DEFAULT_PIN_URL}';" title="คลิกดูภาพขยาย" />
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-start justify-between">
@@ -1873,6 +2125,7 @@
             </div>
             <p class="text-[10px] text-slate-500 truncate mt-0.5">
               เซล: <strong class="text-slate-700">${parseNameAndAvatar(v.sales).name}</strong> | ${v.province}
+              ${v.distanceKm && v.distanceKm < 9999 ? `• <span class="text-sky-700 font-bold">~${v.distanceKm} กม.</span>` : ''}
             </p>
             <div class="flex items-center justify-between mt-0.5 text-[10px]">
               <span class="text-amber-800 font-bold bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200 truncate max-w-[120px]">${v.artwork}</span>
@@ -1916,7 +2169,6 @@
         });
 
         const posterImg = tour.posterUrl ? normalizeImageUrl(tour.posterUrl) : DEFAULT_PIN_URL;
-        const displayPlayers = tour.participantsText || (tour.participants ? `${Number(tour.participants).toLocaleString()} คน` : '-');
 
         const popupContent = `
           <div class="p-2.5 sm:p-3 text-xs text-slate-800 space-y-2">
@@ -1983,8 +2235,8 @@
         };
 
         card.innerHTML = `
-          <div class="relative flex-shrink-0">
-            <img src="${posterImg}" class="w-12 h-16 rounded-lg object-cover bg-slate-900 border border-amber-300 shadow-xs" onerror="handleImageError(this, '${tour.posterUrl}', '${DEFAULT_PIN_URL}')" />
+          <div class="relative flex-shrink-0" onclick="event.stopPropagation(); viewImageFullscreen('${posterImg}', 'โปสเตอร์: ${tour.tournamentName}')">
+            <img src="${posterImg}" class="w-12 h-16 rounded-lg object-cover bg-slate-900 border border-amber-300 shadow-xs clickable-img" onerror="handleImageError(this, '${tour.posterUrl}', '${DEFAULT_PIN_URL}')" title="คลิกดูโปสเตอร์ใหญ่" />
             <span style="background: ${statusInfo.bg}; color: ${statusInfo.textCol};" class="absolute -top-1 -left-1 text-[8px] font-extrabold px-1 rounded-full border border-white">
               ${statusInfo.text.replace(/^[🟢🔵⚪]\s*/, '')}
             </span>
@@ -2023,7 +2275,7 @@
             currentLocations = parse2DArrayData(results.data);
             rebuildDropdowns();
             applyFilters();
-            showToast(`🏸 โหลดข้อมูลสดสำเร็จ (${currentLocations.length} แห่ง)`);
+            showToast(`🏸 โหลดสื่อสนามสำเร็จ (${currentLocations.length} แห่ง)`);
           } else {
             showToast('⚠️ ไม่พบข้อมูลสนามใน Google Sheets');
           }
@@ -2052,7 +2304,7 @@
             currentTournaments = parseTournamentData(results.data);
             rebuildTournamentDropdowns();
             applyTournamentFilters();
-            showToast(`🏆 โหลดข้อมูลงานแข่งสดสำเร็จ (${currentTournaments.length} งาน)`);
+            showToast(`🏆 โหลดข้อมูลงานแข่งสำเร็จ (${currentTournaments.length} งาน)`);
           } else {
             showToast('⚠️ ไม่พบข้อมูลในแท็บงานแข่ง');
           }
@@ -2064,7 +2316,6 @@
       });
     }
 
-    // ฟังก์ชันเสริมอื่นๆ (Utility functions)
     function getStatusColor(status) {
       const s = String(status).trim().toLowerCase();
       if (s.includes('ชำรุด') || s.includes('ซ่อม')) return '#e11d48';
@@ -2186,10 +2437,178 @@
       });
     }
 
-    function parseFlexibleDate(dateStr) {
-      if (!dateStr) return 0;
-      const parsed = Date.parse(dateStr);
-      return isNaN(parsed) ? 0 : parsed;
+    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return Math.round(R * c * 10) / 10;
+    }
+
+    function findNearbyCourts() {
+      if (!navigator.geolocation) {
+        showToast('⚠️ อุปกรณ์ของคุณไม่รองรับการระบุตำแหน่ง GPS');
+        return;
+      }
+
+      showToast('📡 กำลังดึงพิกัดตำแหน่งปัจจุบันของคุณ...');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const userLat = pos.coords.latitude;
+          const userLng = pos.coords.longitude;
+
+          currentLocations.forEach(c => {
+            if (c.lat && c.lng) {
+              c.distanceKm = calculateHaversineDistance(userLat, userLng, c.lat, c.lng);
+            } else {
+              c.distanceKm = 999999;
+            }
+          });
+
+          const sortSelect = document.getElementById('sortBy');
+          if (!sortSelect.querySelector('option[value="distance-asc"]')) {
+            const opt = document.createElement('option');
+            opt.value = 'distance-asc';
+            opt.innerText = '📍 ระยะทาง: ใกล้สุด &rarr; ไกลสุด';
+            sortSelect.prepend(opt);
+          }
+          sortSelect.value = 'distance-asc';
+
+          if (map) {
+            map.flyTo([userLat, userLng], 12);
+            L.circleMarker([userLat, userLng], {
+              radius: 9,
+              fillColor: '#0284c7',
+              color: '#ffffff',
+              weight: 3,
+              opacity: 1,
+              fillOpacity: 0.95
+            }).addTo(map).bindPopup('📍 ตำแหน่งปัจจุบันของคุณ').openPopup();
+          }
+
+          applyFilters();
+          showToast('✅ เรียงลำดับสนามตามระยะทางที่ใกล้คุณที่สุดแล้ว');
+        },
+        () => {
+          showToast('❌ ไม่สามารถเข้าถึง GPS ได้ (กรุณากดอนุญาต Location)');
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+
+    function openAnalyticsDashboard() {
+      const modal = document.getElementById('analyticsModal');
+      if (!modal) return;
+
+      const totalCourts = currentLocations.length;
+      const totalBudget = currentLocations.reduce((s, c) => s + (c.budget || 0), 0);
+      const totalTours = currentTournaments.length;
+      const totalPlayers = currentTournaments.reduce((s, t) => s + (t.participants || 0), 0);
+
+      document.getElementById('statTotalCourts').innerText = totalCourts;
+      document.getElementById('statTotalBudget').innerText = `฿${totalBudget.toLocaleString()}`;
+      if (isUnlocked) document.getElementById('statTotalBudget').classList.remove('sensitive-blur');
+      else document.getElementById('statTotalBudget').classList.add('sensitive-blur');
+
+      document.getElementById('statTotalTours').innerText = totalTours;
+      document.getElementById('statTotalPlayers').innerText = `${totalPlayers.toLocaleString()} คน`;
+
+      // สรุปยอดตาม Artwork (คอลัมน์ R)
+      const artworkCounts = {};
+      currentLocations.forEach(c => {
+        const art = c.artwork || 'ทั่วไป';
+        artworkCounts[art] = (artworkCounts[art] || 0) + 1;
+      });
+
+      const artListEl = document.getElementById('analyticsArtworkList');
+      artListEl.innerHTML = '';
+      Object.entries(artworkCounts).sort((a,b) => b[1] - a[1]).forEach(([art, count]) => {
+        const percent = Math.round((count / (totalCourts || 1)) * 100);
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between text-[11px] p-1.5 bg-white rounded-lg border border-slate-200/80";
+        item.innerHTML = `
+          <div class="flex items-center space-x-2 truncate">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="font-bold text-slate-800 truncate">${art}</span>
+          </div>
+          <div class="flex items-center space-x-2 flex-shrink-0">
+            <span class="font-semibold text-victor-navy">${count} แห่ง</span>
+            <span class="text-[10px] text-slate-400 font-mono">(${percent}%)</span>
+          </div>
+        `;
+        artListEl.appendChild(item);
+      });
+
+      // สรุปยอดตามเซล
+      const salesCounts = {};
+      currentLocations.forEach(c => {
+        const sName = parseNameAndAvatar(c.sales).name;
+        salesCounts[sName] = (salesCounts[sName] || 0) + 1;
+      });
+
+      const salesListEl = document.getElementById('analyticsSalesList');
+      salesListEl.innerHTML = '';
+      Object.entries(salesCounts).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between text-[11px] p-1.5 bg-white rounded-lg border border-slate-200/80";
+        item.innerHTML = `
+          <span class="font-bold text-slate-800">${name}</span>
+          <span class="font-semibold text-blue-700">${count} สนาม</span>
+        `;
+        salesListEl.appendChild(item);
+      });
+
+      modal.classList.remove('hidden');
+    }
+
+    function copyLineSummary() {
+      let text = '';
+      if (currentSystemMode === 'media') {
+        const totalBudget = filteredLocations.reduce((sum, c) => sum + (c.budget || 0), 0);
+        text = `🏸 สรุปภาพรวมสื่อสนาม VICTOR+\n`;
+        text += `━━━━━━━━━━━━━━━━━━\n`;
+        text += `📍 จำนวนสนามที่แสดง: ${filteredLocations.length} แห่ง\n`;
+        if (isUnlocked) text += `💰 งบประมาณรวม: ฿${totalBudget.toLocaleString()}\n`;
+        text += `🎨 สถิติแยกตาม Artwork (คอลัมน์ R):\n`;
+        const artCounts = {};
+        filteredLocations.forEach(c => {
+          const art = c.artwork || 'ทั่วไป';
+          artCounts[art] = (artCounts[art] || 0) + 1;
+        });
+        for (const [art, count] of Object.entries(artCounts)) {
+          text += `  • ${art}: ${count} แห่ง\n`;
+        }
+        text += `━━━━━━━━━━━━━━━━━━\n`;
+        text += `🌐 ระบบติดตามสื่อ VICTOR+: ${window.location.origin + window.location.pathname}`;
+      } else {
+        const totalPlayers = filteredTournaments.reduce((sum, t) => sum + (t.participants || 0), 0);
+        text = `🏆 สรุปปฏิทินงานแข่งขัน VICTOR+\n`;
+        text += `━━━━━━━━━━━━━━━━━━\n`;
+        text += `🏆 รายการแข่งขันที่แสดง: ${filteredTournaments.length} งาน\n`;
+        text += `👥 ผู้เข้าร่วมแข่งขันรวม: ~${totalPlayers.toLocaleString()} คน\n`;
+        text += `🏸 ลูกแบดทางการที่ใช้:\n`;
+        const shutCounts = {};
+        filteredTournaments.forEach(t => {
+          const s = t.shuttlecock || 'VICTOR';
+          shutCounts[s] = (shutCounts[s] || 0) + 1;
+        });
+        for (const [shut, count] of Object.entries(shutCounts)) {
+          text += `  • ${shut}: ${count} รายการ\n`;
+        }
+        text += `━━━━━━━━━━━━━━━━━━\n`;
+        text += `🌐 รายละเอียดงานแข่ง: ${window.location.origin + window.location.pathname}`;
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('📋 คัดลอกรายงานสำหรับส่ง LINE เรียบร้อยแล้ว!');
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
     }
 
     function switchSystemMode(mode) {
@@ -2304,6 +2723,7 @@
       selectedFilters.sales.clear();
       selectedFilters.province.clear();
       selectedFilters.period.clear();
+      selectedFilters.mediaType.clear();
       updateMultiSelectLabels();
       applyFilters();
     }
@@ -2323,8 +2743,8 @@
     }
 
     function refreshCurrentData() {
-      if (currentSystemMode === 'media') loadDataFromSheets();
-      else loadTournamentsFromSheets();
+      loadDataFromSheets();
+      loadTournamentsFromSheets();
     }
 
     function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
@@ -2346,6 +2766,8 @@
       document.getElementById('fullscreenTitle').innerText = item.courtName || item.tournamentName;
       document.getElementById('fullscreenImg').src = activeFullscreenImages[fullscreenIndex];
       document.getElementById('fullscreenCounter').innerText = `${fullscreenIndex + 1} / ${activeFullscreenImages.length}`;
+      document.getElementById('fullscreenPrevBtn').classList.toggle('hidden', activeFullscreenImages.length <= 1);
+      document.getElementById('fullscreenNextBtn').classList.toggle('hidden', activeFullscreenImages.length <= 1);
       document.getElementById('fullscreenModal').classList.remove('hidden');
     };
 
@@ -2398,18 +2820,37 @@
       showToast('🔗 คัดลอกข้อมูลแชร์งานแข่งแล้ว');
     };
 
+    function fallbackCopy(text) {
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      showToast('📋 คัดลอกข้อความสำเร็จ');
+    }
+
     function initMap() {
       map = L.map('map', { zoomControl: false }).setView([13.7563, 100.5018], 10);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap',
-        maxZoom: 19
+      
+      // ใช้ OpenStreetMap Tile Layer มาตรฐาน แก้ปัญหา "API KEY REQUIRED" 100%
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+        subdomains: ['a', 'b', 'c']
       }).addTo(map);
+
+      L.control.zoom({ position: 'topright' }).addTo(map);
       markersLayer = L.layerGroup().addTo(map);
     }
 
     window.onload = function() {
       initMap();
+      
+      // โหลดทั้งสื่อสนามและงานแข่งขันพร้อมกันตั้งแต่เริ่มต้น
       loadDataFromSheets();
+      loadTournamentsFromSheets();
+
       document.getElementById('searchInput').addEventListener('input', () => {
         if (currentSystemMode === 'media') applyFilters();
         else applyTournamentFilters();
